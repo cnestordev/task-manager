@@ -27,7 +27,14 @@ import {
 import CompletedTaskModal from "./CompletedTaskModal";
 
 const Dashboard = () => {
-  const { tasks, addNewTask, removeTask, updateTask, updateTasks } = useTask();
+  const {
+    tasks,
+    addNewTask,
+    removeTask,
+    updateTask,
+    updateTasks,
+    setRecentlyUpdatedTask,
+  } = useTask();
   const { user } = useUser();
   const { loadingTaskId, setLoadingTaskId } = useLoading();
   const toast = useToast();
@@ -103,12 +110,17 @@ const Dashboard = () => {
         (task) => task.priority === selectedTask.priority
       );
 
+      // exclude any tasks that have been deleted or completed
+      const activePriorityTasks = samePriorityTasks.filter(
+        (task) => !(task.isDeleted && task.isCompleted)
+      );
+
       // sort these tasks by their current position
-      samePriorityTasks.sort((a, b) => a.position - b.position);
+      activePriorityTasks.sort((a, b) => a.position - b.position);
 
       // reassign positions to remaining tasks with the same priority
       let currentIndex = 0;
-      samePriorityTasks.forEach((task) => {
+      activePriorityTasks.forEach((task) => {
         if (task.position >= 0) {
           task.position = currentIndex;
           currentIndex++;
@@ -116,7 +128,7 @@ const Dashboard = () => {
       });
 
       // Prepare the payload
-      const recalucatedTasks = [...samePriorityTasks, updatedTask];
+      const recalucatedTasks = [...activePriorityTasks, updatedTask];
 
       await handleRemoveTask(
         recalucatedTasks,
@@ -124,6 +136,7 @@ const Dashboard = () => {
         updateTasksOrderOnServer,
         backUpTasks
       );
+      setRecentlyUpdatedTask(updatedTask);
       setSelectedTask(null);
       toast({
         title: "Task deleted.",
@@ -148,6 +161,7 @@ const Dashboard = () => {
   // Toggle a task's completed status
   const onToggleTaskCompletion = async () => {
     try {
+      setIsCompletedModalOpen(false)
       const copiedTasks = JSON.parse(JSON.stringify(tasks));
       const backUpTasks = JSON.parse(JSON.stringify(tasks));
 
@@ -165,12 +179,12 @@ const Dashboard = () => {
           (task) => task._id !== selectedTask._id
         );
 
-        const samePriorityTasks = remainingTasks.filter(
-          (task) => task.priority === selectedTask.priority
-        );
-
-        const sameCompletedStatus = samePriorityTasks.filter(
-          (task) => task.isCompleted === false
+        // Filter tasks with the same priority, excluding deleted and completed ones
+        const sameCompletedStatus = remainingTasks.filter(
+          (task) =>
+            task.priority === selectedTask.priority &&
+            !task.isDeleted &&
+            !task.isCompleted
         );
 
         // Sort these tasks by their current position
@@ -188,15 +202,16 @@ const Dashboard = () => {
           (task) => task._id !== selectedTask._id
         );
 
+        // Filter tasks with the same priority, excluding deleted ones
         const samePriorityTasks = remainingTasks.filter(
-          (task) => task.priority === selectedTask.priority
+          (task) => task.priority === selectedTask.priority && !task.isDeleted
         );
 
         // Sort these tasks by their current position
         samePriorityTasks.sort((a, b) => a.position - b.position);
 
         // Add the updated task to the end with the correct new position
-        updatedTask.position = samePriorityTasks.length;
+        updatedTask.position = samePriorityTasks.length; // Exclude deleted tasks from position calculation
         recalculatedTasks = [...samePriorityTasks, updatedTask];
       }
 
@@ -241,12 +256,13 @@ const Dashboard = () => {
       updatedData.description = formData.description;
       setLoadingTaskId(updatedData._id);
 
-      await updateSelectedTask(
+      const data = await updateSelectedTask(
         updatedData,
         updateTask,
         updateTaskOrder,
         selectedTask
       );
+      setRecentlyUpdatedTask(data.tasks);
       setIsEditModalOpen(false);
       setSelectedTask(null);
       resetForm();
@@ -333,17 +349,23 @@ const Dashboard = () => {
       </Navbar>
 
       {/* Delete Task Modal */}
-      <DeleteTaskModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        taskTitle={selectedTask ? selectedTask.title : ""}
-        handleRemoveTask={onRemoveTask}
-      />
+      {selectedTask && isDeleteModalOpen && (
+        <DeleteTaskModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+          }}
+          taskTitle={selectedTask.title}
+          handleRemoveTask={onRemoveTask}
+        />
+      )}
       {/* Completed Task Modal */}
-      {selectedTask && (
+      {selectedTask && isCompletedModalOpen && (
         <CompletedTaskModal
           isOpen={isCompletedModalOpen}
-          onClose={() => setIsCompletedModalOpen(false)}
+          onClose={() => {
+            setIsCompletedModalOpen(false);
+          }}
           task={selectedTask}
           handleCompletedTask={onToggleTaskCompletion}
         />
@@ -389,23 +411,24 @@ const Dashboard = () => {
             <PriorityColumn
               key={priority}
               toggleExpand={handleToggleExpand}
-              deleteTask={(task) => {
+              deleteTask={(e, task) => {
+                e.stopPropagation
                 setSelectedTask(task);
                 setIsDeleteModalOpen(true);
               }}
-              editTask={(task) => {
+              editTask={(e, task) => {
+                e.stopPropagation
                 setSelectedTask(task);
                 setIsEditModalOpen(true);
               }}
-              completedTask={(task) => {
+              completedTask={(e, task) => {
+                e.stopPropagation
                 setSelectedTask(task);
                 setIsCompletedModalOpen(true);
               }}
               toggleTaskExpansion={handleToggleTaskExpansion}
               priority={priority}
-              tasks={tasks?.filter(
-                (task) => task?.priority === priority && !task?.isDeleted
-              )}
+              tasks={tasks?.filter((task) => task?.priority === priority)}
               isActive={activeColumn === priority}
               id={priority}
             />

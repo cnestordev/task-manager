@@ -16,6 +16,8 @@ export const updateTasksOptimistically = async (
 
         // Re-sync the task if the server returns something different
         updateTasks(data.tasks);
+
+        return data;
     } catch (error) {
         // Rollback the optimistic update if there's an error
         updateTasks(selectedTask);
@@ -81,7 +83,8 @@ export const handleRemoveTask = async (updatedTasks, updateTasks, updateTaskOrde
 // Modify the selected task
 export const updateSelectedTask = async (updatedTask, updateTasks, updateTaskOrder, selectedTask) => {
     const cleanedUpTask = cleanupTask(updatedTask);
-    await updateTasksOptimistically(cleanedUpTask, updateTasks, updateTaskOrder, selectedTask);
+    const data = await updateTasksOptimistically(cleanedUpTask, updateTasks, updateTaskOrder, selectedTask);
+    return data;
 };
 
 export const handleDragEnd = async (
@@ -104,32 +107,60 @@ export const handleDragEnd = async (
         return;
     }
 
-    // Create a deep copy of the tasks to avoid mutating the original state.
+    // Create a deep copy of the tasks.
     let updatedTasks = tasks.map((task) => ({ ...task }));
 
     const sourcePriority = source.droppableId;
     const destinationPriority = destination.droppableId;
 
-    // Get all tasks in the source and destination columns.
+    // Get all tasks in the source and destination columns, excluding deleted and completed tasks.
     const sourceTasks = updatedTasks
-        .filter((task) => task.priority === sourcePriority);
+        .filter((task) => task.priority === sourcePriority && !task.isCompleted);
 
     const destinationTasks = updatedTasks
-        .filter((task) => task.priority === destinationPriority);
+        .filter((task) => task.priority === destinationPriority && !task.isCompleted);
 
+    // If the task is moved within the same priority column
     if (source.droppableId === destination.droppableId) {
+        // Log initial state of sourceTasks
+        console.log("Initial sourceTasks:", JSON.parse(JSON.stringify(sourceTasks)));
+
+        // Remove task from source index
         const removedTask = sourceTasks.splice(source.index, 1)[0];
+        console.log(`Removed task at index ${source.index}:`, removedTask);
+
+        // Insert task at destination index
         sourceTasks.splice(destination.index, 0, removedTask);
-        sourceTasks.forEach((task, i) => task.position = i);
+        console.log(`Inserted removed task at index ${destination.index}. Updated sourceTasks:`, JSON.parse(JSON.stringify(sourceTasks)));
+
+        // Filter out completed or deleted tasks
+        const filteredSourceTasks = sourceTasks.filter(task => !(task.isCompleted || task.isDeleted));
+        console.log("Filtered sourceTasks (excluding completed or deleted):", JSON.parse(JSON.stringify(filteredSourceTasks)));
+
+        // Reassign positions in filtered source tasks
+        filteredSourceTasks.forEach((task, i) => {
+            task.position = i;
+            console.log(`Reassigned position for task ID ${task._id}:`, task);
+        });
+
+        // Log task ID being loaded (for loading state)
         setLoadingTaskId(removedTask._id);
-    } else {
+        console.log("Set loading task ID:", removedTask._id);
+    }
+    else {
+        // If the task is moved to a different priority column
         const removedTask = sourceTasks.splice(source.index, 1)[0];
         removedTask.priority = destination.droppableId;
+
+        // Add task to the new priority column and reassign positions in both columns
         destinationTasks.splice(destination.index, 0, removedTask);
-        sourceTasks.forEach((task, i) => task.position = i);
-        destinationTasks.forEach((task, i) => task.position = i);
+        const filteredSourceTasks = sourceTasks.filter(task => !(task.isCompleted || task.isDeleted));
+        const filteredDestinationTasks = destinationTasks.filter(task => !(task.isCompleted || task.isDeleted));
+        filteredSourceTasks.forEach((task, i) => task.position = i);
+        filteredDestinationTasks.forEach((task, i) => task.position = i);
         setLoadingTaskId(removedTask._id);
     }
+
     // Update the tasks in the state optimistically.
     const cleanedUpTask = updatedTasks.map(task => cleanupTask(task));
     updateTasks(cleanedUpTask);
@@ -146,8 +177,6 @@ export const handleDragEnd = async (
         setLoadingTaskId(null);
     }
 };
-
-
 
 // Expand or collapse individual task
 export const toggleExpand = async (task, updateTask, updateTaskOrder, originalTasks) => {

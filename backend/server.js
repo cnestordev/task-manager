@@ -88,13 +88,16 @@ io.on('connection', async (socket) => {
     socket.on('joinTaskRoom', (taskId) => {
         socket.join(taskId);
         console.log(`User ${username} joined task room: ${taskId}`);
+
+        // Emit a confirmation message back to the client
+        socket.emit('joinedRoom', { taskId, message: `Successfully joined room ${taskId}` });
     });
 
     // Handle task updates
     socket.on('taskUpdated', (task) => {
         const taskId = task._id;
         if (taskId) {
-            io.to(taskId).emit('taskUpdated', task);
+            io.to(taskId).emit('taskUpdated', {task, userId});
             console.log(`User ${username} updated task ${taskId}`);
         } else {
             console.error('Task ID is missing or invalid for user:', username);
@@ -102,8 +105,9 @@ io.on('connection', async (socket) => {
     });
 
     // Handle user disconnection
-    socket.on('disconnect', async () => {
+    socket.on('disconnect', async (taskId) => {
         console.log(`User ${username} disconnected with socket ID: ${socket.id}`);
+        socket.emit('leftRoom', { taskId, message: `Successfully left room ${taskId}` });
         try {
             await SocketSession.updateOne(
                 { userId: userId },

@@ -11,12 +11,12 @@ import { WarningIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
 
 const DeleteTaskModal = ({ isOpen, onClose, taskTitle, handleRemoveTask }) => {
-  const cancelRef = useRef();
+  const deleteRef = useRef();
 
   return (
     <AlertDialog
       isOpen={isOpen}
-      leastDestructiveRef={cancelRef}
+      leastDestructiveRef={deleteRef}
       onClose={onClose}
       size="xl"
     >
@@ -32,7 +32,7 @@ const DeleteTaskModal = ({ isOpen, onClose, taskTitle, handleRemoveTask }) => {
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
+            <Button ref={deleteRef} onClick={onClose}>
               Cancel
             </Button>
             <Button colorScheme="red" onClick={handleRemoveTask} ml={3}>

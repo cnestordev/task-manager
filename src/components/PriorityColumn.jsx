@@ -11,10 +11,10 @@ import {
   MenuList,
   Tab,
   TabList,
-  Tabs
+  Tabs,
 } from "@chakra-ui/react";
 import { Droppable } from "@hello-pangea/dnd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./PriorityColumn.css";
 import TaskCard from "./TaskCard";
 
@@ -31,13 +31,24 @@ const PriorityColumn = ({
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
-  // Separate tasks into in-progress and completed
-  const inProgressTasks = tasks.filter((task) => !task.isCompleted);
-  const completedTasks = tasks.filter((task) => task.isCompleted);
+  const getColor = (priority) => {
+    switch (priority) {
+      case "High":
+        return "#c36871";
+      case "Medium":
+        return "#c18f35";
+      case "Low":
+        return "#b1aa43";
+      default:
+        return "gray";
+    }
+  };
 
-  useEffect(() => {
-    console.log(tabIndex);
-  }, [tabIndex]);
+  const color = getColor(priority);
+
+  // Separate tasks into in-progress and completed
+  const inProgressTasks = tasks.filter((task) => !task.isCompleted && !task.isDeleted);
+  const completedTasks = tasks.filter((task) => task.isCompleted && !task.isDeleted);
 
   return (
     <div className={`column ${isActive ? "active" : ""}`}>
@@ -45,10 +56,29 @@ const PriorityColumn = ({
         <div></div>
         <div className="header-content">
           <h1 className="title">{priority} Priority</h1>
-          <Tabs onChange={(index) => setTabIndex(index)} isLazy>
+          <Tabs
+            onChange={(index) => setTabIndex(index)}
+            isLazy
+            variant="unstyled"
+          >
             <TabList>
-              <Tab>In Progress ({inProgressTasks.length})</Tab>
-              <Tab isDisabled={ completedTasks.length === 0}>Completed ({completedTasks.length})</Tab>
+              <Tab
+                _selected={{
+                  color: color,
+                  borderBottom: `2px solid ${color}`,
+                }}
+              >
+                In Progress ({inProgressTasks.length})
+              </Tab>
+              <Tab
+                isDisabled={completedTasks.length === 0}
+                _selected={{
+                  color: color,
+                  borderBottom: `2px solid ${color}`,
+                }}
+              >
+                Completed ({completedTasks.length})
+              </Tab>
             </TabList>
           </Tabs>
         </div>
@@ -80,7 +110,6 @@ const PriorityColumn = ({
         <Droppable droppableId={id}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {/* Conditionally render based on the selected tab */}
               {tabIndex === 0 &&
                 inProgressTasks.map((task, index) => (
                   <TaskCard

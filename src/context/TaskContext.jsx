@@ -8,7 +8,14 @@ export const useTask = () => useContext(TaskContext);
 
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
+  const [recentlyUpdatedTask, setRecentlyUpdatedTask] = useState(null);
   const { user } = useUser();
+
+  useEffect(() => {
+    console.log("%c ~~~~~~~~~~~~~GLOBAL TASKS~~~~~~~~~~", "color: hotpink; background: cyan; padding: 2px")
+    console.log(tasks)
+    console.log("%c ~~~~~~~~~~~~~END GLOBAL TASKS~~~~~~~~~~", "color: hotpink; background: cyan; padding: 2px")
+  }, [tasks])
 
   // Get User Tasks on initial load
   useEffect(() => {
@@ -53,7 +60,8 @@ export const TaskProvider = ({ children }) => {
         return task;
       });
       if (tasksChanged) {
-        return reorderTasks(updatedTasks, user);
+        let newOrder = reorderTasks(updatedTasks, user);
+        return newOrder;
       }
       return prevTasks;
     });
@@ -66,7 +74,8 @@ export const TaskProvider = ({ children }) => {
       const updatedTasks = prevTasks.map(
         (task) => updateMap.get(task._id) || task
       );
-      return reorderTasks(updatedTasks, user);
+      let newOrder = reorderTasks(updatedTasks, user);
+      return newOrder;
     });
   };
 
@@ -79,7 +88,15 @@ export const TaskProvider = ({ children }) => {
 
   return (
     <TaskContext.Provider
-      value={{ tasks, addNewTask, updateTask, updateTasks, removeTask }}
+      value={{
+        tasks,
+        addNewTask,
+        updateTask,
+        updateTasks,
+        removeTask,
+        setRecentlyUpdatedTask,
+        recentlyUpdatedTask,
+      }}
     >
       {children}
     </TaskContext.Provider>
