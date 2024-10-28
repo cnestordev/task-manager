@@ -93,45 +93,70 @@ exports.updateTaskOrder = async (req, res) => {
         const userId = req.user._id;
         const userTaskPosition = req.body.taskPosition[0];
 
-        // Step 1: Check if task and user's taskPosition exist
-        const existingTask = await Task.findOne(
-            { _id: taskId, 'taskPosition.userId': userId }
-        );
-
+        // Step 1: Find the task to get current taskPosition
+        const existingTask = await Task.findById(taskId);
         if (!existingTask) {
-            return res.status(404).json({ message: 'Task or task position for user not found.' });
+            return res.status(404).json({ message: 'Task not found.' });
         }
 
-        // Step 2: Attempt to update with version control
-        const task = await Task.findOneAndUpdate(
-            { _id: taskId, 'taskPosition.userId': userId, __v: req.body.__v },
+        // Step 2: Create a map of existing taskPosition entries by userId for quick lookup
+        const taskPositionMap = new Map(
+            existingTask.taskPosition.map((pos) => [pos.userId.toString(), pos])
+        );
+
+        // Step 3: Iterate through assignedTo and ensure each has a taskPosition entry
+        req.body.assignedTo.forEach((assignedUserId) => {
+            if (!taskPositionMap.has(assignedUserId.toString())) {
+                // Add a new entry if userId is missing in taskPosition
+                taskPositionMap.set(assignedUserId.toString(), {
+                    userId: new mongoose.Types.ObjectId(assignedUserId),
+                    priority: userTaskPosition.priority,
+                    position: -1,
+                    isExpanded: true
+                });
+            }
+        });
+
+        // Step 4: Update the current user's taskPosition if it exists in the map
+        if (taskPositionMap.has(userId.toString())) {
+            const currentUserPosition = taskPositionMap.get(userId.toString());
+            currentUserPosition.priority = userTaskPosition.priority;
+            currentUserPosition.position = userTaskPosition.position;
+            currentUserPosition.isExpanded = userTaskPosition.isExpanded;
+        }
+
+        // Step 5: Convert map back to array for storage and prepare update
+        const updatedTaskPositionArray = Array.from(taskPositionMap.values());
+
+        const updatedTask = await Task.findOneAndUpdate(
+            { _id: taskId, __v: req.body.__v },
             {
                 $set: {
-                    'taskPosition.$.priority': userTaskPosition.priority,
-                    'taskPosition.$.position': userTaskPosition.position,
-                    'taskPosition.$.isExpanded': userTaskPosition.isExpanded,
                     title: req.body.title,
                     description: req.body.description,
                     isDeleted: req.body.isDeleted,
                     isCompleted: req.body.isCompleted,
-                    assignedTo: req.body.assignedTo
+                    assignedTo: req.body.assignedTo,
+                    taskPosition: updatedTaskPositionArray
                 },
                 $inc: { __v: 1 }
             },
             { new: true, runValidators: true }
         );
 
-        // Step 3: Check for version conflict specifically
-        if (!task) {
+        // Handle no matching document (conflict)
+        if (!updatedTask) {
             return res.status(409).json({
                 message: "Update conflict: The task was modified elsewhere. Please refresh and try again."
             });
         }
 
-        // Prepare response with the current user's taskPosition only
-        const filteredTaskPosition = task.taskPosition.find(pos => pos.userId.toString() === userId.toString());
+        // Filter and respond with the current user's taskPosition only
+        const filteredTaskPosition = updatedTask.taskPosition.find(
+            (pos) => pos.userId.toString() === userId.toString()
+        );
         const responseTask = {
-            ...task.toObject(),
+            ...updatedTask.toObject(),
             taskPosition: filteredTaskPosition ? [filteredTaskPosition] : []
         };
 

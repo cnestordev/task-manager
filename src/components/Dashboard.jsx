@@ -255,6 +255,10 @@ const Dashboard = () => {
       const updatedData = JSON.parse(JSON.stringify(selectedTask));
       updatedData.title = formData.title;
       updatedData.description = formData.description;
+      updatedData.assignedTo = [
+        ...updatedData.assignedTo,
+        ...formData.addedUsers,
+      ];
       setLoadingTaskId(updatedData._id);
 
       const data = await updateSelectedTask(

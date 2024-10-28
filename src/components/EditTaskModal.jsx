@@ -13,12 +13,18 @@ import {
   Select,
   FormErrorMessage,
   Textarea,
+  Box,
+  UnorderedList,
+  ListItem,
+  ListIcon,
+  Collapse,
 } from "@chakra-ui/react";
-
+import { MdCheckCircle } from "react-icons/md";
 import { TaskSchema } from "../validation/taskValidation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getListOfUsers } from "../utils/userUtils";
 
 const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
   const {
@@ -35,28 +41,52 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
     },
   });
 
+  const [usersList, setUsersList] = useState([]);
+  const [addedUsers, setAddedUsers] = useState([]);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+
   useEffect(() => {
+    // Fetch users when the modal opens
+    const fetchUsers = async () => {
+      try {
+        const users = await getListOfUsers();
+        setUsersList(users);
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+    fetchUsers();
+
+    // Load assigned users when a task is selected
     if (selectedTask) {
-
-      const taskCopy = JSON.parse(JSON.stringify(selectedTask));
-
       reset({
-        title: taskCopy.title,
-        description: taskCopy.description,
+        title: selectedTask.title,
+        description: selectedTask.description,
       });
+      setAddedUsers(selectedTask.addedUsers || []);
     }
   }, [selectedTask, reset]);
 
-  const onSubmit = async (data, e) => {
-    e.preventDefault();
+  const handleSelectedUser = (selectedUser) => {
+    setAddedUsers((prevList) => {
+      const isUserInList = prevList.includes(selectedUser._id);
+      return isUserInList
+        ? prevList.filter((userId) => userId !== selectedUser._id)
+        : [...prevList, selectedUser._id];
+    });
+  };
+
+  const onSubmit = async (data) => {
+    data.addedUsers = [...addedUsers];
     await saveTaskChanges(data, reset);
+    onClose();
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <form onSubmit={(e) => handleSubmit((data) => onSubmit(data, e))(e)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>Edit Task</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
@@ -79,6 +109,41 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
               />
               <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
             </FormControl>
+
+            {/* Toggle to assign users */}
+            <Button mt={4} onClick={() => setIsOptionsOpen(!isOptionsOpen)}>
+              Assign Users
+            </Button>
+            <Collapse in={isOptionsOpen} animateOpacity>
+              <Box p={4} mt={4} shadow="md" borderWidth="1px" borderRadius="md">
+                <UnorderedList styleType="none" spacing={3}>
+                  {usersList.length > 0 ? (
+                    usersList.map((user) => {
+                      const isAdded = addedUsers.some(
+                        (addedUser) => addedUser._id === user._id
+                      );
+                      return (
+                        <ListItem
+                          key={user._id}
+                          p={2}
+                          _hover={{ bg: "gray.100", cursor: "pointer" }}
+                          borderBottom="1px solid #e2e8f0"
+                          _last={{ borderBottom: "none" }}
+                          onClick={() => handleSelectedUser(user)}
+                        >
+                          {user.username}
+                          {isAdded && (
+                            <ListIcon as={MdCheckCircle} color="green.500" />
+                          )}
+                        </ListItem>
+                      );
+                    })
+                  ) : (
+                    <ListItem>No users found.</ListItem>
+                  )}
+                </UnorderedList>
+              </Box>
+            </Collapse>
           </ModalBody>
 
           <ModalFooter gap="4">
