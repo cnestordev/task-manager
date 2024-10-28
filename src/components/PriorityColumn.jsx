@@ -47,7 +47,7 @@ const PriorityColumn = ({
   const color = getColor(priority);
 
   // Separate tasks into in-progress and completed
-  const inProgressTasks = tasks.filter((task) => !task.isCompleted);
+  const inProgressTasks = tasks.filter((task) => task);
   const completedTasks = tasks.filter((task) => task.isCompleted);
   const inProgressTasksCount = tasks.filter((task) => !task.isCompleted && !task.isDeleted);
   const completedTasksCount = tasks.filter((task) => task.isCompleted && !task.isDeleted);
@@ -122,6 +122,7 @@ const PriorityColumn = ({
                     key={task._id}
                     task={task}
                     index={index}
+                    tab="inprogress"
                   />
                 ))}
               {tabIndex === 1 &&
@@ -134,6 +135,7 @@ const PriorityColumn = ({
                     key={task._id}
                     task={task}
                     index={index}
+                    tab="completed"
                   />
                 ))}
               {provided.placeholder}

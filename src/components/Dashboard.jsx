@@ -223,6 +223,8 @@ const Dashboard = () => {
         backUpTasks
       );
 
+      setRecentlyUpdatedTask(updatedTask)
+
       setSelectedTask(null);
 
       toast({

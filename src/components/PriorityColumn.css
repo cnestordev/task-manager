@@ -58,9 +58,3 @@ h1 {
   margin-bottom: 10px;
   color: #333;
 }
-
-.tasks-container {
-  display: flex;
-  flex-direction: column;
-  padding: 0 15px;
-}

@@ -26,6 +26,7 @@ const TaskCard = ({
   completedTask,
   index,
   toggleExpand,
+  tab,
 }) => {
   const { loadingTaskId } = useLoading();
   const taskIdMatch = loadingTaskId === task._id;
@@ -99,13 +100,22 @@ const TaskCard = ({
         index={index}
       >
         {(provided) => (
+          // Hide completed tasks with CSS instead of removing them.
+          // This keeps tasks mounted long enough to emit changes to the websocket server
           <Box
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className={`task-card ${taskIdMatch ? "loading-border" : ""} ${
+            className={`task-card 
+            ${taskIdMatch ? "loading-border" : ""} 
+            ${
               task.isCompleted ? "task-card-completed" : "task-card-inprogress"
-            } ${task.isDeleted ? "task-card-hidden" : ""}`}
+            } 
+            ${
+              task.isDeleted || (tab === "inprogress" && task.isCompleted)
+                ? "task-card-hidden"
+                : ""
+            }`}
             onClick={() => toggleExpand(task)}
           >
             <svg
