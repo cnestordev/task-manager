@@ -11,11 +11,6 @@ export const TaskProvider = ({ children }) => {
   const [recentlyUpdatedTask, setRecentlyUpdatedTask] = useState(null);
   const { user } = useUser();
 
-  useEffect(() => {
-    console.log("%c ~~~~~~~~~~~~~GLOBAL TASKS~~~~~~~~~~", "color: hotpink; background: cyan; padding: 2px")
-    console.log(tasks)
-    console.log("%c ~~~~~~~~~~~~~END GLOBAL TASKS~~~~~~~~~~", "color: hotpink; background: cyan; padding: 2px")
-  }, [tasks])
 
   // Get User Tasks on initial load
   useEffect(() => {
@@ -48,19 +43,22 @@ export const TaskProvider = ({ children }) => {
   const updateTask = (updatedTask, tempId = null) => {
     setTasks((prevTasks) => {
       let tasksChanged = false;
-
       const updatedTasks = prevTasks.map((task) => {
+        const clonedTask = { ...updatedTask };
         if (tempId && task.tempId === tempId) {
           tasksChanged = true;
-          return updatedTask;
-        } else if (task._id === updatedTask._id) {
+          return clonedTask;
+        } else if (task._id === clonedTask._id) {
           tasksChanged = true;
-          return updatedTask;
+          if (clonedTask.taskPosition.length === 0) {
+            clonedTask.taskPosition = [...task.taskPosition];
+          }
+          return clonedTask;
         }
         return task;
       });
       if (tasksChanged) {
-        let newOrder = reorderTasks(updatedTasks, user);
+        const newOrder = reorderTasks(updatedTasks, user);
         return newOrder;
       }
       return prevTasks;

@@ -13,7 +13,7 @@ export const updateTasksOptimistically = async (
     try {
         // Send the updated task to the server
         const { data } = await updateTaskOnServer(updatedTask);
-
+        
         // Re-sync the task if the server returns something different
         updateTasks(data.tasks);
 

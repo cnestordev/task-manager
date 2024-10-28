@@ -121,7 +121,7 @@ const Dashboard = () => {
       // reassign positions to remaining tasks with the same priority
       let currentIndex = 0;
       activePriorityTasks.forEach((task) => {
-        if (task.position >= 0) {
+        if (task.position >= 0) { // skip any tasks whose positoins have not yet been set, ie task postion is -1
           task.position = currentIndex;
           currentIndex++;
         }
@@ -411,18 +411,15 @@ const Dashboard = () => {
             <PriorityColumn
               key={priority}
               toggleExpand={handleToggleExpand}
-              deleteTask={(e, task) => {
-                e.stopPropagation
+              deleteTask={(task) => {
                 setSelectedTask(task);
                 setIsDeleteModalOpen(true);
               }}
-              editTask={(e, task) => {
-                e.stopPropagation
+              editTask={(task) => {
                 setSelectedTask(task);
                 setIsEditModalOpen(true);
               }}
-              completedTask={(e, task) => {
-                e.stopPropagation
+              completedTask={(task) => {
                 setSelectedTask(task);
                 setIsCompletedModalOpen(true);
               }}

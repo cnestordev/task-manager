@@ -41,7 +41,7 @@ export const cleanupTask = (taskToClean) => {
     updatedTask.taskPosition[0].priority = updatedTask.priority;
 
 
-    const { isExpanded, priority, position, ...cleanedTask } = updatedTask;
+    const { __v, isExpanded, priority, position, ...cleanedTask } = updatedTask;
 
     return cleanedTask;
 };

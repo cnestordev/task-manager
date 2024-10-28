@@ -28,7 +28,11 @@ const AlertModal = ({ task, isOpen, onClose, onConfirm }) => {
       <ModalContent>
         <ModalHeader>{task.title}</ModalHeader>
         <ModalBody>
-          <p>Task has been updated. Showing the updated version now.</p>
+          {task.isDeleted ? (
+            <p>Task has been Deleted.</p>
+          ) : (
+            <p>Task has been updated. Showing the updated version now.</p>
+          )}
         </ModalBody>
 
         <ModalFooter>

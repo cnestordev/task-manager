@@ -118,7 +118,14 @@ exports.updateTaskOrder = async (req, res) => {
             return res.status(404).json({ message: 'Task not found or task position for user not found.' });
         }
 
-        return res.status(200).json(createResponse(200, 'Task updated successfully', task));
+        // Filter taskPosition to include only the current user's data
+        const filteredTaskPosition = task.taskPosition.find(pos => pos.userId.toString() === userId.toString());
+        const responseTask = {
+            ...task.toObject(),
+            taskPosition: filteredTaskPosition ? [filteredTaskPosition] : []
+        };
+
+        return res.status(200).json(createResponse(200, 'Task updated successfully', responseTask));
     } catch (error) {
         console.error('Error updating task:', error);
         return res.status(500).json({ message: 'An error occurred while updating the task.' });
@@ -273,10 +280,18 @@ exports.updateTasksOrderServer = async (req, res) => {
             // Fetch all tasks assigned to the user after the updates
             const allUpdatedTasks = await Task.find({
                 assignedTo: req.user._id,
-                isDeleted: { $ne: true }
             });
 
-            return res.status(200).json(createResponse(200, 'Tasks updated successfully', allUpdatedTasks));
+            // Filter taskPosition for each task to include only the current user's data
+            const userSpecificTasks = allUpdatedTasks.map(task => {
+                const filteredTaskPosition = task.taskPosition.find(pos => pos.userId.toString() === req.user._id.toString());
+                return {
+                    ...task.toObject(),
+                    taskPosition: filteredTaskPosition ? [filteredTaskPosition] : []
+                };
+            });
+
+            return res.status(200).json(createResponse(200, 'Tasks updated successfully', userSpecificTasks));
         } catch (error) {
             console.error('Error updating tasks:', error);
             return res.status(500).json({ message: 'An error occurred while updating tasks.', error });

@@ -7,11 +7,9 @@ import Providers from "./context/Providers";
 import theme from "./theme/theme.js";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <Providers>
-      <ChakraProvider theme={theme}>
-        <App />
-      </ChakraProvider>
-    </Providers>
-  </StrictMode>
+  <Providers>
+    <ChakraProvider theme={theme}>
+      <App />
+    </ChakraProvider>
+  </Providers>
 );

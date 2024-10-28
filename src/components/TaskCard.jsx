@@ -71,7 +71,7 @@ const TaskCard = ({
     <>
       {isModalOpen && (
         <AlertModal
-          task={task}
+          task={pendingUpdateTask}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onConfirm={handleConfirm}
@@ -136,7 +136,7 @@ const TaskCard = ({
                       className="task-btns edit-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleEditTask(e, task);
+                        handleEditTask(task);
                       }}
                     >
                       <FaEdit />
@@ -148,7 +148,7 @@ const TaskCard = ({
                       className="task-btns complete-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        completedTask(e, task);
+                        completedTask(task);
                       }}
                     >
                       {task.isCompleted ? "Restore" : "Complete"}
@@ -159,7 +159,7 @@ const TaskCard = ({
                       className="task-btns delete-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteTask(e, task);
+                        deleteTask(task);
                       }}
                     >
                       Delete

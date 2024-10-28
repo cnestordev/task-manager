@@ -87,7 +87,8 @@ const useSocket = (taskId, assignedToLength, onTaskUpdated, user) => {
 
     const updateTask = (updatedTask) => {
         if (socketRef.current) {
-            socketRef.current.emit('taskUpdated', updatedTask);
+            const taskToEmit = { ...updatedTask, taskPosition: [] }
+            socketRef.current.emit('taskUpdated', taskToEmit);
         }
     };
 

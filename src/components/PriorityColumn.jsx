@@ -47,8 +47,10 @@ const PriorityColumn = ({
   const color = getColor(priority);
 
   // Separate tasks into in-progress and completed
-  const inProgressTasks = tasks.filter((task) => !task.isCompleted && !task.isDeleted);
-  const completedTasks = tasks.filter((task) => task.isCompleted && !task.isDeleted);
+  const inProgressTasks = tasks.filter((task) => !task.isCompleted);
+  const completedTasks = tasks.filter((task) => task.isCompleted);
+  const inProgressTasksCount = tasks.filter((task) => !task.isCompleted && !task.isDeleted);
+  const completedTasksCount = tasks.filter((task) => task.isCompleted && !task.isDeleted);
 
   return (
     <div className={`column ${isActive ? "active" : ""}`}>
@@ -68,10 +70,10 @@ const PriorityColumn = ({
                   borderBottom: `2px solid ${color}`,
                 }}
               >
-                In Progress ({inProgressTasks.length})
+                In Progress ({inProgressTasksCount.length})
               </Tab>
               <Tab
-                isDisabled={completedTasks.length === 0}
+                isDisabled={completedTasksCount.length === 0}
                 _selected={{
                   color: color,
                   borderBottom: `2px solid ${color}`,
