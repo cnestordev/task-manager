@@ -121,7 +121,8 @@ const Dashboard = () => {
       // reassign positions to remaining tasks with the same priority
       let currentIndex = 0;
       activePriorityTasks.forEach((task) => {
-        if (task.position >= 0) { // skip any tasks whose positoins have not yet been set, ie task postion is -1
+        if (task.position >= 0) {
+          // skip any tasks whose positoins have not yet been set, ie task postion is -1
           task.position = currentIndex;
           currentIndex++;
         }
@@ -161,7 +162,7 @@ const Dashboard = () => {
   // Toggle a task's completed status
   const onToggleTaskCompletion = async () => {
     try {
-      setIsCompletedModalOpen(false)
+      setIsCompletedModalOpen(false);
       const copiedTasks = JSON.parse(JSON.stringify(tasks));
       const backUpTasks = JSON.parse(JSON.stringify(tasks));
 
@@ -276,11 +277,12 @@ const Dashboard = () => {
     } catch (error) {
       setIsEditModalOpen(true);
       console.error("Error saving task changes:", error);
+      const errorMessage = error.response.data.message;
       toast({
         title: "Error",
-        description: "Failed to update task. Please try again.",
+        description: errorMessage,
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
     } finally {

@@ -60,7 +60,7 @@ exports.getTasks = async (req, res) => {
                 assignedTo: { $in: [req.user._id] },
                 isDeleted: { $ne: true }
             })
-                .select('-modified -__v')
+                .select('-modified')
                 .lean();
 
             // Filter taskPosition for the current user
@@ -91,34 +91,44 @@ exports.updateTaskOrder = async (req, res) => {
     try {
         const taskId = new mongoose.Types.ObjectId(req.body._id);
         const userId = req.user._id;
-        const userTaskPosition = req.body.taskPosition[0]; // The taskPosition for the current user
+        const userTaskPosition = req.body.taskPosition[0];
 
-        // Update both taskPosition for the current user and other task fields
+        // Step 1: Check if task and user's taskPosition exist
+        const existingTask = await Task.findOne(
+            { _id: taskId, 'taskPosition.userId': userId }
+        );
+
+        if (!existingTask) {
+            return res.status(404).json({ message: 'Task or task position for user not found.' });
+        }
+
+        // Step 2: Attempt to update with version control
         const task = await Task.findOneAndUpdate(
-            { _id: taskId, 'taskPosition.userId': userId },  // Find task and specific user's taskPosition
+            { _id: taskId, 'taskPosition.userId': userId, __v: req.body.__v },
             {
                 $set: {
-                    // Update relevant fields in taskPosition
                     'taskPosition.$.priority': userTaskPosition.priority,
                     'taskPosition.$.position': userTaskPosition.position,
                     'taskPosition.$.isExpanded': userTaskPosition.isExpanded,
-
-                    // Update other fields in the task from req.body
                     title: req.body.title,
                     description: req.body.description,
                     isDeleted: req.body.isDeleted,
                     isCompleted: req.body.isCompleted,
                     assignedTo: req.body.assignedTo
-                }
+                },
+                $inc: { __v: 1 }
             },
-            { new: true }
+            { new: true, runValidators: true }
         );
 
+        // Step 3: Check for version conflict specifically
         if (!task) {
-            return res.status(404).json({ message: 'Task not found or task position for user not found.' });
+            return res.status(409).json({
+                message: "Update conflict: The task was modified elsewhere. Please refresh and try again."
+            });
         }
 
-        // Filter taskPosition to include only the current user's data
+        // Prepare response with the current user's taskPosition only
         const filteredTaskPosition = task.taskPosition.find(pos => pos.userId.toString() === userId.toString());
         const responseTask = {
             ...task.toObject(),

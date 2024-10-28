@@ -17,7 +17,7 @@ const TaskSchema = new mongoose.Schema({
         _id: false
     }],
     isCompleted: { type: Boolean, default: false },
-});
+}, { versionKey: '__v' });  // Explicitly set version key to `__v`
 
 // Middleware to update the modified field before updating the document
 TaskSchema.pre('findOneAndUpdate', function (next) {
@@ -25,14 +25,22 @@ TaskSchema.pre('findOneAndUpdate', function (next) {
     next();
 });
 
+// Method for updating with optimistic locking
+TaskSchema.statics.updateTaskWithLock = async function (id, updateData, currentVersion) {
+    const result = await this.findOneAndUpdate(
+        { _id: id, __v: currentVersion },  // Check current version
+        { ...updateData, $inc: { __v: 1 } },  // Increment version
+        { new: true }
+    );
+    return result;
+};
+
 TaskSchema.set('toJSON', {
     transform: (doc, ret) => {
-        delete ret.__v;
         delete ret.modified;
         return ret;
     }
 });
-
 
 const Task = mongoose.model('Task', TaskSchema);
 
