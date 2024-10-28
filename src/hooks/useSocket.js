@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-const useSocket = (taskId, assignedToLength, onTaskUpdated, user) => {
+const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
     const socketRef = useRef(null);
 
     const waitForConnection = (callback, interval = 100) => {
@@ -30,7 +30,7 @@ const useSocket = (taskId, assignedToLength, onTaskUpdated, user) => {
             // Always listen for the 'connect' event to know when the connection is ready
             socketRef.current.on('connect', () => {
                 waitForConnection(() => {
-                    if (taskId && assignedToLength > 1) {
+                    if (taskId && isTaskShared) {
                         console.log("%c established connection", "color: hotpink");
                         socketRef.current.emit('joinTaskRoom', taskId);
                     }
@@ -46,7 +46,7 @@ const useSocket = (taskId, assignedToLength, onTaskUpdated, user) => {
         }
 
         // If already connected, join the room right away
-        if (taskId && assignedToLength > 1 && socketRef.current?.connected) {
+        if (taskId && isTaskShared && socketRef.current?.connected) {
             waitForConnection(() => {
                 console.log("%c established connection", "color: hotpink");
                 socketRef.current.emit('joinTaskRoom', taskId);
@@ -56,6 +56,9 @@ const useSocket = (taskId, assignedToLength, onTaskUpdated, user) => {
         // Listen for room-related events
         socketRef.current.on('joinedRoom', ({ taskId, message }) => {
             console.log(message);
+            if (onJoinedRoom) {
+                onJoinedRoom(taskId);
+            }
         });
 
         socketRef.current.on('leftRoom', ({ taskId, message }) => {
@@ -64,7 +67,7 @@ const useSocket = (taskId, assignedToLength, onTaskUpdated, user) => {
 
         // Listen for taskUpdated event (specific to this task)
         socketRef.current.on('taskUpdated', (updatedTask) => {
-            console.log(updatedTask)
+            console.log(updatedTask);
             if (onTaskUpdated) {
                 onTaskUpdated(updatedTask);
             }
@@ -72,7 +75,7 @@ const useSocket = (taskId, assignedToLength, onTaskUpdated, user) => {
 
         // Cleanup on component unmount or task change
         return () => {
-            if (taskId && assignedToLength > 1) {
+            if (taskId && isTaskShared) {
                 socketRef.current.emit('leaveTaskRoom', taskId);  // Leave the room on unmount
             }
 
@@ -83,11 +86,11 @@ const useSocket = (taskId, assignedToLength, onTaskUpdated, user) => {
                 socketRef.current.off('leftRoom');
             }
         };
-    }, [taskId, assignedToLength, onTaskUpdated]);
+    }, [taskId, isTaskShared, onTaskUpdated]);
 
     const updateTask = (updatedTask) => {
         if (socketRef.current) {
-            const taskToEmit = { ...updatedTask, taskPosition: [] }
+            const taskToEmit = { ...updatedTask, taskPosition: [] };
             socketRef.current.emit('taskUpdated', taskToEmit);
         }
     };

@@ -17,6 +17,7 @@ import { useUser } from "../context/UserContext";
 import useSocket from "../hooks/useSocket";
 import AlertModal from "./AlertModal";
 import "./TaskCard.css";
+import { StatusIndicator } from "./StatusIndicator";
 
 const TaskCard = ({
   task,
@@ -32,18 +33,31 @@ const TaskCard = ({
   const { updateTask: updateTaskContext, recentlyUpdatedTask } = useTask();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingUpdateTask, setPendingUpdateTask] = useState(null);
+  const [isOnline, setIsOnline] = useState(false);
+  const [isTaskShared, setIsTaskShared] = useState(task.assignedTo.length > 1);
+
+  useEffect(() => {
+    setIsTaskShared(task.assignedTo.length > 1);
+  }, [task.assignedTo]);
+
+  const onJoinedRoom = (taskId) => {
+    if (taskId === task._id) {
+      setIsOnline(true);
+    }
+  };
 
   // Use the socket hook to join the task room and handle updates
   const { updateTask } = useSocket(
     task._id,
-    task.assignedTo.length,
+    isTaskShared,
     (taskData) => {
       if (taskData.userId !== user.id) {
         setPendingUpdateTask(taskData.task);
         setIsModalOpen(true);
       }
     },
-    user
+    user,
+    onJoinedRoom
   );
 
   useEffect(() => {
@@ -119,8 +133,19 @@ const TaskCard = ({
                       textAlign="center"
                       fontWeight="bold"
                       fontSize="18px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      marginBottom="5"
                     >
-                      {task.title}
+                      <div>
+                        <StatusIndicator
+                          className={isTaskShared ? "" : "hidden"}
+                          status={isOnline ? "online" : "hidden"}
+                        />
+                      </div>
+                      <p>{task.title}</p>
+                      <div></div>
                     </Box>
                     <AccordionIcon />
                   </AccordionButton>
