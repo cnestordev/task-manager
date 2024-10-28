@@ -93,18 +93,24 @@ exports.updateTaskOrder = async (req, res) => {
         const userId = req.user._id;
         const userTaskPosition = req.body.taskPosition[0];
 
-        // Step 1: Find the task to get current taskPosition
+        // Step 1: Find the task to get the current taskPosition and other fields
         const existingTask = await Task.findById(taskId);
         if (!existingTask) {
             return res.status(404).json({ message: 'Task not found.' });
         }
 
-        // Step 2: Create a map of existing taskPosition entries by userId for quick lookup
+        // Step 2: Check if any of the specific fields have changed
+        const fieldsToTriggerIncrement = ['title', 'description', 'isCompleted'];
+        const hasTriggerFieldChanged = fieldsToTriggerIncrement.some(
+            field => req.body[field] !== undefined && req.body[field] !== existingTask[field]
+        );
+
+        // Step 3: Create a map of existing taskPosition entries by userId for quick lookup
         const taskPositionMap = new Map(
             existingTask.taskPosition.map((pos) => [pos.userId.toString(), pos])
         );
 
-        // Step 3: Iterate through assignedTo and ensure each has a taskPosition entry
+        // Step 4: Iterate through assignedTo and ensure each has a taskPosition entry
         req.body.assignedTo.forEach((assignedUserId) => {
             if (!taskPositionMap.has(assignedUserId.toString())) {
                 // Add a new entry if userId is missing in taskPosition
@@ -117,7 +123,7 @@ exports.updateTaskOrder = async (req, res) => {
             }
         });
 
-        // Step 4: Update the current user's taskPosition if it exists in the map
+        // Step 5: Update the current user's taskPosition if it exists in the map
         if (taskPositionMap.has(userId.toString())) {
             const currentUserPosition = taskPositionMap.get(userId.toString());
             currentUserPosition.priority = userTaskPosition.priority;
@@ -125,22 +131,30 @@ exports.updateTaskOrder = async (req, res) => {
             currentUserPosition.isExpanded = userTaskPosition.isExpanded;
         }
 
-        // Step 5: Convert map back to array for storage and prepare update
+        // Step 6: Convert map back to array for storage and prepare update
         const updatedTaskPositionArray = Array.from(taskPositionMap.values());
 
+        // Step 7: Build the update object
+        const updateObject = {
+            $set: {
+                title: req.body.title,
+                description: req.body.description,
+                isDeleted: req.body.isDeleted,
+                isCompleted: req.body.isCompleted,
+                assignedTo: req.body.assignedTo,
+                taskPosition: updatedTaskPositionArray
+            }
+        };
+
+        // Step 8: Conditionally add the version increment
+        if (hasTriggerFieldChanged) {
+            updateObject.$inc = { __v: 1 };
+        }
+
+        // Step 9: Perform the update with conditional version increment
         const updatedTask = await Task.findOneAndUpdate(
-            { _id: taskId, __v: req.body.__v },
-            {
-                $set: {
-                    title: req.body.title,
-                    description: req.body.description,
-                    isDeleted: req.body.isDeleted,
-                    isCompleted: req.body.isCompleted,
-                    assignedTo: req.body.assignedTo,
-                    taskPosition: updatedTaskPositionArray
-                },
-                $inc: { __v: 1 }
-            },
+            { _id: taskId, __v: req.body.__v },  // Check current version
+            updateObject,
             { new: true, runValidators: true }
         );
 

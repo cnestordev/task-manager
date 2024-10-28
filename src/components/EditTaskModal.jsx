@@ -42,7 +42,7 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
   });
 
   const [usersList, setUsersList] = useState([]);
-  const [addedUsers, setAddedUsers] = useState([]);
+  const [addedUsers, setAddedUsers] = useState([...selectedTask.assignedTo]);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   useEffect(() => {
@@ -119,21 +119,39 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
                 <UnorderedList styleType="none" spacing={3}>
                   {usersList.length > 0 ? (
                     usersList.map((user) => {
-                      const isAdded = addedUsers.some(
-                        (addedUser) => addedUser._id === user._id
-                      );
+                      const isAssigned = selectedTask.assignedTo.includes(
+                        user._id
+                      ); // Check if user is in assignedTo
+                      const isAdded = addedUsers.includes(user._id); // Check if user is in addedUsers
                       return (
                         <ListItem
                           key={user._id}
                           p={2}
-                          _hover={{ bg: "gray.100", cursor: "pointer" }}
+                          _hover={
+                            isAssigned
+                              ? {}
+                              : { bg: "gray.100", cursor: "pointer" }
+                          }
+                          bg={
+                            isAssigned
+                              ? "blue.50"
+                              : isAdded
+                              ? "green.50"
+                              : "white"
+                          }
                           borderBottom="1px solid #e2e8f0"
                           _last={{ borderBottom: "none" }}
-                          onClick={() => handleSelectedUser(user)}
+                          onClick={() =>
+                            !isAssigned && handleSelectedUser(user)
+                          }
                         >
                           {user.username}
-                          {isAdded && (
-                            <ListIcon as={MdCheckCircle} color="green.500" />
+                          {isAssigned ? (
+                            <ListIcon as={MdCheckCircle} color="blue.500" />
+                          ) : (
+                            isAdded && (
+                              <ListIcon as={MdCheckCircle} color="green.500" />
+                            )
                           )}
                         </ListItem>
                       );
