@@ -66,20 +66,20 @@ const TaskCard = ({
   );
 
   useEffect(() => {
-    console.log(recentlyUpdatedTask);
     if (recentlyUpdatedTask && recentlyUpdatedTask._id === task._id) {
       const clearId = setInterval(() => {
         if (isOnline) {
           updateTask(recentlyUpdatedTask);
+          setRecentlyUpdatedTask(null);
           clearInterval(clearId);
         }
       }, 500);
 
-      return () => clearInterval(clearId);
+      return () => {
+        clearInterval(clearId);
+      };
     }
-
-    setRecentlyUpdatedTask(null);
-  }, [recentlyUpdatedTask, isOnline]);
+  }, [recentlyUpdatedTask, isOnline, task._id]);
 
   const handleConfirm = () => {
     // Update the context with the stored updated task
