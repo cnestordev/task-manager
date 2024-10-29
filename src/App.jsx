@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Dashboard from "./components/Dashboard";
+import TaskBoard from "./components/TaskBoard";
 import { useUser } from "./context/UserContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -23,19 +23,19 @@ const App = () => {
         {/* Public Routes */}
         <Route
           path="/login"
-          element={user ? <Navigate to="/dashboard" /> : <Login />}
+          element={user ? <Navigate to="/taskboard" /> : <Login />}
         />
         <Route
           path="/register"
-          element={user ? <Navigate to="/dashboard" /> : <Register />}
+          element={user ? <Navigate to="/taskboard" /> : <Register />}
         />
 
         {/* Protected Route */}
         <Route
-          path="/dashboard"
+          path="/taskboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <TaskBoard />
             </ProtectedRoute>
           }
         />
@@ -44,7 +44,7 @@ const App = () => {
         <Route
           path="/"
           element={
-            user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+            user ? <Navigate to="/taskboard" /> : <Navigate to="/login" />
           }
         />
       </Routes>

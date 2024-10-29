@@ -8,11 +8,11 @@ import {
   updateTasksServer,
 } from "../api/index";
 import "../App.css";
-import DeleteTaskModal from "../components/DeleteTaskModal";
-import EditTaskModal from "../components/EditTaskModal";
-import FormContainer from "../components/FormContainer";
-import Navbar from "../components/Navbar";
-import PriorityColumn from "../components/PriorityColumn";
+import DeleteTaskModal from "./DeleteTaskModal";
+import EditTaskModal from "./EditTaskModal";
+import FormContainer from "./FormContainer";
+import Navbar from "./Navbar";
+import PriorityColumn from "./PriorityColumn";
 import { useTask } from "../context/TaskContext";
 import { useUser } from "../context/UserContext";
 import { useLoading } from "../context/LoadingContext";
@@ -26,7 +26,7 @@ import {
 } from "../utils/taskUtils";
 import CompletedTaskModal from "./CompletedTaskModal";
 
-const Dashboard = () => {
+const TaskBoard = () => {
   const {
     tasks,
     addNewTask,
@@ -442,4 +442,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default TaskBoard;

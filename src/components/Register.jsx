@@ -49,7 +49,7 @@ const Register = () => {
       // Check if the registration was successful
       if (data.statusCode === 201 && data.user) {
         login(data.user);
-        navigate("/dashboard");
+        navigate("/taskboard");
       } else {
         // Handle any unexpected responses
         throw new Error(data.error);

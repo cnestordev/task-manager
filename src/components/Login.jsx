@@ -47,7 +47,7 @@ const Login = () => {
 
       if (data.statusCode === 200 && data.user) {
         loginUser(data.user);
-        navigate("/dashboard");
+        navigate("/taskboard");
       } else {
         throw new Error(data.error);
       }
