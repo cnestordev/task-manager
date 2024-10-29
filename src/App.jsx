@@ -7,14 +7,16 @@ import {
 import Login from "./components/Login";
 import Register from "./components/Register";
 import TaskBoard from "./components/TaskBoard";
-import { useUser } from "./context/UserContext";
+import Dashboard from "./components/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+
+import { useUser } from "./context/UserContext";
 
 const App = () => {
   const { user, loading } = useUser();
 
   if (loading) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   return (
@@ -36,6 +38,16 @@ const App = () => {
           element={
             <ProtectedRoute>
               <TaskBoard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected Route for Dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard user={user} />
             </ProtectedRoute>
           }
         />
