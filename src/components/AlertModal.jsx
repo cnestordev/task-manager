@@ -30,11 +30,12 @@ const AlertModal = ({ task, isOpen, onClose, onConfirm }) => {
         <ModalBody>
           {task.isDeleted ? (
             <p>Task has been Deleted.</p>
+          ) : task.__v === 0 ? (
+            <p>New task has been created.</p>
           ) : (
             <p>Task has been updated. Showing the updated version now.</p>
           )}
         </ModalBody>
-
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={handleConfirm}>
             Confirm

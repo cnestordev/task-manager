@@ -1,7 +1,6 @@
 import { Box, HStack } from "@chakra-ui/react";
 
 export const StatusIndicator = ({ status, className }) => {
-  console.log(className);
 
   const statusColors = {
     online: "green.500",

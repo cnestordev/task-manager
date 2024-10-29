@@ -53,6 +53,11 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
             });
         }
 
+        // Listen for user-related events
+        socketRef.current.on('message', (message) => {
+            console.log(`%c ${message}`, "background: cyan; color: hotpink; padding: 3px");
+        });
+
         // Listen for room-related events
         socketRef.current.on('joinedRoom', ({ taskId, message }) => {
             console.log(message);
@@ -63,6 +68,13 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
 
         socketRef.current.on('leftRoom', ({ taskId, message }) => {
             console.log(message);
+        });
+
+        // Listen for taskUpdated event (specific to this task)
+        socketRef.current.on('newTask', (newTask) => {
+            if (onTaskUpdated) {
+                onTaskUpdated(newTask);
+            }
         });
 
         // Listen for taskUpdated event (specific to this task)
@@ -95,7 +107,14 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
         }
     };
 
-    return { socket: socketRef.current, updateTask };
+    const createTask = (newTask) => {
+        if (socketRef.current) {
+            const taskToEmit = { ...newTask };
+            socketRef.current.emit('newTask', taskToEmit);
+        }
+    };
+
+    return { socket: socketRef.current, updateTask, createTask };
 };
 
 export default useSocket;

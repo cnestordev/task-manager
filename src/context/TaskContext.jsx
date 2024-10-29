@@ -9,6 +9,7 @@ export const useTask = () => useContext(TaskContext);
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [recentlyUpdatedTask, setRecentlyUpdatedTask] = useState(null);
+  const [recentlyCreatedTask, setRecentlyCreatedTask] = useState(null);
   const { user } = useUser();
 
 
@@ -92,8 +93,10 @@ export const TaskProvider = ({ children }) => {
         updateTask,
         updateTasks,
         removeTask,
-        setRecentlyUpdatedTask,
         recentlyUpdatedTask,
+        setRecentlyUpdatedTask,
+        recentlyCreatedTask,
+        setRecentlyCreatedTask
       }}
     >
       {children}

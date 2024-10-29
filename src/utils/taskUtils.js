@@ -53,6 +53,9 @@ export const addTaskOptimistically = async (
 
         // Update the task in the UI with the actual data from the server
         updateTask(createdTask, tempId);
+
+        return data;
+
     } catch (error) {
         console.error("Error creating new task:", error);
         // Remove the temporary task from the UI
@@ -68,7 +71,8 @@ export const addTaskOptimistically = async (
 // Add a new task
 export const handleAddTask = async (newTask, addNewTask, updateTask, createTaskOnServer, removeTask, setLoadingTaskId) => {
     try {
-        await addTaskOptimistically(newTask, addNewTask, updateTask, createTaskOnServer, removeTask, setLoadingTaskId);
+        const data = await addTaskOptimistically(newTask, addNewTask, updateTask, createTaskOnServer, removeTask, setLoadingTaskId);
+        return data;
     } catch (error) {
         throw new Error(error);
     }

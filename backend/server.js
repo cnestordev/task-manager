@@ -17,7 +17,7 @@ const sessionConfig = require('./middleware/sessionConfig');
 const passport = require('./config/passportConfig');
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
-const SocketSession = require("./models/SocketSession")
+const SocketSession = require("./models/SocketSession");
 
 const app = express();
 const server = http.createServer(app);
@@ -44,14 +44,14 @@ const io = socketIo(server, {
     allowEIO3: true,
 });
 
-const sendMessageToUser = async (userId, message) => {
+const sendMessageToUser = async (userId, data) => {
     try {
         // Find the session for the user
         const session = await SocketSession.findOne({ userId: userId });
         if (session && session.socketIds.length > 0) {
             // Loop through all socketIds and send the message to each connection
             session.socketIds.forEach((socketId) => {
-                io.to(socketId).emit('message', message);
+                io.to(socketId).emit(data.event, data.payload);
             });
         }
     } catch (err) {
@@ -79,7 +79,7 @@ io.on('connection', async (socket) => {
             { $push: { socketIds: socket.id } },
             { upsert: true }
         );
-        sendMessageToUser(userId, "Welcome!")
+        sendMessageToUser(userId, { event: 'message', payload: "Hello There!" });
     } catch (err) {
         console.error('Error saving socket ID for user:', username, err);
     }
@@ -93,11 +93,48 @@ io.on('connection', async (socket) => {
         socket.emit('joinedRoom', { taskId, message: `Successfully joined room ${taskId}` });
     });
 
+    // Handle new tasks
+    socket.on('newTask', async (task) => {
+        try {
+            const { _id: taskId, assignedTo, createdBy } = task;
+
+            if (!taskId || !Array.isArray(assignedTo)) {
+                return console.error('Invalid task data received');
+            }
+            // Exclude the user who created the task from the recipients
+            const recipients = assignedTo.filter(userId => userId.toString() !== createdBy.toString());
+
+            // Broadcast the new task to each assigned user
+            for (const user_id of recipients) {
+                // Filter taskPosition for each user
+                const filteredTaskPosition = task.taskPosition.filter((pos) => pos.userId.toString() === user_id);
+
+                const payload = {
+                    userId,
+                    task: {
+                        ...task,
+                        taskPosition: filteredTaskPosition
+                    }
+                };
+
+                // Send the message with the filtered taskPosition for the specific user
+                await sendMessageToUser(user_id, {
+                    event: 'newTask',
+                    payload
+                });
+            }
+            console.log(`New task broadcasted to users assigned to it (excluding creator ${createdBy}).`);
+        } catch (error) {
+            console.error('Error broadcasting new task:', error);
+        }
+    });
+
+
     // Handle task updates
     socket.on('taskUpdated', (task) => {
         const taskId = task._id;
         if (taskId) {
-            io.to(taskId).emit('taskUpdated', {task, userId});
+            io.to(taskId).emit('taskUpdated', { task, userId });
             console.log(`User ${username} updated task ${taskId}`);
         } else {
             console.error('Task ID is missing or invalid for user:', username);

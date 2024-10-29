@@ -82,7 +82,8 @@ exports.getTasks = async (req, res) => {
     }
 };
 
-// Update existing Task
+// Update existing Task 
+// Expand, Collapse, Edit, 
 exports.updateTaskOrder = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({ message: 'User not authenticated' });
@@ -100,7 +101,7 @@ exports.updateTaskOrder = async (req, res) => {
         }
 
         // Step 2: Check if any of the specific fields have changed
-        const fieldsToTriggerIncrement = ['title', 'description', 'isCompleted'];
+        const fieldsToTriggerIncrement = ['title', 'description', 'assignedTo'];
         const hasTriggerFieldChanged = fieldsToTriggerIncrement.some(
             field => req.body[field] !== undefined && req.body[field] !== existingTask[field]
         );
@@ -311,6 +312,7 @@ const updateMultipleTasksWithTransaction = async (tasksToUpdate, userId) => {
     }
 };
 
+// D&D, Complete, Restore, Delete
 exports.updateTasksOrderServer = async (req, res) => {
     if (req.isAuthenticated()) {
         try {

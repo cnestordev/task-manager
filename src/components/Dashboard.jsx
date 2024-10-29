@@ -34,6 +34,7 @@ const Dashboard = () => {
     updateTask,
     updateTasks,
     setRecentlyUpdatedTask,
+    setRecentlyCreatedTask
   } = useTask();
   const { user } = useUser();
   const { loadingTaskId, setLoadingTaskId } = useLoading();
@@ -47,13 +48,11 @@ const Dashboard = () => {
 
   // Add a new task
   const addTask = async (formData) => {
-    console.log(formData);
-    console.log(user);
     const newTaskPosition = tasks.filter(
       (task) => task.priority === formData.priority
     ).length;
     try {
-      await handleAddTask(
+      const data = await handleAddTask(
         {
           title: formData.title,
           description: formData.description,
@@ -71,6 +70,8 @@ const Dashboard = () => {
         removeTask,
         setLoadingTaskId
       );
+
+      setRecentlyCreatedTask(data.tasks)
 
       toast({
         title: "Task created.",

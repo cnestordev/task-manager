@@ -31,9 +31,16 @@ const TaskCard = ({
   const { loadingTaskId } = useLoading();
   const taskIdMatch = loadingTaskId === task._id;
   const { user } = useUser();
-  const { updateTask: updateTaskContext, recentlyUpdatedTask } = useTask();
+  const {
+    updateTask: updateTaskContext,
+    addNewTask,
+    recentlyUpdatedTask,
+    recentlyCreatedTask,
+    setRecentlyCreatedTask,
+  } = useTask();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingUpdateTask, setPendingUpdateTask] = useState(null);
+  const [createdTask, setCreatedTask] = useState(null);
   const [isOnline, setIsOnline] = useState(false);
   const [isTaskShared, setIsTaskShared] = useState(task.assignedTo.length > 1);
 
@@ -48,12 +55,16 @@ const TaskCard = ({
   };
 
   // Use the socket hook to join the task room and handle updates
-  const { updateTask } = useSocket(
+  const { updateTask, createTask } = useSocket(
     task._id,
     isTaskShared,
     (taskData) => {
       if (taskData.userId !== user.id) {
-        setPendingUpdateTask(taskData.task);
+        if (taskData.task.__v > 0) {
+          setPendingUpdateTask(taskData.task);
+        } else {
+          setCreatedTask(taskData.task);
+        }
         setIsModalOpen(true);
       }
     },
@@ -62,18 +73,42 @@ const TaskCard = ({
   );
 
   useEffect(() => {
-    console.log(recentlyUpdatedTask);
     if (recentlyUpdatedTask && recentlyUpdatedTask._id === task._id) {
-      // Notify the websocket server of the updated task
-      updateTask(recentlyUpdatedTask);
+      const clearId = setInterval(() => {
+        if (isOnline) {
+          updateTask(recentlyUpdatedTask);
+          clearInterval(clearId);
+        }
+      }, 500);
+
+      return () => clearInterval(clearId);
     }
-  }, [recentlyUpdatedTask]);
+  }, [recentlyUpdatedTask, isOnline]);
+
+  useEffect(() => {
+    if (recentlyCreatedTask && recentlyCreatedTask._id === task._id) {
+      const taskCopy = JSON.parse(JSON.stringify(recentlyCreatedTask));
+
+      const clearId = setInterval(() => {
+        if (isOnline) {
+          createTask(taskCopy);
+          clearInterval(clearId);
+          setRecentlyCreatedTask(null);
+        }
+      }, 500);
+
+      return () => clearInterval(clearId);
+    }
+  }, [recentlyCreatedTask, isOnline]);
 
   const handleConfirm = () => {
     // Update the context with the stored updated task
     if (pendingUpdateTask) {
       updateTaskContext(pendingUpdateTask);
       setPendingUpdateTask(null);
+    } else if (createdTask) {
+      addNewTask(createdTask);
+      setCreatedTask(null);
     }
     setIsModalOpen(false);
   };
@@ -86,7 +121,7 @@ const TaskCard = ({
     <>
       {isModalOpen && (
         <AlertModal
-          task={pendingUpdateTask}
+          task={pendingUpdateTask ? pendingUpdateTask : createdTask}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onConfirm={handleConfirm}
