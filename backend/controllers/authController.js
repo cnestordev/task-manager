@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Team = require("../models/Team");
 const argon2 = require('argon2');
 const passport = require('passport');
 
@@ -104,6 +105,47 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+// Team Creation Handler
+exports.createTeam = async (req, res) => {
+    const { teamName } = req.body;
+    const userId = req.user._id;
+
+    if (!teamName) {
+        return res.status(400).json(createResponse(400, 'Team name is required'));
+    }
+
+    try {
+        // Check if a team with the same name already exists
+        const existingTeam = await Team.findOne({ name: teamName });
+        if (existingTeam) {
+            return res.status(400).json(createResponse(400, 'Team name already exists'));
+        }
+
+        // Generate a unique invite code
+        const inviteCode = Math.random().toString(36).substring(2, 10);
+
+        // Create the team
+        const team = new Team({
+            name: teamName,
+            createdBy: userId,
+            members: [userId],
+            inviteCode: inviteCode,
+        });
+        await team.save();
+
+        // Update the user with the new team ID
+        await User.findByIdAndUpdate(userId, { team: team._id });
+
+        return res.status(201).json(createResponse(201, 'Team created successfully', {
+            teamId: team._id,
+            inviteCode: team.inviteCode,
+            name: team.name,
+            createdBy: team.createdBy,
+        }));
+    } catch (error) {
+        return res.status(500).json(createResponse(500, 'Error creating team'));
+    }
+};
 
 // Logout Handler
 exports.logout = (req, res) => {
