@@ -54,7 +54,7 @@ const CreateTeamDashboard = () => {
     } catch (err) {
       toast({
         title: "Error",
-        description: err.response?.data?.message || "Error creating team",
+        description: err.response?.data?.error || "Error creating team",
         status: "error",
         duration: 5000,
         isClosable: true,

@@ -115,35 +115,44 @@ exports.createTeam = async (req, res) => {
     }
 
     try {
+        // Check if the user already belongs to a team
+        const user = await User.findById(userId);
+        if (user.team) {
+            return res.status(400).json({
+                error: "User already belongs to a team. A user can only create or belong to one team."
+            });
+        }
+
         // Check if a team with the same name already exists
         const existingTeam = await Team.findOne({ name: teamName });
         if (existingTeam) {
             return res.status(400).json(createResponse(400, 'Team name already exists'));
         }
 
-        // Generate a unique invite code
-        const inviteCode = Math.random().toString(36).substring(2, 10);
-
-        // Create the team
-        const team = new Team({
+        // Proceed to create the team
+        const newTeam = new Team({
             name: teamName,
             createdBy: userId,
             members: [userId],
-            inviteCode: inviteCode,
+            inviteCode: Math.random().toString(36).substring(2, 10), // Generate invite code
         });
-        await team.save();
+        await newTeam.save();
 
-        // Update the user with the new team ID
-        await User.findByIdAndUpdate(userId, { team: team._id });
+        // Link the team to the user
+        user.team = newTeam._id;
+        await user.save();
 
-        return res.status(201).json(createResponse(201, 'Team created successfully', {
-            teamId: team._id,
-            inviteCode: team.inviteCode,
-            name: team.name,
-            createdBy: team.createdBy,
-        }));
+        return res.status(201).json({
+            message: "Team created successfully",
+            team: {
+                id: newTeam._id,
+                name: newTeam.name,
+                inviteCode: newTeam.inviteCode,
+            },
+        });
     } catch (error) {
-        return res.status(500).json(createResponse(500, 'Error creating team'));
+        console.error("Error creating team:", error);
+        res.status(500).json({ error: "An error occurred while creating the team" });
     }
 };
 
