@@ -105,57 +105,6 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
-// Team Creation Handler
-exports.createTeam = async (req, res) => {
-    const { teamName } = req.body;
-    const userId = req.user._id;
-
-    if (!teamName) {
-        return res.status(400).json(createResponse(400, 'Team name is required'));
-    }
-
-    try {
-        // Check if the user already belongs to a team
-        const user = await User.findById(userId);
-        if (user.team) {
-            return res.status(400).json({
-                error: "User already belongs to a team. A user can only create or belong to one team."
-            });
-        }
-
-        // Check if a team with the same name already exists
-        const existingTeam = await Team.findOne({ name: teamName });
-        if (existingTeam) {
-            return res.status(400).json(createResponse(400, 'Team name already exists'));
-        }
-
-        // Proceed to create the team
-        const newTeam = new Team({
-            name: teamName,
-            createdBy: userId,
-            members: [userId],
-            inviteCode: Math.random().toString(36).substring(2, 10), // Generate invite code
-        });
-        await newTeam.save();
-
-        // Link the team to the user
-        user.team = newTeam._id;
-        await user.save();
-
-        return res.status(201).json({
-            message: "Team created successfully",
-            team: {
-                id: newTeam._id,
-                name: newTeam.name,
-                inviteCode: newTeam.inviteCode,
-            },
-        });
-    } catch (error) {
-        console.error("Error creating team:", error);
-        res.status(500).json({ error: "An error occurred while creating the team" });
-    }
-};
-
 // Logout Handler
 exports.logout = (req, res) => {
     req.logout((err) => {

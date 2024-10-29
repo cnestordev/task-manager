@@ -28,8 +28,3 @@ export const getAllUsers = async () => {
   const response = await axiosInstance.get('/auth/allUsers');
   return response;
 };
-
-export const createTeam = async (teamName) => {
-  const response = await axiosInstance.post('/auth/createTeam', { teamName });
-  return response;
-};

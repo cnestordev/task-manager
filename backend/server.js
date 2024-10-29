@@ -17,6 +17,7 @@ const sessionConfig = require('./middleware/sessionConfig');
 const passport = require('./config/passportConfig');
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
+const teamRoutes = require("./routes/teamRoutes");
 const SocketSession = require("./models/SocketSession");
 
 const app = express();
@@ -131,5 +132,6 @@ app.use(passport.session());
 // Use Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/task', taskRoutes);
+app.use('/api/team', teamRoutes);
 
 server.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://0.0.0.0:${PORT}`));
