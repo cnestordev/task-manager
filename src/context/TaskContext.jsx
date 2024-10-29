@@ -9,9 +9,7 @@ export const useTask = () => useContext(TaskContext);
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [recentlyUpdatedTask, setRecentlyUpdatedTask] = useState(null);
-  const [recentlyCreatedTask, setRecentlyCreatedTask] = useState(null);
   const { user } = useUser();
-
 
   // Get User Tasks on initial load
   useEffect(() => {
@@ -45,22 +43,24 @@ export const TaskProvider = ({ children }) => {
     setTasks((prevTasks) => {
       let tasksChanged = false;
       const updatedTasks = prevTasks.map((task) => {
-        const clonedTask = { ...updatedTask };
-        if (tempId && task.tempId === tempId) {
+        if (
+          (tempId && task.tempId === tempId) ||
+          task._id === updatedTask._id
+        ) {
           tasksChanged = true;
-          return clonedTask;
-        } else if (task._id === clonedTask._id) {
-          tasksChanged = true;
-          if (clonedTask.taskPosition.length === 0) {
-            clonedTask.taskPosition = [...task.taskPosition];
+
+          // If taskPosition is empty in updatedTask, inherit it from the original task
+          if (updatedTask.taskPosition.length === 0) {
+            updatedTask.taskPosition = task.taskPosition;
           }
-          return clonedTask;
+
+          return { ...task, ...updatedTask };
         }
         return task;
       });
+
       if (tasksChanged) {
-        const newOrder = reorderTasks(updatedTasks, user);
-        return newOrder;
+        return reorderTasks(updatedTasks, user);
       }
       return prevTasks;
     });
@@ -95,8 +95,6 @@ export const TaskProvider = ({ children }) => {
         removeTask,
         recentlyUpdatedTask,
         setRecentlyUpdatedTask,
-        recentlyCreatedTask,
-        setRecentlyCreatedTask
       }}
     >
       {children}

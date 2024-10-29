@@ -71,13 +71,6 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
         });
 
         // Listen for taskUpdated event (specific to this task)
-        socketRef.current.on('newTask', (newTask) => {
-            if (onTaskUpdated) {
-                onTaskUpdated(newTask);
-            }
-        });
-
-        // Listen for taskUpdated event (specific to this task)
         socketRef.current.on('taskUpdated', (updatedTask) => {
             console.log(updatedTask);
             if (onTaskUpdated) {
@@ -107,14 +100,7 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
         }
     };
 
-    const createTask = (newTask) => {
-        if (socketRef.current) {
-            const taskToEmit = { ...newTask };
-            socketRef.current.emit('newTask', taskToEmit);
-        }
-    };
-
-    return { socket: socketRef.current, updateTask, createTask };
+    return { socket: socketRef.current, updateTask };
 };
 
 export default useSocket;

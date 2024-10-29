@@ -34,7 +34,6 @@ const Dashboard = () => {
     updateTask,
     updateTasks,
     setRecentlyUpdatedTask,
-    setRecentlyCreatedTask
   } = useTask();
   const { user } = useUser();
   const { loadingTaskId, setLoadingTaskId } = useLoading();
@@ -70,8 +69,6 @@ const Dashboard = () => {
         removeTask,
         setLoadingTaskId
       );
-
-      setRecentlyCreatedTask(data.tasks)
 
       toast({
         title: "Task created.",

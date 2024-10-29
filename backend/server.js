@@ -93,42 +93,6 @@ io.on('connection', async (socket) => {
         socket.emit('joinedRoom', { taskId, message: `Successfully joined room ${taskId}` });
     });
 
-    // Handle new tasks
-    socket.on('newTask', async (task) => {
-        try {
-            const { _id: taskId, assignedTo, createdBy } = task;
-
-            if (!taskId || !Array.isArray(assignedTo)) {
-                return console.error('Invalid task data received');
-            }
-            // Exclude the user who created the task from the recipients
-            const recipients = assignedTo.filter(userId => userId.toString() !== createdBy.toString());
-
-            // Broadcast the new task to each assigned user
-            for (const user_id of recipients) {
-                // Filter taskPosition for each user
-                const filteredTaskPosition = task.taskPosition.filter((pos) => pos.userId.toString() === user_id);
-
-                const payload = {
-                    userId,
-                    task: {
-                        ...task,
-                        taskPosition: filteredTaskPosition
-                    }
-                };
-
-                // Send the message with the filtered taskPosition for the specific user
-                await sendMessageToUser(user_id, {
-                    event: 'newTask',
-                    payload
-                });
-            }
-            console.log(`New task broadcasted to users assigned to it (excluding creator ${createdBy}).`);
-        } catch (error) {
-            console.error('Error broadcasting new task:', error);
-        }
-    });
-
 
     // Handle task updates
     socket.on('taskUpdated', (task) => {

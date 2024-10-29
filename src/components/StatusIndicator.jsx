@@ -1,7 +1,6 @@
-import { Box, HStack } from "@chakra-ui/react";
+import { Avatar, AvatarBadge, AvatarGroup, HStack } from "@chakra-ui/react";
 
 export const StatusIndicator = ({ status, className }) => {
-
   const statusColors = {
     online: "green.500",
     offline: "gray.500",
@@ -10,11 +9,12 @@ export const StatusIndicator = ({ status, className }) => {
   return (
     <div className={`status-container ${className}`}>
       <HStack spacing={2} alignItems="center">
-        <Box
-          boxSize="10px"
-          bg={statusColors[status] || "gray.500"}
-          borderRadius="full"
-        />
+        <AvatarGroup>
+          <Avatar size="xs">
+            <AvatarBadge boxSize="1.25em" bg="green.500" />
+          </Avatar>
+          <Avatar size="xs" />
+        </AvatarGroup>
       </HStack>
     </div>
   );
