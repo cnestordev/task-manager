@@ -4,10 +4,11 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, lowercase: true },
   passwordHash: { type: String, required: true },
+  team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', default: null },
 });
 
 // Pre-save hook to ensure username is stored as lowercase
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function (next) {
   this.username = this.username.toLowerCase();
   next();
 });
