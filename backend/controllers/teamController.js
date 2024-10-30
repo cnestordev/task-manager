@@ -112,7 +112,7 @@ exports.getTeamMembers = async (req, res) => {
 
             // Check if the user belongs to a team
             if (!user.team) {
-                return res.status(400).json(createResponse(400, 'User is not part of a team'));
+                return res.status(200).json(createResponse(200, 'User is not part of a team', []));
             }
 
             // Find all team members by team ID, excluding the current user

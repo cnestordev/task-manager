@@ -50,7 +50,7 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
     const fetchUsers = async () => {
       try {
         const users = await getListOfUsers();
-        setUsersList(users);
+        if (users) setUsersList(users);
       } catch (error) {
         console.error("Failed to fetch users:", error);
       }
