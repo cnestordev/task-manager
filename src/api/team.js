@@ -23,3 +23,9 @@ export const joinTeam = async (inviteCode) => {
     const response = await axiosInstance.post(`/team/join`, { inviteCode });
     return response.data;
 };
+
+// Get team members
+export const getTeamMembers = async () => {
+    const response = await axiosInstance.get('/team/allMembers');
+    return response;
+  };

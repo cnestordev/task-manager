@@ -23,8 +23,3 @@ export const checkUser = async () => {
   const response = await axiosInstance.get('/auth/user');
   return response;
 };
-
-export const getTeamMembers = async () => {
-  const response = await axiosInstance.get('/auth/allMembers');
-  return response;
-};

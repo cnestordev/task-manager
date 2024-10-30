@@ -8,5 +8,6 @@ router.get('/', teamController.getTeamDetails); // Get team details
 router.post('/createTeam', validateTeam, teamController.createTeam); // Create a new team
 router.post('/members/remove', teamController.removeMember); // Remove team member by ID
 router.post('/join', teamController.joinTeam);
+router.get('/allMembers', teamController.getTeamMembers);
 
 module.exports = router;
