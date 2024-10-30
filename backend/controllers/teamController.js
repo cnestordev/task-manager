@@ -15,6 +15,10 @@ exports.createTeam = async (req, res) => {
     const { teamName } = req.body;
     const userId = req.user._id;
 
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+    }
+
     if (!teamName) {
         return res.status(400).json(createResponse(400, 'Team name is required'));
     }
@@ -123,6 +127,57 @@ exports.getTeamMembers = async (req, res) => {
         }
     } else {
         return res.status(401).json(createResponse(401, 'User not authenticated'));
+    }
+};
+
+exports.editInviteCode = async (req, res) => {
+    const { teamId, inviteCode } = req.body;
+    const userId = req.user._id;
+
+    // Check if the user is authenticated
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    // Check if both teamId and inviteCode are provided
+    if (!teamId || !inviteCode) {
+        return res.status(400).json({ error: 'Team ID and invite code are required' });
+    }
+
+    try {
+
+        // Check for an existing invite code to prevent duplicates
+        const existingTeam = await Team.findOne({ inviteCode });
+
+        if (existingTeam) {
+            if (existingTeam._id.toString() === teamId) {
+                // The invite code belongs to this team already
+                return res.status(400).json({ error: 'Invite code is already set to this value for your team.' });
+            } else {
+                // The invite code belongs to a different team
+                return res.status(409).json({ error: 'Invite code is already in use by another team.' });
+            }
+        }
+
+        // Locate the team by teamId
+        const team = await Team.findById(teamId);
+        if (!team) {
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        // Check if the user is the admin of the team
+        if (team.createdBy.toString() !== userId.toString()) {
+            return res.status(403).json({ error: 'Only the team admin can edit the invite code' });
+        }
+
+        // Update the invite code and save the team
+        team.inviteCode = inviteCode;
+        await team.save();
+
+        return res.status(200).json({ message: 'Invite code updated successfully', inviteCode });
+    } catch (error) {
+        console.error('Error updating invite code:', error);
+        return res.status(500).json({ error: 'An error occurred while updating the invite code' });
     }
 };
 

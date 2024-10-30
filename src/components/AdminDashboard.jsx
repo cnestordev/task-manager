@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
 import {
   Box,
-  Button,
-  Heading,
-  Text,
   Flex,
+  Heading,
   IconButton,
-  useToast,
   Spinner,
-  VStack,
+  Text,
+  useToast,
+  VStack
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
-import { getTeamDetails, removeMember } from "../api";
+import { editInviteCode, getTeamDetails, removeMember } from "../api";
 import { useUser } from "../context/UserContext";
+import CustomizeInviteCodeModal from "./CustomizeInviteCodeModal";
 
 const AdminDashboard = () => {
   const [team, setTeam] = useState();
@@ -40,13 +40,12 @@ const AdminDashboard = () => {
       }
     };
     fetchTeamDetails();
-  }, [toast]);
+  }, []);
 
   // Remove team member
   const handleRemoveMember = async (memberId) => {
     try {
       const response = await removeMember(memberId);
-      console.log(response);
       if (response.team === null) {
         updateUser({
           ...user,
@@ -70,6 +69,45 @@ const AdminDashboard = () => {
         description: "Failed to remove member",
         status: "error",
         duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleSaveInviteCode = async (newCode) => {
+
+    try {
+      const response = await editInviteCode({
+        inviteCode: newCode,
+        teamId: team.id,
+      });
+
+      const newInviteCode = response.data.inviteCode;
+      const message = response.data.message;
+
+      setTeam((prevTeam) => ({
+        ...prevTeam,
+        inviteCode: newInviteCode,
+      }));
+
+      toast({
+        title: message,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      const errorMessage =
+        error.response && error.response.data && error.response.data.error
+          ? error.response.data.error
+          : "An error occurred while updating the invite code. Please try again.";
+
+      // Error toast message
+      toast({
+        title: "Error",
+        description: errorMessage,
+        status: "error",
+        duration: 3000,
         isClosable: true,
       });
     }
@@ -116,9 +154,13 @@ const AdminDashboard = () => {
             <Text fontSize="20px" fontWeight="bold" color="#535353">
               {team.inviteCode}
             </Text>
-            <Text fontSize="13px" color="#535353">
+            <Text mb={2} fontSize="13px" color="#535353">
               Invite Code
             </Text>
+            <CustomizeInviteCodeModal
+              currentCode={team.inviteCode}
+              onSave={handleSaveInviteCode}
+            />
           </Box>
         </Flex>
       </Box>
