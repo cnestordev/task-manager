@@ -1,15 +1,16 @@
 import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
   Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
 } from "react-router-dom";
+import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./components/Register";
 import TaskBoard from "./components/TaskBoard";
-import Dashboard from "./components/Dashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
 
+import { MainContainer } from "./components/MainContainer";
 import { useUser } from "./context/UserContext";
 
 const App = () => {
@@ -20,47 +21,49 @@ const App = () => {
   }
 
   return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/taskboard" /> : <Login />}
-        />
-        <Route
-          path="/register"
-          element={user ? <Navigate to="/taskboard" /> : <Register />}
-        />
+    <MainContainer>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/taskboard" /> : <Login />}
+          />
+          <Route
+            path="/register"
+            element={user ? <Navigate to="/taskboard" /> : <Register />}
+          />
 
-        {/* Protected Route */}
-        <Route
-          path="/taskboard"
-          element={
-            <ProtectedRoute>
-              <TaskBoard />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Route */}
+          <Route
+            path="/taskboard"
+            element={
+              <ProtectedRoute>
+                <TaskBoard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Protected Route for Dashboard */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard user={user} />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Route for Dashboard */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Default Route: Redirect based on user status */}
-        <Route
-          path="/"
-          element={
-            user ? <Navigate to="/taskboard" /> : <Navigate to="/login" />
-          }
-        />
-      </Routes>
-    </Router>
+          {/* Default Route: Redirect based on user status */}
+          <Route
+            path="/"
+            element={
+              user ? <Navigate to="/taskboard" /> : <Navigate to="/login" />
+            }
+          />
+        </Routes>
+      </Router>
+    </MainContainer>
   );
 };
 

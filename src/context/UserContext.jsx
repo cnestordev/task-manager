@@ -37,10 +37,12 @@ export const UserProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
   return (
-    <UserContext.Provider
-      value={{ user, login, logout, loading }}
-    >
+    <UserContext.Provider value={{ user, login, logout, loading, updateUser }}>
       {children}
     </UserContext.Provider>
   );

@@ -1,38 +1,27 @@
-// import AdminDashboard from "./AdminDashboard";
-// import MemberDashboard from "./MemberDashboard";
-// import CreateTeamDashboard from "./CreateTeamDashboard";
+import { useUser } from "../context/UserContext";
+import AdminDashboard from "./AdminDashboard";
+import MemberDashboard from "./MemberDashboard";
+import Navbar from "./Navbar";
+import { NewTeamContainer } from "./NewTeamContainer";
 
-import CreateTeamDashboard from "./CreateTeamDashboard";
+const Dashboard = () => {
+  const { user } = useUser();
 
-const Dashboard = ({ user }) => {
-
-  const isAdmin = user?.team && user._id === user.team.createdBy;
-  const isMember = user?.team && user._id !== user.team.createdBy;
-
+  const isAdmin = user?.team && user.id === user.team.createdBy;
+  const isMember = user?.team && user.id !== user.team.createdBy;
 
   return (
-    <div className="dashboard-container">
-      <h1>Welcome, {user.username}!</h1>
-      <CreateTeamDashboard />
-      {/* {isAdmin && (
-        <>
-          <h2>Admin Dashboard</h2>
-          <AdminDashboard />
-        </>
-      )}
+    <>
+      <Navbar />
+      {isAdmin && <AdminDashboard />}
       {isMember && (
         <>
           <h2>Team Member Dashboard</h2>
           <MemberDashboard />
         </>
       )}
-      {!user.team && (
-        <>
-          <h2>Create a Team</h2>
-          <CreateTeamDashboard />
-        </>
-      )} */}
-    </div>
+      {!user.team && <NewTeamContainer />}
+    </>
   );
 };
 

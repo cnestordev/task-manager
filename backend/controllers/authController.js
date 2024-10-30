@@ -39,13 +39,13 @@ exports.register = async (req, res, next) => {
             return res.status(201).json(createResponse(201, 'Registration and login successful', {
                 id: newUser._id,
                 username: newUser.username,
+                team: null // Set `team` to null since the user hasn't joined or created a team
             }));
         });
     } catch (error) {
         return res.status(500).json(createResponse(500, 'Error registering user'));
     }
 };
-
 
 // Login Handler
 exports.login = (req, res, next) => {
@@ -57,31 +57,54 @@ exports.login = (req, res, next) => {
             if (err) return next(err);
 
             try {
+                // Populate the user's team details if they belong to one
+                const populatedUser = await User.findById(user._id).populate('team', 'name inviteCode createdBy members _id');
+
                 res.status(200).json(createResponse(200, 'Login successful', {
-                    id: user._id,
-                    username: user.username.toLowerCase(),
+                    id: populatedUser._id,
+                    username: populatedUser.username.toLowerCase(),
+                    team: populatedUser.team
+                        ? {
+                            id: populatedUser.team._id,
+                            name: populatedUser.team.name,
+                            inviteCode: populatedUser.team.inviteCode,
+                            createdBy: populatedUser.team.createdBy,
+                            members: populatedUser.team.members
+                        }
+                        : null // Set team to null if the user is not part of a team
                 }));
             } catch (err) {
-                console.error('Error fetching tasks:', err);
+                console.error('Error fetching user or team data:', err);
                 res.status(500).json(createResponse(500, 'Internal server error', null));
             }
         });
     })(req, res, next);
 };
 
-
 // Check if User is Logged In
 exports.checkUser = async (req, res) => {
     if (req.isAuthenticated()) {
         try {
-            const user = {
-                id: req.user._id,
-                username: req.user.username.toLowerCase(),
+            const user = await User.findOne({ _id: req.user._id })
+                .populate('team', 'createdBy name inviteCode members');
+
+            const modifiedUser = {
+                username: user.username,
+                _id: user._id,
+                id: user._id,
+                team: user.team ? {
+                    _id: user.team._id,
+                    createdBy: user.team.createdBy,
+                    name: user.team.name,
+                    inviteCode: user.team.inviteCode,
+                    members: user.team.members,
+                } : null
             };
-            return res.status(200).json(createResponse(200, 'User is authenticated', user));
+
+            return res.status(200).json(createResponse(200, 'User is authenticated', modifiedUser));
         } catch (err) {
-            console.error('Error fetching tasks:', err);
-            res.status(500).json(createResponse(500, 'Internal server error', null));
+            console.error('Error fetching user:', err);
+            return res.status(500).json(createResponse(500, 'Internal server error', null));
         }
     } else {
         return res.status(401).json(createResponse(401, 'User not authenticated'));

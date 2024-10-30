@@ -1,27 +1,24 @@
 import { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   Heading,
   Text,
   Flex,
-  IconButton,
+  Button,
   useToast,
   Spinner,
   VStack,
 } from "@chakra-ui/react";
-import { MdDelete } from "react-icons/md";
 import { getTeamDetails, removeMember } from "../api";
 import { useUser } from "../context/UserContext";
 
-const AdminDashboard = () => {
+const MemberDashboard = () => {
   const [team, setTeam] = useState();
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
-  const { user, updateUser } = useUser()
+  const { user, updateUser } = useUser();
 
-  // Fetch team details on component mount
   useEffect(() => {
     const fetchTeamDetails = async () => {
       try {
@@ -42,32 +39,25 @@ const AdminDashboard = () => {
     fetchTeamDetails();
   }, [toast]);
 
-  // Remove team member
-  const handleRemoveMember = async (memberId) => {
+  const handleLeaveTeam = async () => {
     try {
-      const response = await removeMember(memberId);
-      console.log(response);
-      if (response.team === null) {
-        updateUser({
-          ...user,
-          team: null,
-        });
-      }
-      setTeam((prevTeam) => ({
-        ...prevTeam,
-        members: prevTeam.members.filter((member) => member._id !== memberId),
-      }));
+      await removeMember(user._id);
       toast({
-        title: "Member Removed",
-        description: "The member has been successfully removed from the team.",
+        title: "Left Team",
+        description: "You have successfully left the team.",
         status: "success",
         duration: 5000,
         isClosable: true,
       });
+
+      updateUser({
+        ...user,
+        team: null,
+      });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to remove member",
+        description: "Failed to leave the team",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -80,7 +70,7 @@ const AdminDashboard = () => {
   return (
     <Box mx="auto" width="50%" borderRadius="md">
       <Heading as="h2" size="lg" mb={6} textAlign="center" color="gray.700">
-        Admin Dashboard
+        Member Dashboard
       </Heading>
 
       {/* Team Information */}
@@ -98,22 +88,14 @@ const AdminDashboard = () => {
         <Text fontSize="lg" fontWeight="bold" color="gray.800">
           Team Name: {team.name}
         </Text>
-        <Flex
-          bg="#efefef"
-          padding="15px"
-          borderRadius="10"
-          width="30%"
-          alignItems="center"
-          justifyContent="center"
-          mt={2}
+        <Button
+          colorScheme="red"
+          variant="outline"
+          mt={4}
+          onClick={handleLeaveTeam}
         >
-          <Text fontSize="14px" fontWeight="600" color="#535353" mr={1}>
-            Invite Code:
-          </Text>
-          <Text fontSize="14px" color="#535353" fontWeight="600">
-            {team.inviteCode}
-          </Text>
-        </Flex>
+          Leave Team
+        </Button>
       </Box>
 
       {/* Team Members */}
@@ -135,16 +117,8 @@ const AdminDashboard = () => {
                 alignSelf="center"
               >
                 <Text flex="1" color="gray.800" fontWeight="medium">
-                  {member.username}
+                  {member.username} {member._id === team.createdBy && "- Admin"}
                 </Text>
-                <IconButton
-                  icon={<MdDelete />}
-                  colorScheme="red"
-                  variant="ghost"
-                  aria-label="Remove member"
-                  onClick={() => handleRemoveMember(member._id)}
-                  fontSize="22px"
-                />
               </Flex>
             ))}
           </VStack>
@@ -156,4 +130,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default MemberDashboard;

@@ -14,6 +14,12 @@ export const createTeam = async (teamName) => {
 
 // Remove a team member by ID
 export const removeMember = async (memberId) => {
-    const response = await axiosInstance.delete(`/team/members/${memberId}`);
+    const response = await axiosInstance.post(`/team/members/remove`, { memberId });
+    return response.data;
+};
+
+// Join team by invitation code
+export const joinTeam = async (inviteCode) => {
+    const response = await axiosInstance.post(`/team/join`, { inviteCode });
     return response.data;
 };

@@ -1,33 +1,41 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   VStack,
   Button,
   FormControl,
   FormLabel,
-  Input,
   Text,
   useToast,
   FormErrorMessage,
+  HStack,
+  PinInput,
+  PinInputField,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { createTeam } from "../api";
+import { joinTeam } from "../api";
 import { useUser } from "../context/UserContext";
-import { TeamSchema } from "../validation/teamValidation";
 
-const CreateTeamDashboard = () => {
+// Validation schema for invite code
+const InviteCodeSchema = Yup.object().shape({
+  inviteCode: Yup.string()
+    .required("Invite code is required")
+    .length(8, "Invite code must be exactly 8 characters"),
+});
+
+const JoinTeamDashboard = () => {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const { updateUser } = useUser();
 
   const {
-    register,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset,
   } = useForm({
-    resolver: yupResolver(TeamSchema),
+    resolver: yupResolver(InviteCodeSchema),
     mode: "onBlur",
   });
 
@@ -35,27 +43,25 @@ const CreateTeamDashboard = () => {
     setLoading(true);
 
     try {
-      const response = await createTeam(data.teamName);
+      const response = await joinTeam(data.inviteCode);
 
       toast({
-        title: "Team Created",
-        description: `Team "${response.data.team.name}" created successfully! Invite code: ${response.data.team.inviteCode}`,
+        title: "Joined Team",
+        description: response.message,
         status: "success",
         duration: 5000,
         isClosable: true,
       });
 
       reset();
-
-      // Update the user context
       updateUser({
-        ...response.data.user,
-        team: response.data.team,
+        ...response.user,
+        team: response.team,
       });
     } catch (err) {
       toast({
         title: "Error",
-        description: err.response?.data?.error || "Error creating team",
+        description: err.response?.data?.error || "Failed to join team",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -75,40 +81,46 @@ const CreateTeamDashboard = () => {
       padding="2rem 1rem"
     >
       <Text mb={4} fontSize="2xl" fontWeight="medium" color="gray.700">
-        Create Your Team
+        Join a Team
       </Text>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
-        <FormControl isInvalid={errors.teamName} isRequired marginBottom="1rem">
-          <FormLabel htmlFor="teamName" fontWeight="medium" color="gray.600">
-            Team Name
+        <FormControl
+          isInvalid={errors.inviteCode}
+          isRequired
+          marginBottom="1rem"
+        >
+          <FormLabel htmlFor="inviteCode" fontWeight="medium" color="gray.600">
+            Invite Code
           </FormLabel>
-          <Input
-            id="teamName"
-            placeholder="Enter your team name"
-            variant="filled"
-            borderRadius="md"
-            bg="gray.100"
-            _focus={{ bg: "gray.200" }}
-            {...register("teamName")}
-          />
-          <FormErrorMessage>{errors.teamName?.message}</FormErrorMessage>
+          <HStack justify="center">
+            <PinInput
+              type="alphanumeric"
+              onChange={(value) => setValue("inviteCode", value)}
+              onComplete={handleSubmit(onSubmit)}
+            >
+              {[...Array(8)].map((_, idx) => (
+                <PinInputField key={idx} />
+              ))}
+            </PinInput>
+          </HStack>
+          <FormErrorMessage>{errors.inviteCode?.message}</FormErrorMessage>
         </FormControl>
 
         <Button
           colorScheme="blue"
           type="submit"
           isLoading={loading}
-          loadingText="Creating Team"
+          loadingText="Joining Team"
           width="100%"
           marginTop="1.5rem"
           borderRadius="md"
         >
-          Create Team
+          Join Team
         </Button>
       </form>
     </VStack>
   );
 };
 
-export default CreateTeamDashboard;
+export default JoinTeamDashboard;

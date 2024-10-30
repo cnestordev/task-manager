@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MdCheckCircle } from "react-icons/md";
 
@@ -84,9 +84,9 @@ const FormContainer = ({ addTask }) => {
   };
 
   return (
-    <div className="form-container">
+    <>
       <Button ref={btnRef} colorScheme="blue" onClick={onOpen}>
-        <AddIcon boxSize={6} />
+        <AddIcon boxSize={3} mr={2} /> Create
       </Button>
       <Drawer
         isOpen={isOpen}
@@ -197,7 +197,7 @@ const FormContainer = ({ addTask }) => {
           </form>
         </DrawerContent>
       </Drawer>
-    </div>
+    </>
   );
 };
 

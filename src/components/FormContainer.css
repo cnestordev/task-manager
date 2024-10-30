@@ -2,7 +2,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  flex-basis: 30%;
   padding: 15px;
 }
 

@@ -1,6 +1,6 @@
 import { useToast } from "@chakra-ui/react";
 import { DragDropContext } from "@hello-pangea/dnd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   createTask,
   updateTaskOrder,
@@ -8,14 +8,9 @@ import {
   updateTasksServer,
 } from "../api/index";
 import "../App.css";
-import DeleteTaskModal from "./DeleteTaskModal";
-import EditTaskModal from "./EditTaskModal";
-import FormContainer from "./FormContainer";
-import Navbar from "./Navbar";
-import PriorityColumn from "./PriorityColumn";
+import { useLoading } from "../context/LoadingContext";
 import { useTask } from "../context/TaskContext";
 import { useUser } from "../context/UserContext";
-import { useLoading } from "../context/LoadingContext";
 import {
   handleAddTask,
   handleDragEnd,
@@ -25,6 +20,11 @@ import {
   updateSelectedTask,
 } from "../utils/taskUtils";
 import CompletedTaskModal from "./CompletedTaskModal";
+import DeleteTaskModal from "./DeleteTaskModal";
+import EditTaskModal from "./EditTaskModal";
+import FormContainer from "./FormContainer";
+import Navbar from "./Navbar";
+import PriorityColumn from "./PriorityColumn";
 
 const TaskBoard = () => {
   const {
@@ -221,7 +221,7 @@ const TaskBoard = () => {
         backUpTasks
       );
 
-      setRecentlyUpdatedTask(updatedTask)
+      setRecentlyUpdatedTask(updatedTask);
 
       setSelectedTask(null);
 
@@ -348,7 +348,7 @@ const TaskBoard = () => {
   const priorities = ["High", "Medium", "Low"];
 
   return (
-    <div className="container">
+    <>
       <Navbar>
         {/* Form to Add New Task */}
         <FormContainer addTask={addTask} />
@@ -438,7 +438,7 @@ const TaskBoard = () => {
           ))}
         </div>
       </DragDropContext>
-    </div>
+    </>
   );
 };
 

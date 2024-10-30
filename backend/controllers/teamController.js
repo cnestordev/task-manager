@@ -1,6 +1,7 @@
 const { default: mongoose } = require('mongoose');
 const Team = require('../models/Team');
 const User = require('../models/User');
+const generateInviteCode = require("../util/inviteCode");
 
 // Team Creation Handler
 exports.createTeam = async (req, res) => {
@@ -26,18 +27,19 @@ exports.createTeam = async (req, res) => {
             return res.status(400).json(createResponse(400, 'Team name already exists'));
         }
 
-        // Proceed to create the team
+        // Create the team
         const newTeam = new Team({
             name: teamName,
             createdBy: userId,
             members: [userId],
-            inviteCode: Math.random().toString(36).substring(2, 10), // Generate invite code
+            inviteCode: generateInviteCode()
         });
         await newTeam.save();
 
-        // Link the team to the user
+        // Link the team to the user and fetch updated user with team populated
         user.team = newTeam._id;
         await user.save();
+        const updatedUser = await User.findById(userId).populate('team', 'name inviteCode createdBy members _id');
 
         return res.status(201).json({
             message: "Team created successfully",
@@ -45,7 +47,14 @@ exports.createTeam = async (req, res) => {
                 id: newTeam._id,
                 name: newTeam.name,
                 inviteCode: newTeam.inviteCode,
+                createdBy: userId,
+                members: [userId]
             },
+            user: {
+                id: updatedUser._id,
+                username: updatedUser.username,
+                _id: updatedUser._id
+            }
         });
     } catch (error) {
         console.error("Error creating team:", error);
@@ -71,6 +80,7 @@ exports.getTeamDetails = async (req, res) => {
             id: team._id,
             name: team.name,
             inviteCode: team.inviteCode,
+            createdBy: team.createdBy,
             members: team.members.map(member => ({
                 _id: member._id,
                 username: member.username
@@ -111,12 +121,28 @@ exports.removeMember = async (req, res) => {
             return res.status(404).json({ error: 'Member not found in the team' });
         }
 
-        // Remove the member from the team
+        // If the admin is removing themselves, remove all members and delete the team
+        if (isAdmin && isSelfRemoval) {
+            // Clear the `team` field from all members in the team
+            await User.updateMany({ team: team._id }, { $set: { team: null } });
+
+            // Delete the team
+            await Team.findByIdAndDelete(team._id);
+            return res.status(200).json({ message: 'Admin removed themselves; team and all members removed successfully', team: null });
+        }
+
+        // Regular member removal case
         team.members = team.members.filter(member => member.toString() !== memberId);
         await team.save();
 
         // Unlink the team from the removed member's profile
         await User.findByIdAndUpdate(memberId, { team: null });
+
+        // Check if the team has no more members and delete if necessary
+        if (team.members.length === 0) {
+            await Team.findByIdAndDelete(team._id);
+            return res.status(200).json({ message: 'Member removed and team deleted as it has no more members' });
+        }
 
         return res.status(200).json({ message: 'Member removed successfully' });
     } catch (error) {
@@ -155,7 +181,24 @@ exports.joinTeam = async (req, res) => {
         user.team = team._id;
         await user.save();
 
-        return res.status(200).json({ message: 'Successfully joined the team', teamId: team._id });
+        // Fetch the updated user data with the populated team field
+        const updatedUser = await User.findById(userId).populate('team', 'name inviteCode createdBy members _id');
+
+        return res.status(200).json({
+            message: 'Successfully joined the team',
+            team: {
+                id: team._id,
+                name: team.name,
+                inviteCode: team.inviteCode,
+                createdBy: team.createdBy,
+                members: team.members,
+            },
+            user: {
+                id: updatedUser._id,
+                username: updatedUser.username,
+                _id: updatedUser._id,
+            }
+        });
     } catch (error) {
         console.error('Error joining team:', error);
         return res.status(500).json({ error: 'An error occurred while attempting to join the team' });
