@@ -24,7 +24,7 @@ export const checkUser = async () => {
   return response;
 };
 
-export const getAllUsers = async () => {
-  const response = await axiosInstance.get('/auth/allUsers');
+export const getTeamMembers = async () => {
+  const response = await axiosInstance.get('/auth/allMembers');
   return response;
 };

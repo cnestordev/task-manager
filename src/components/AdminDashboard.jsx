@@ -19,7 +19,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
-  const { user, updateUser } = useUser()
+  const { user, updateUser } = useUser();
 
   // Fetch team details on component mount
   useEffect(() => {
@@ -95,9 +95,14 @@ const AdminDashboard = () => {
         alignItems="center"
         flexDirection="column"
       >
-        <Text fontSize="lg" fontWeight="bold" color="gray.800">
-          Team Name: {team.name}
-        </Text>
+        <Box mb={2}>
+          <Text fontSize="24px" fontWeight="bold" color="gray.800">
+            {team.name}
+          </Text>
+          <Text fontSize="14px" color="gray.600">
+            Team Name
+          </Text>
+        </Box>
         <Flex
           bg="#efefef"
           padding="15px"
@@ -107,12 +112,14 @@ const AdminDashboard = () => {
           justifyContent="center"
           mt={2}
         >
-          <Text fontSize="14px" fontWeight="600" color="#535353" mr={1}>
-            Invite Code:
-          </Text>
-          <Text fontSize="14px" color="#535353" fontWeight="600">
-            {team.inviteCode}
-          </Text>
+          <Box>
+            <Text fontSize="20px" fontWeight="bold" color="#535353">
+              {team.inviteCode}
+            </Text>
+            <Text fontSize="13px" color="#535353">
+              Invite Code
+            </Text>
+          </Box>
         </Flex>
       </Box>
 

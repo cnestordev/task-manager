@@ -111,16 +111,25 @@ exports.checkUser = async (req, res) => {
     }
 };
 
-exports.getAllUsers = async (req, res) => {
+exports.getTeamMembers = async (req, res) => {
     if (req.isAuthenticated()) {
         try {
-            // Fetch all users except the current user
-            const users = await User.find({ _id: { $ne: req.user._id } }).select('username');
+            // Fetch the user's team information
+            const user = await User.findById(req.user._id).populate('team');
 
-            // Return the list of users
-            return res.status(200).json(createResponse(200, 'Users fetched successfully', users));
+            // Check if the user belongs to a team
+            if (!user.team) {
+                return res.status(400).json(createResponse(400, 'User is not part of a team'));
+            }
+
+            // Find all team members by team ID, excluding the current user
+            const members = await User.find({ team: user.team._id, _id: { $ne: req.user._id } })
+                .select('_id username');
+
+            // Return the list of team members
+            return res.status(200).json(createResponse(200, 'Team members fetched successfully', members));
         } catch (err) {
-            console.error('Error fetching users:', err);
+            console.error('Error fetching team members:', err);
             return res.status(500).json(createResponse(500, 'Internal server error', null));
         }
     } else {

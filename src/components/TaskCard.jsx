@@ -162,6 +162,7 @@ const TaskCard = ({
                     >
                       <div>
                         <StatusIndicator
+                          assignedToLength={task.assignedTo.length}
                           className={isTaskShared ? "" : "hidden"}
                           status={isOnline ? "online" : "hidden"}
                         />
