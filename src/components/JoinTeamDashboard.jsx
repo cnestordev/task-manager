@@ -1,18 +1,18 @@
-import { useState } from "react";
 import {
-  VStack,
   Button,
   FormControl,
-  FormLabel,
-  Text,
-  useToast,
   FormErrorMessage,
+  FormLabel,
   HStack,
   PinInput,
   PinInputField,
+  Text,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { joinTeam } from "../api";
 import { useUser } from "../context/UserContext";
@@ -28,6 +28,7 @@ const JoinTeamDashboard = () => {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const { updateUser } = useUser();
+  const [isPinComplete, setIsPinComplete] = useState(false);
 
   const {
     handleSubmit,
@@ -43,6 +44,7 @@ const JoinTeamDashboard = () => {
     setLoading(true);
 
     try {
+      setIsPinComplete(true);
       const response = await joinTeam(data.inviteCode);
 
       toast({
@@ -84,7 +86,7 @@ const JoinTeamDashboard = () => {
         Join a Team
       </Text>
 
-      <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+      <form style={{ width: "100%" }}>
         <FormControl
           isInvalid={errors.inviteCode}
           isRequired
@@ -95,6 +97,7 @@ const JoinTeamDashboard = () => {
           </FormLabel>
           <HStack justify="center">
             <PinInput
+              isDisabled={isPinComplete}
               type="alphanumeric"
               onChange={(value) => setValue("inviteCode", value)}
               onComplete={handleSubmit(onSubmit)}
