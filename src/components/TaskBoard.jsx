@@ -50,11 +50,13 @@ const TaskBoard = () => {
       (task) => task.priority === formData.priority
     ).length;
     try {
-      const data = await handleAddTask(
+      const isTeamCard = formData.addedUsers.length > 0;
+      await handleAddTask(
         {
           title: formData.title,
           description: formData.description,
           assignedTo: [...formData.addedUsers.map((user) => user._id)],
+          teamId: isTeamCard ? user.team._id : null,
           taskPosition: [
             {
               priority: formData.priority,
@@ -250,9 +252,11 @@ const TaskBoard = () => {
   // Save changes when editing a task
   const saveTaskChanges = async (formData, resetForm) => {
     try {
+      const isTeamCard = formData.addedUsers.length > 0;
       const updatedData = JSON.parse(JSON.stringify(selectedTask));
       updatedData.title = formData.title;
       updatedData.description = formData.description;
+      updatedData.teamId = isTeamCard ? user.team._id : null,
       updatedData.assignedTo = [
         ...updatedData.assignedTo,
         ...formData.addedUsers,

@@ -5,11 +5,11 @@ const TaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
-    isShared: { type: Boolean, default: false },
     created: { type: Date, default: Date.now },
     modified: { type: Date, default: null },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    teamId: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', default: null },
     taskPosition: [{
         isExpanded: { type: Boolean, default: true },
         priority: { type: String, enum: ['Low', 'Medium', 'High'], required: true },

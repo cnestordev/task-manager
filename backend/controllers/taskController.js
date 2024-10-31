@@ -18,7 +18,7 @@ exports.createTask = async (req, res) => {
                 title,
                 description,
                 assignedTo: [req.user._id, ...assignedTo],
-                isShared: assignedTo.length > 0,
+                teamId: req.body.teamId || null,
                 createdBy: req.user._id,
                 taskPosition: [
                     // Map over taskPosition for the task creator
@@ -142,7 +142,7 @@ exports.updateTaskOrder = async (req, res) => {
                 title: req.body.title,
                 description: req.body.description,
                 isDeleted: req.body.isDeleted,
-                isShared: req.body.assignedTo.length > 1,
+                teamId: req.body.teamId || null,
                 isCompleted: req.body.isCompleted,
                 assignedTo: req.body.assignedTo,
                 taskPosition: updatedTaskPositionArray
