@@ -102,7 +102,7 @@ exports.updateTaskOrder = async (req, res) => {
         }
 
         // Step 2: Check if any of the specific fields have changed
-        const fieldsToTriggerIncrement = ['title', 'description', 'assignedTo'];
+        const fieldsToTriggerIncrement = ['title', 'description'];
         const hasTriggerFieldChanged = fieldsToTriggerIncrement.some(
             field => req.body[field] !== undefined && req.body[field] !== existingTask[field]
         );
