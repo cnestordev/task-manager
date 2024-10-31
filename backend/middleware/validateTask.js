@@ -15,6 +15,7 @@ const taskValidationSchema = Joi.object({
     title: Joi.string().required().min(1).max(255),
     description: Joi.string().required().min(1).max(1024),
     isDeleted: Joi.boolean().default(false),
+    isShared: Joi.boolean().default(false),
     createdBy: Joi.string().custom(objectIdValidator).optional(),
     assignedTo: Joi.array().items(
         Joi.string().custom(objectIdValidator)

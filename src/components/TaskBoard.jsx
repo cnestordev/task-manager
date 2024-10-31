@@ -55,7 +55,7 @@ const TaskBoard = () => {
         {
           title: formData.title,
           description: formData.description,
-          assignedTo: [...formData.addedUsers.map((user) => user._id)],
+          assignedTo: [...formData.addedUsers.map((user) => user._id), user._id],
           taskPosition: [
             {
               priority: formData.priority,

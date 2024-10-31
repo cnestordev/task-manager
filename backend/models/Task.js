@@ -5,6 +5,7 @@ const TaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
+    isShared: { type: Boolean, default: false },
     created: { type: Date, default: Date.now },
     modified: { type: Date, default: null },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

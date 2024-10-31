@@ -188,9 +188,9 @@ exports.removeMember = async (req, res) => {
     }
 
     try {
-        const userId = req.user._id.toString(); // Ensure userId is a string
+        const userId = req.user._id.toString();
         const { memberId } = req.body;
-        const memberIdStr = memberId.toString(); // Convert memberId to string for consistency
+        const memberIdStr = memberId.toString();
 
         // Find the team that includes the member to be removed
         const team = await Team.findOne({ members: memberId });
