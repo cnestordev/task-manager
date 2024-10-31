@@ -1,39 +1,35 @@
 const Task = require('../models/Task');
 
 const updateTasksForRemovedMembers = async (memberIds) => {
-    console.log(memberIds)
     try {
-        // Find all tasks where any of the members are either the creator or assigned
+        const membersToRemove = memberIds.map(id => id.toString());
+
+        // Find all team tasks where removed members are assigned
         const tasks = await Task.find({
-            $or: [
-                { createdBy: { $in: memberIds } },
-                { assignedTo: { $in: memberIds } }
-            ]
+            teamId: { $ne: null },
+            assignedTo: { $in: membersToRemove }
         });
 
-        // Process each task
-        for (const task of tasks) {
-            const taskCreatorId = task.createdBy.toString();
+        // Modify tasks and gather bulk write operations
+        const bulkOperations = tasks.map(task => {
+            // Remove the members from assignedTo and taskPosition
+            task.assignedTo = task.assignedTo.filter(userId => !membersToRemove.includes(userId.toString()));
+            task.taskPosition = task.taskPosition.filter(pos => !membersToRemove.includes(pos.userId.toString()));
 
-            // Members to remove from assignedTo and taskPosition
-            const membersToRemove = memberIds.map(id => id.toString());
+            // Return a bulk update operation for each modified task
+            return {
+                updateOne: {
+                    filter: { _id: task._id },
+                    update: {
+                        assignedTo: task.assignedTo,
+                        taskPosition: task.taskPosition
+                    }
+                }
+            };
+        });
 
-            // A) Remove members from assignedTo if they didn't create the task
-            if (!membersToRemove.includes(taskCreatorId)) {
-                task.assignedTo = task.assignedTo.filter(userId => !membersToRemove.includes(userId.toString()));
-                task.taskPosition = task.taskPosition.filter(pos => !membersToRemove.includes(pos.userId.toString()));
-            }
-            // B) If they created the task and others are assigned, just remove them from assignedTo
-            else if (membersToRemove.includes(taskCreatorId) && task.assignedTo.length > 1) {
-                task.assignedTo = task.assignedTo.filter(userId => !membersToRemove.includes(userId.toString()));
-                task.taskPosition = task.taskPosition.filter(pos => !membersToRemove.includes(pos.userId.toString()));
-            }
-            // C) If they created the task and are the only one assigned, leave it as is
-            // No action needed
-
-            // Save changes to each task
-            await task.save();
-        }
+        // Perform all updates in a single bulk operation if any tasks need updating
+        if (bulkOperations.length) await Task.bulkWrite(bulkOperations);
 
         return { success: true };
     } catch (error) {
@@ -41,7 +37,6 @@ const updateTasksForRemovedMembers = async (memberIds) => {
         return { success: false, error };
     }
 };
-
 
 
 module.exports = { updateTasksForRemovedMembers };

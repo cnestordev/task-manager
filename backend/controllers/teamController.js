@@ -56,6 +56,7 @@ exports.createTeam = async (req, res) => {
             message: "Team created successfully",
             team: {
                 id: newTeam._id,
+                _id: newTeam._id,
                 name: newTeam.name,
                 inviteCode: newTeam.inviteCode,
                 createdBy: userId,
@@ -89,6 +90,7 @@ exports.getTeamDetails = async (req, res) => {
         const team = await Team.findById(user.team._id).populate('members', 'username');
         return res.status(200).json({
             id: team._id,
+            _id: team._id,
             name: team.name,
             inviteCode: team.inviteCode,
             createdBy: team.createdBy,
@@ -299,6 +301,7 @@ exports.joinTeam = async (req, res) => {
             message: 'Successfully joined the team',
             team: {
                 id: team._id,
+                _id: team._id,
                 name: team.name,
                 inviteCode: team.inviteCode,
                 createdBy: team.createdBy,
