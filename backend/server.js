@@ -25,6 +25,10 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 
+const { startJob } = require("./logger");
+
+startJob();
+
 // Connect to Database
 connectDB();
 
