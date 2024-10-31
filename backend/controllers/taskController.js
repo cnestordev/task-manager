@@ -17,8 +17,8 @@ exports.createTask = async (req, res) => {
             const newTask = new Task({
                 title,
                 description,
-                assignedTo: [...assignedTo],
-                isShared: assignedTo.length > 1,
+                assignedTo: [req.user._id, ...assignedTo],
+                isShared: assignedTo.length > 0,
                 createdBy: req.user._id,
                 taskPosition: [
                     // Map over taskPosition for the task creator

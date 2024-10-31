@@ -33,13 +33,10 @@ export const addTaskOptimistically = async (
     updateTask,
     createTaskOnServer,
     removeTask,
-    setLoadingTaskId
 ) => {
     // Generate a temporary ID for the new task
     const tempId = `temp-${Date.now()}`;
-    const tempTask = { ...newTaskData, _id: tempId, tempId, taskPosition: [{ ...newTaskData.taskPosition[0], isExpanded: true }] };
-
-    setLoadingTaskId(tempTask._id);
+    const tempTask = { ...newTaskData, _id: tempId, taskPosition: [{ ...newTaskData.taskPosition[0], isExpanded: true }] };
 
     // Optimistic UI update: Add the new task
     addNewTask(tempTask);
@@ -63,15 +60,13 @@ export const addTaskOptimistically = async (
 
         // Throw the error to let the caller handle it (e.g., show a toast)
         throw new Error("Task creation failed on the server.");
-    } finally {
-        setLoadingTaskId(null);
     }
 };
 
 // Add a new task
-export const handleAddTask = async (newTask, addNewTask, updateTask, createTaskOnServer, removeTask, setLoadingTaskId) => {
+export const handleAddTask = async (newTask, addNewTask, updateTask, createTaskOnServer, removeTask) => {
     try {
-        const data = await addTaskOptimistically(newTask, addNewTask, updateTask, createTaskOnServer, removeTask, setLoadingTaskId);
+        const data = await addTaskOptimistically(newTask, addNewTask, updateTask, createTaskOnServer, removeTask);
         return data;
     } catch (error) {
         throw new Error(error);
@@ -96,7 +91,6 @@ export const handleDragEnd = async (
     tasks,
     updateTasksOnServer,
     updateTasks,
-    setLoadingTaskId
 ) => {
     const { destination, source } = result;
 
@@ -147,9 +141,6 @@ export const handleDragEnd = async (
             console.log(`Reassigned position for task ID ${task._id}:`, task);
         });
 
-        // Log task ID being loaded (for loading state)
-        setLoadingTaskId(removedTask._id);
-        console.log("Set loading task ID:", removedTask._id);
     }
     else {
         // If the task is moved to a different priority column
@@ -162,7 +153,6 @@ export const handleDragEnd = async (
         const filteredDestinationTasks = destinationTasks.filter(task => !(task.isCompleted || task.isDeleted));
         filteredSourceTasks.forEach((task, i) => task.position = i);
         filteredDestinationTasks.forEach((task, i) => task.position = i);
-        setLoadingTaskId(removedTask._id);
     }
 
     // Update the tasks in the state optimistically.
@@ -177,8 +167,6 @@ export const handleDragEnd = async (
         updateTasks(tasks);
         console.error("Error updating tasks on the server:", error);
         throw error;
-    } finally {
-        setLoadingTaskId(null);
     }
 };
 

@@ -36,7 +36,6 @@ const TaskBoard = () => {
     setRecentlyUpdatedTask,
   } = useTask();
   const { user } = useUser();
-  const { loadingTaskId, setLoadingTaskId } = useLoading();
   const toast = useToast();
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeColumn, setActiveColumn] = useState(null);
@@ -55,7 +54,7 @@ const TaskBoard = () => {
         {
           title: formData.title,
           description: formData.description,
-          assignedTo: [...formData.addedUsers.map((user) => user._id), user._id],
+          assignedTo: [...formData.addedUsers.map((user) => user._id)],
           taskPosition: [
             {
               priority: formData.priority,
@@ -67,7 +66,6 @@ const TaskBoard = () => {
         updateTask,
         createTask,
         removeTask,
-        setLoadingTaskId
       );
 
       toast({
@@ -259,7 +257,6 @@ const TaskBoard = () => {
         ...updatedData.assignedTo,
         ...formData.addedUsers,
       ];
-      setLoadingTaskId(updatedData._id);
 
       const data = await updateSelectedTask(
         updatedData,
@@ -289,8 +286,6 @@ const TaskBoard = () => {
         duration: 5000,
         isClosable: true,
       });
-    } finally {
-      setLoadingTaskId(null);
     }
   };
 
@@ -398,7 +393,6 @@ const TaskBoard = () => {
               tasks,
               updateTasksOrderOnServer,
               updateTasks,
-              setLoadingTaskId
             );
           } catch (error) {
             console.error("Error handling drag end:", error);

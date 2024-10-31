@@ -44,7 +44,7 @@ export const TaskProvider = ({ children }) => {
       let tasksChanged = false;
       const updatedTasks = prevTasks.map((task) => {
         if (
-          (tempId && task.tempId === tempId) ||
+          (tempId && task._id === tempId) ||
           task._id === updatedTask._id
         ) {
           tasksChanged = true;
