@@ -1,4 +1,4 @@
-require('./config/loadEnv')
+require('./config/loadEnv');
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
@@ -16,15 +16,17 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 const mongoose = require("mongoose");
 
-console.log(process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP)
+console.log(process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP);
 // Connect to Database
 connectDB();
 
 // Middleware Setup
-app.use(cors({
-    origin: [process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP],
-    credentials: true
-}));
+// app.use(cors({
+//     origin: [process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP],
+//     credentials: true
+// }));
+
+app.use(cors({ origin: '*', credentials: true }));
 
 // WebSocket Setup
 const io = socketIo(server, {
@@ -125,5 +127,7 @@ app.use(passport.session());
 app.use('/api/auth', authRoutes);
 app.use('/api/task', taskRoutes);
 app.use('/api/team', teamRoutes);
+
+app.get('/', (req, res) => res.send('Server is running.'));
 
 server.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://0.0.0.0:${PORT}`));
