@@ -17,8 +17,8 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
         // Establish the WebSocket connection
         if (!socketRef.current) {
             const apiBaseUrl = window.location.hostname === 'localhost'
-                ? "http://localhost:5000"
-                : "http://192.168.0.41:5000";
+                ? "http://localhost:3000"
+                : "http://192.168.0.41:3000";
 
             console.log("%c connecting to websocket", "color: cyan");
             socketRef.current = io(apiBaseUrl, {

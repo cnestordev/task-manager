@@ -3,10 +3,18 @@ module.exports = {
         {
             name: "task-app",
             script: "./server.js",
-            instances: process.env.NODE_ENV === "production" ? "max" : 1, 
-            exec_mode: process.env.NODE_ENV === "production" ? "cluster" : "fork",
+            instances: 1,
+            exec_mode: "fork",
             autorestart: true,
-            watch: process.env.NODE_ENV !== "production"
+            watch: false,
+            env: {
+                NODE_ENV: "development",
+                PORT: 3000
+            },
+            env_production: {
+                NODE_ENV: "production",
+                PORT: process.env.PORT
+            }
         },
         {
             name: "cleanup-script",
@@ -14,7 +22,13 @@ module.exports = {
             instances: 1,
             exec_mode: "fork",
             autorestart: true,
-            watch: process.env.NODE_ENV !== "production"
+            watch: false,
+            env: {
+                NODE_ENV: "development"
+            },
+            env_production: {
+                NODE_ENV: "production"
+            }
         }
     ]
 };
