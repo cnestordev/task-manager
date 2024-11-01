@@ -7,13 +7,13 @@ connectDB();
 
 // Create a task that clears orphaned tasks every 15 minutes
 const task = new AsyncTask(
-    "logger-task",
+    "cleanupjob",
     async () => {
         const data = await Task.deleteMany({ assignedTo: { $eq: [] } });
         console.log(data);
     },
     (err) => {
-        console.error("Error occurred in logger task:", err);
+        console.error("Error occurred in cleanup task:", err);
     }
 );
 
@@ -49,7 +49,7 @@ const job = new SimpleIntervalJob({ minutes: 15 }, task);
 // Start the job
 const startJob = () => {
     scheduler.addSimpleIntervalJob(job);
-    console.log("Logger job started.");
+    console.log("cleanup job started.");
 };
 
 startJob();

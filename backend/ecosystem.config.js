@@ -9,8 +9,8 @@ module.exports = {
             watch: process.env.NODE_ENV !== "production"
         },
         {
-            name: "logger-script",
-            script: "./logger.js",
+            name: "cleanup-script",
+            script: "./cleanupjob.js",
             instances: 1,
             exec_mode: "fork",
             autorestart: true,
