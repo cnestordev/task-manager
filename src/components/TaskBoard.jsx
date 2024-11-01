@@ -109,7 +109,7 @@ const TaskBoard = () => {
 
       // exclude any tasks that have been deleted or completed
       const activePriorityTasks = samePriorityTasks.filter(
-        (task) => !(task.isDeleted && task.isCompleted)
+        (task) => !(task.isDeleted || task.isCompleted)
       );
 
       // sort these tasks by their current position
