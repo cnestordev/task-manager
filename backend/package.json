@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start:dev": "pm2 start ecosystem.config.js --env development",
-    "start:prod": "pm2 start ecosystem.config.js --env production",
-    "stop": "pm2 stop ecosystem.config.js",
-    "restart": "pm2 restart ecosystem.config.js",
-    "delete": "pm2 delete ecosystem.config.js"
+    "start": "node server.js",
+    "start:dev": "nodemon server.js",
+    "start:prod": "node server.js",
+    "stop": "echo 'Stopping script not required without PM2'",
+    "restart": "echo 'Restarting handled by Render in production environment'",
+    "delete": "echo 'Deleting script not required without PM2'"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +28,6 @@
     "nodemon": "^3.1.7",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "pm2": "^5.4.2",
     "socket.io": "^4.8.0",
     "toad-scheduler": "^3.0.1"
   },
