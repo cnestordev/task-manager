@@ -16,6 +16,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 
+console.log(process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP)
 // Connect to Database
 connectDB();
 
