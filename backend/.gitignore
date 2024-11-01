@@ -1,10 +1,7 @@
 # Environment Files
 .env
-.env.development
-.env.local
-.env.test.local
-.env.production.local
-
+.env.*
+ 
 # Node Modules
 node_modules/
 
@@ -19,8 +16,13 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Temporary Files
+# Temporary Files and Build Artifacts
 tmp/
 dist/
 build/
 .cache/
+coverage/
+
+# IDE/Editor Settings
+.vscode/
+.idea/
