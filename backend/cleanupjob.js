@@ -46,7 +46,7 @@ const scheduler = new ToadScheduler();
 // Define the job with a 15-second interval
 const job = new SimpleIntervalJob({ minutes: 15 }, task);
 
-// Function to start the job
+// Start the job
 const startJob = () => {
     scheduler.addSimpleIntervalJob(job);
     console.log("Logger job started.");
