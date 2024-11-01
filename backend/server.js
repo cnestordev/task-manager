@@ -26,7 +26,10 @@ connectDB();
 //     credentials: true
 // }));
 
-app.use(cors({ origin: '*', credentials: true }));
+app.use(cors({
+    origin: process.env.RENDER_PROD_HOST,
+    credentials: true
+}));
 
 // WebSocket Setup
 const io = socketIo(server, {
