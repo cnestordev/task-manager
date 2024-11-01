@@ -55,7 +55,7 @@ const TaskBoard = () => {
           title: formData.title,
           description: formData.description,
           assignedTo: [...formData.addedUsers.map((user) => user._id)],
-          teamId: isTeamCard ? user.team._id : null,
+          teamId: isTeamCard ? ( user.team._id || user.team.id) : null,
           taskPosition: [
             {
               priority: formData.priority,
@@ -255,7 +255,7 @@ const TaskBoard = () => {
       const updatedData = JSON.parse(JSON.stringify(selectedTask));
       updatedData.title = formData.title;
       updatedData.description = formData.description;
-      (updatedData.teamId = isTeamCard ? user.team._id : null),
+      updatedData.teamId = isTeamCard ? ( user.team._id || user.team.id) : null,
         (updatedData.assignedTo = [
           ...updatedData.assignedTo,
           ...formData.addedUsers,
