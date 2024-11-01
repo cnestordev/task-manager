@@ -14,12 +14,7 @@ const Dashboard = () => {
     <>
       <Navbar />
       {isAdmin && <AdminDashboard />}
-      {isMember && (
-        <>
-          <h2>Team Member Dashboard</h2>
-          <MemberDashboard />
-        </>
-      )}
+      {isMember && <MemberDashboard />}
       {!user.team && <NewTeamContainer />}
     </>
   );

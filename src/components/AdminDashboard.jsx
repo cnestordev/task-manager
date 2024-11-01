@@ -116,7 +116,7 @@ const AdminDashboard = () => {
   if (loading) return <Spinner size="xl" color="blue.500" />;
 
   return (
-    <Box mx="auto" width="50%" borderRadius="md">
+    <Box mx="auto" width={["100%", "50%"]} borderRadius="md">
       <Heading as="h2" size="lg" mb={6} textAlign="center" color="gray.700">
         Admin Dashboard
       </Heading>
@@ -145,7 +145,7 @@ const AdminDashboard = () => {
           bg="#efefef"
           padding="15px"
           borderRadius="10"
-          width="30%"
+          width={["100%", "90%", "50%"]}
           alignItems="center"
           justifyContent="center"
           mt={2}
