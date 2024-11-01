@@ -13,7 +13,7 @@ const SocketSession = require("./models/SocketSession");
 
 const app = express();
 const server = http.createServer(app);
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 const mongoose = require("mongoose");
 
 console.log(process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP);
