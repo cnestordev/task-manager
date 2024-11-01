@@ -1,4 +1,4 @@
-import { useToast } from "@chakra-ui/react";
+import { Box, useToast } from "@chakra-ui/react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useState } from "react";
 import {
@@ -8,7 +8,6 @@ import {
   updateTasksServer,
 } from "../api/index";
 import "../App.css";
-import { useLoading } from "../context/LoadingContext";
 import { useTask } from "../context/TaskContext";
 import { useUser } from "../context/UserContext";
 import {
@@ -67,7 +66,7 @@ const TaskBoard = () => {
         addNewTask,
         updateTask,
         createTask,
-        removeTask,
+        removeTask
       );
 
       toast({
@@ -256,11 +255,11 @@ const TaskBoard = () => {
       const updatedData = JSON.parse(JSON.stringify(selectedTask));
       updatedData.title = formData.title;
       updatedData.description = formData.description;
-      updatedData.teamId = isTeamCard ? user.team._id : null,
-      updatedData.assignedTo = [
-        ...updatedData.assignedTo,
-        ...formData.addedUsers,
-      ];
+      (updatedData.teamId = isTeamCard ? user.team._id : null),
+        (updatedData.assignedTo = [
+          ...updatedData.assignedTo,
+          ...formData.addedUsers,
+        ]);
 
       const data = await updateSelectedTask(
         updatedData,
@@ -396,7 +395,7 @@ const TaskBoard = () => {
               result,
               tasks,
               updateTasksOrderOnServer,
-              updateTasks,
+              updateTasks
             );
           } catch (error) {
             console.error("Error handling drag end:", error);
@@ -410,7 +409,12 @@ const TaskBoard = () => {
           }
         }}
       >
-        <div className="columns-container">
+        <Box
+          display="flex"
+          flexDirection={["column", "column", "row"]}
+          wrap="nowrap"
+          className="columns-container"
+        >
           {priorities.map((priority) => (
             <PriorityColumn
               key={priority}
@@ -434,7 +438,7 @@ const TaskBoard = () => {
               id={priority}
             />
           ))}
-        </div>
+        </Box>
       </DragDropContext>
     </>
   );

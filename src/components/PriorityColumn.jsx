@@ -4,6 +4,7 @@ import {
   HamburgerIcon,
 } from "@chakra-ui/icons";
 import {
+  Box,
   IconButton,
   Menu,
   MenuButton,
@@ -49,11 +50,19 @@ const PriorityColumn = ({
   // Separate tasks into in-progress and completed
   const inProgressTasks = tasks.filter((task) => task);
   const completedTasks = tasks.filter((task) => task.isCompleted);
-  const inProgressTasksCount = tasks.filter((task) => !task.isCompleted && !task.isDeleted);
-  const completedTasksCount = tasks.filter((task) => task.isCompleted && !task.isDeleted);
+  const inProgressTasksCount = tasks.filter(
+    (task) => !task.isCompleted && !task.isDeleted
+  );
+  const completedTasksCount = tasks.filter(
+    (task) => task.isCompleted && !task.isDeleted
+  );
 
   return (
-    <div className={`column ${isActive ? "active" : ""}`}>
+    <Box
+      className={`column ${isActive ? "active" : ""}`}
+      minWidth="300px"
+      flexShrink={0}
+    >
       <div className={`header header-${priority.toLowerCase()}`}>
         <div></div>
         <div className="header-content">
@@ -143,7 +152,7 @@ const PriorityColumn = ({
           )}
         </Droppable>
       </div>
-    </div>
+    </Box>
   );
 };
 
