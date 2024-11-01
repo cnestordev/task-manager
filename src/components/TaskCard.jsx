@@ -10,14 +10,13 @@ import {
 } from "@chakra-ui/react";
 import { Draggable } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
-import { FaEdit } from "react-icons/fa";
 import { useLoading } from "../context/LoadingContext";
 import { useTask } from "../context/TaskContext";
 import { useUser } from "../context/UserContext";
 import useSocket from "../hooks/useSocket";
 import AlertModal from "./AlertModal";
-import "./TaskCard.css";
 import { StatusIndicator } from "./StatusIndicator";
+import "./TaskCard.css";
 
 const TaskCard = ({
   task,
@@ -187,7 +186,6 @@ const TaskCard = ({
                         handleEditTask(task);
                       }}
                     >
-                      <FaEdit />
                       Edit
                     </Button>
                     <Button
