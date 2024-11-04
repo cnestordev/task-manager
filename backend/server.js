@@ -26,8 +26,10 @@ connectDB();
 //     credentials: true
 // }));
 
+const isProduction = process.env.ENV === "production"
+
 app.use(cors({
-    origin: process.env.RENDER_PROD_HOST,
+    origin: isProduction ? process.env.RENDER_PROD_HOST : "http://localhost:3000",
     credentials: true
 }));
 

@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-const apiBaseUrl = import.meta.env.MODE === 'development'
+
+const environment = import.meta.env.MODE
+
+const apiBaseUrl = environment === 'development'
   ? import.meta.env.VITE_BACKEND_LOCALHOST
-  : import.meta.env.VITE_BACKEND_PRODUCTION;
+  : import.meta.env.VITE_BACKEND_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: apiBaseUrl,
