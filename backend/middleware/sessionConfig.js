@@ -1,7 +1,7 @@
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 const sessionConfig = session({
     secret: process.env.SESSION_SECRET,
@@ -16,7 +16,7 @@ const sessionConfig = session({
         httpOnly: true,
         secure: isProduction,
         maxAge: 2 * 24 * 60 * 60 * 1000,
-        sameSite: isProduction ? 'None' : 'Lax'
+        sameSite: "None"
     }
 });
 
