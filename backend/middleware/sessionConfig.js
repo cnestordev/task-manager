@@ -16,7 +16,7 @@ const sessionConfig = session({
         httpOnly: true,
         secure: isProduction,
         maxAge: 2 * 24 * 60 * 60 * 1000,
-        sameSite: isProduction ? 'Strict' : 'Lax'
+        sameSite: isProduction ? 'None' : 'Lax'
     }
 });
 
