@@ -12,18 +12,17 @@ const createResponse = (statusCode, message, users = []) => ({
 
 // Team Creation Handler
 exports.createTeam = async (req, res) => {
-    const { teamName } = req.body;
-    const userId = req.user._id;
-
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: 'User not authenticated' });
-    }
-
-    if (!teamName) {
-        return res.status(400).json(createResponse(400, 'Team name is required'));
-    }
-
     try {
+        const { teamName } = req.body;
+        const userId = req.user._id;
+
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
+
+        if (!teamName) {
+            return res.status(400).json(createResponse(400, 'Team name is required'));
+        }
         // Check if the user already belongs to a team
         const user = await User.findById(userId);
         if (user.team) {
@@ -76,11 +75,10 @@ exports.createTeam = async (req, res) => {
 
 // Get team details
 exports.getTeamDetails = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: 'User not authenticated' });
-    }
-
     try {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
         // Find the user's team by populated members
         const user = await User.findById(req.user._id).populate('team');
         if (!user.team) {
@@ -107,8 +105,8 @@ exports.getTeamDetails = async (req, res) => {
 
 // Get team members
 exports.getTeamMembers = async (req, res) => {
-    if (req.isAuthenticated()) {
-        try {
+    try {
+        if (req.isAuthenticated()) {
             // Fetch the user's team information
             const user = await User.findById(req.user._id).populate('team');
 
@@ -123,30 +121,30 @@ exports.getTeamMembers = async (req, res) => {
 
             // Return the list of team members
             return res.status(200).json(createResponse(200, 'Team members fetched successfully', members));
-        } catch (err) {
-            console.error('Error fetching team members:', err);
-            return res.status(500).json(createResponse(500, 'Internal server error', []));
+        } else {
+            return res.status(401).json(createResponse(401, 'User not authenticated'));
         }
-    } else {
-        return res.status(401).json(createResponse(401, 'User not authenticated'));
+
+    } catch (err) {
+        console.error('Error fetching team members:', err);
+        return res.status(500).json(createResponse(500, 'Internal server error', []));
     }
 };
 
 exports.editInviteCode = async (req, res) => {
-    const { teamId, inviteCode } = req.body;
-    const userId = req.user._id;
-
-    // Check if the user is authenticated
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: 'User not authenticated' });
-    }
-
-    // Check if both teamId and inviteCode are provided
-    if (!teamId || !inviteCode) {
-        return res.status(400).json({ error: 'Team ID and invite code are required' });
-    }
-
     try {
+        const { teamId, inviteCode } = req.body;
+        const userId = req.user._id;
+
+        // Check if the user is authenticated
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
+
+        // Check if both teamId and inviteCode are provided
+        if (!teamId || !inviteCode) {
+            return res.status(400).json({ error: 'Team ID and invite code are required' });
+        }
 
         // Check for an existing invite code to prevent duplicates
         const existingTeam = await Team.findOne({ inviteCode });
@@ -185,11 +183,10 @@ exports.editInviteCode = async (req, res) => {
 
 // Remove a team member
 exports.removeMember = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: 'User not authenticated' });
-    }
-
     try {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
         const userId = req.user._id.toString();
         const { memberId } = req.body;
         const memberIdStr = memberId.toString();
@@ -266,14 +263,13 @@ exports.removeMember = async (req, res) => {
 
 // Join a team using an invite code
 exports.joinTeam = async (req, res) => {
-    const { inviteCode } = req.body;
-    const userId = req.user._id;
-
-    if (!inviteCode) {
-        return res.status(400).json({ error: 'Invite code is required' });
-    }
-
     try {
+        const { inviteCode } = req.body;
+        const userId = req.user._id;
+
+        if (!inviteCode) {
+            return res.status(400).json({ error: 'Invite code is required' });
+        }
         // Check if the user is already in a team
         const user = await User.findById(userId);
         if (user.team) {

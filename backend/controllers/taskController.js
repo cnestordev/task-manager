@@ -9,8 +9,8 @@ const createResponse = (statusCode, message, tasks = []) => ({
 
 // Create a new task
 exports.createTask = async (req, res) => {
-    if (req.isAuthenticated()) {
-        try {
+    try {
+        if (req.isAuthenticated()) {
             const { title, description, assignedTo } = req.body;
 
             // Create a new task document
@@ -43,19 +43,19 @@ exports.createTask = async (req, res) => {
 
             // Return the newly created task
             return res.status(201).json(createResponse(201, 'Task created successfully', newTask));
-        } catch (error) {
-            console.error('Error creating task:', error);
-            return res.status(500).json(createResponse(500, 'An error occurred while creating the task.'));
+        } else {
+            return res.status(401).json(createResponse(401, 'User not authenticated'));
         }
-    } else {
-        return res.status(401).json(createResponse(401, 'User not authenticated'));
+    } catch (error) {
+        console.error('Error creating task:', error);
+        return res.status(500).json(createResponse(500, 'An error occurred while creating the task.'));
     }
 };
 
 // Get tasks assigned to the user
 exports.getTasks = async (req, res) => {
-    if (req.isAuthenticated()) {
-        try {
+    try {
+        if (req.isAuthenticated()) {
             // Find tasks assigned to the user
             const tasks = await Task.find({
                 assignedTo: { $in: [req.user._id] },
@@ -74,23 +74,22 @@ exports.getTasks = async (req, res) => {
             });
 
             return res.status(200).json(createResponse(200, 'Tasks retrieved successfully', filteredTasks));
-        } catch (error) {
-            console.error('Error retrieving tasks:', error);
-            return res.status(500).json({ message: 'An error occurred while retrieving the tasks.' });
+        } else {
+            return res.status(401).json({ message: 'User not authenticated' });
         }
-    } else {
-        return res.status(401).json({ message: 'User not authenticated' });
+    } catch (error) {
+        console.error('Error retrieving tasks:', error);
+        return res.status(500).json({ message: 'An error occurred while retrieving the tasks.' });
     }
 };
 
 // Update existing Task 
 // Expand, Collapse, Edit, 
 exports.updateTaskOrder = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'User not authenticated' });
-    }
-
     try {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
         const taskId = new mongoose.Types.ObjectId(req.body._id);
         const userId = req.user._id;
         const userTaskPosition = req.body.taskPosition[0];
@@ -186,8 +185,9 @@ exports.updateTaskOrder = async (req, res) => {
 
 // Update multiple tasks
 exports.updateTasksServer = async (req, res) => {
-    if (req.isAuthenticated()) {
-        try {
+    try {
+        if (req.isAuthenticated()) {
+
             const tasksToUpdate = req.body;
 
             // Iterate through tasks and update each one
@@ -219,19 +219,19 @@ exports.updateTasksServer = async (req, res) => {
             });
 
             return res.status(200).json(createResponse(200, 'Tasks updated successfully', allUpdatedTasks));
-        } catch (error) {
-            console.error('Error updating tasks:', error);
-            return res.status(500).json({ message: 'An error occurred while updating tasks.' });
+        } else {
+            return res.status(401).json({ message: 'User not authenticated' });
         }
-    } else {
-        return res.status(401).json({ message: 'User not authenticated' });
+    } catch (error) {
+        console.error('Error updating tasks:', error);
+        return res.status(500).json({ message: 'An error occurred while updating tasks.' });
     }
 };
 
 // Update multiple tasks
 const updateMultipleTasksWithTransaction = async (tasksToUpdate, userId) => {
-    const session = await mongoose.startSession();
     try {
+        const session = await mongoose.startSession();
         const transactionResult = await session.withTransaction(async () => {
             const userIdObj = new mongoose.Types.ObjectId(userId);
 
@@ -316,8 +316,8 @@ const updateMultipleTasksWithTransaction = async (tasksToUpdate, userId) => {
 
 // D&D, Complete, Restore, Delete
 exports.updateTasksOrderServer = async (req, res) => {
-    if (req.isAuthenticated()) {
-        try {
+    try {
+        if (req.isAuthenticated()) {
             const tasksToUpdate = req.body;
 
             if (!Array.isArray(tasksToUpdate)) {
@@ -345,11 +345,11 @@ exports.updateTasksOrderServer = async (req, res) => {
             });
 
             return res.status(200).json(createResponse(200, 'Tasks updated successfully', userSpecificTasks));
-        } catch (error) {
-            console.error('Error updating tasks:', error);
-            return res.status(500).json({ message: 'An error occurred while updating tasks.', error });
+        } else {
+            return res.status(401).json({ message: 'User not authenticated' });
         }
-    } else {
-        return res.status(401).json({ message: 'User not authenticated' });
+    } catch (error) {
+        console.error('Error updating tasks:', error);
+        return res.status(500).json({ message: 'An error occurred while updating tasks.', error });
     }
 };
