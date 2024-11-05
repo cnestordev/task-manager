@@ -57,7 +57,6 @@ exports.login = (req, res, next) => {
             if (err) return next(err);
 
             try {
-                console.log("Session after login: ", req.session)
                 // Populate the user's team details if they belong to one
                 const populatedUser = await User.findById(user._id).populate('team', 'name inviteCode createdBy members _id');
 
