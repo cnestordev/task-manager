@@ -8,9 +8,11 @@ import {
   useToast,
   Spinner,
   VStack,
+  Avatar,
 } from "@chakra-ui/react";
 import { getTeamDetails, removeMember } from "../api";
 import { useUser } from "../context/UserContext";
+import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 const MemberDashboard = () => {
   const [team, setTeam] = useState();
@@ -105,22 +107,34 @@ const MemberDashboard = () => {
         </Text>
         {team.members.length > 0 ? (
           <VStack spacing={4} align="stretch">
-            {team.members.map((member) => (
-              <Flex
-                key={member._id}
-                alignItems="center"
-                p={3}
-                bg="white"
-                borderRadius="20"
-                padding="20px"
-                width="100%"
-                alignSelf="center"
-              >
-                <Text flex="1" color="gray.800" fontWeight="medium">
-                  {member.username} {member._id === team.createdBy && "- Admin"}
-                </Text>
-              </Flex>
-            ))}
+            {team.members.map((member) => {
+              const cloudinaryUrl = getCloudinaryAvatarUrl(member?._id || member?.id) 
+              return (
+                <Flex
+                  key={member._id}
+                  alignItems="center"
+                  p={3}
+                  bg="white"
+                  borderRadius="20"
+                  padding="20px"
+                  width="100%"
+                  alignSelf="center"
+                >
+                  <Box
+                    gap="3"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Avatar src={cloudinaryUrl} />
+                    <Text flex="1" color="gray.800" fontWeight="medium">
+                      {member.username}{" "}
+                      {member._id === team.createdBy && "- Admin"}
+                    </Text>
+                  </Box>
+                </Flex>
+              );
+            })}
           </VStack>
         ) : (
           <Text color="gray.600">No members in the team</Text>

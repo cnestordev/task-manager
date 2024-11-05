@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Flex,
   Heading,
@@ -6,13 +7,14 @@ import {
   Spinner,
   Text,
   useToast,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { editInviteCode, getTeamDetails, removeMember } from "../api";
 import { useUser } from "../context/UserContext";
 import CustomizeInviteCodeModal from "./CustomizeInviteCodeModal";
+import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 const AdminDashboard = () => {
   const [team, setTeam] = useState();
@@ -75,7 +77,6 @@ const AdminDashboard = () => {
   };
 
   const handleSaveInviteCode = async (newCode) => {
-
     try {
       const response = await editInviteCode({
         inviteCode: newCode,
@@ -172,30 +173,44 @@ const AdminDashboard = () => {
         </Text>
         {team.members.length > 0 ? (
           <VStack spacing={4} align="stretch">
-            {team.members.map((member) => (
-              <Flex
-                key={member._id}
-                alignItems="center"
-                p={3}
-                bg="white"
-                borderRadius="20"
-                padding="20px"
-                width="100%"
-                alignSelf="center"
-              >
-                <Text flex="1" color="gray.800" fontWeight="medium">
-                  {member.username}
-                </Text>
-                <IconButton
-                  icon={<MdDelete />}
-                  colorScheme="red"
-                  variant="ghost"
-                  aria-label="Remove member"
-                  onClick={() => handleRemoveMember(member._id)}
-                  fontSize="22px"
-                />
-              </Flex>
-            ))}
+            {team.members.map((member) => {
+              const cloudinaryUrl = getCloudinaryAvatarUrl(
+                member?._id || member?.id
+              );
+              return (
+                <Flex
+                  key={member._id}
+                  alignItems="center"
+                  justify="space-between"
+                  p={3}
+                  bg="white"
+                  borderRadius="20"
+                  padding="20px"
+                  width="70%"
+                  alignSelf="center"
+                >
+                  <Box
+                    gap="3"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Avatar src={cloudinaryUrl} />
+                    <Text flex="1" color="gray.800" fontWeight="medium">
+                      {member.username}
+                    </Text>
+                  </Box>
+                  <IconButton
+                    icon={<MdDelete />}
+                    colorScheme="red"
+                    variant="ghost"
+                    aria-label="Remove member"
+                    onClick={() => handleRemoveMember(member._id)}
+                    fontSize="22px"
+                  />
+                </Flex>
+              );
+            })}
           </VStack>
         ) : (
           <Text color="gray.600">No members in the team</Text>

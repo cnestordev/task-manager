@@ -3,9 +3,12 @@ import { useUser } from "../context/UserContext";
 import LogoutButton from "./LogoutButton";
 import "./Navbar.css";
 import SettingsButton from "./SettingsButton";
+import { UploadModal } from "./UploadModal";
+import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 const Navbar = ({ children }) => {
   const { user } = useUser();
+  const cloudinaryUrl = getCloudinaryAvatarUrl(user?.id || user?._id);
 
   return (
     <Container mb={2} maxWidth="initial" className="navbar-container">
@@ -19,7 +22,14 @@ const Navbar = ({ children }) => {
       >
         {/* Avatar and Greeting Section */}
         <Stack direction="row" alignItems="center" spacing={3}>
-          <Avatar color="#ebedf0" bg="#c2c7d0" name={user?.username} />
+          <UploadModal userId={user.id || user._id}>
+            <Avatar
+              src={cloudinaryUrl}
+              color="#ebedf0"
+              bg="#c2c7d0"
+              name={user?.username}
+            />
+          </UploadModal>
           <Box textAlign={["center", "left"]}>
             <Text
               className="greeting-text"

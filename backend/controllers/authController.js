@@ -111,6 +111,15 @@ exports.checkUser = async (req, res) => {
     }
 };
 
+// Upload avatar image
+exports.uploadImage = async (req, res) => {
+    try {
+        res.json({ imageUrl: req.file.path });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+};
+
 // Logout Handler
 exports.logout = (req, res) => {
     req.logout((err) => {

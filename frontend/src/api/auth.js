@@ -23,3 +23,8 @@ export const checkUser = async () => {
   const response = await axiosInstance.get('/auth/user');
   return response;
 };
+
+export const uploadImage = async () => {
+  const response = await axiosInstance.post('/auth/uploadImage');
+  return response;
+};
