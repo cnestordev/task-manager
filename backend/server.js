@@ -16,7 +16,6 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 10000;
 const mongoose = require("mongoose");
 
-console.log(process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP);
 // Connect to Database
 connectDB();
 
@@ -29,14 +28,14 @@ connectDB();
 const isProduction = process.env.ENV === "production"
 
 app.use(cors({
-    origin: isProduction ? process.env.RENDER_PROD_HOST : "http://localhost:3000",
+    origin: isProduction ? process.env.RENDER_PROD_HOST : process.env.VITE_LOCAL_HOST,
     credentials: true
 }));
 
 // WebSocket Setup
 const io = socketIo(server, {
     cors: {
-        origin: [process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP],
+        origin: isProduction ? process.env.RENDER_PROD_HOST : [process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP],
         methods: ['GET', 'POST'],
         credentials: true,
         transports: ['websocket', 'polling']
