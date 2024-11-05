@@ -15,10 +15,11 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
 
     useEffect(() => {
         // Establish the WebSocket connection
+        const mode = import.meta.env.VITE_MODE;
         if (!socketRef.current) {
-            const apiBaseUrl = window.location.hostname === 'localhost'
+            const apiBaseUrl = mode !== 'production'
                 ? "http://localhost:3000"
-                : "http://192.168.0.41:3000";
+                : import.meta.env.VITE_BACKEND_API_URL;
 
             console.log("%c connecting to websocket", "color: cyan");
             socketRef.current = io(apiBaseUrl, {
