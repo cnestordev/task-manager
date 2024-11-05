@@ -2,7 +2,6 @@ require('./config/loadEnv');
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
-const path = require('path');
 const socketIo = require('socket.io');
 const connectDB = require('./config/db');
 const sessionConfig = require('./middleware/sessionConfig');
@@ -129,16 +128,10 @@ app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Serve static files from the Vite build output
-app.use(express.static(path.join(__dirname, 'client/dist')));
-
 // Use Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/task', taskRoutes);
 app.use('/api/team', teamRoutes);
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
-});
 
 app.get('/', (req, res) => res.send('Server is running.'));
 
