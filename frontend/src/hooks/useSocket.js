@@ -19,7 +19,7 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
         if (!socketRef.current) {
             const apiBaseUrl = mode !== 'production'
                 ? "http://localhost:3000"
-                : import.meta.env.VITE_BACKEND_API_URL;
+                : import.meta.env.VITE_BACKEND_BASE;
 
             console.log("%c connecting to websocket", "color: cyan");
             socketRef.current = io(apiBaseUrl, {
