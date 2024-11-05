@@ -118,15 +118,15 @@ io.on('connection', async (socket) => {
 app.set("trust proxy", 1);
 app.use(express.json());
 
-app.use(cors({
-    origin: isProduction ? process.env.RENDER_PROD_HOST : process.env.VITE_LOCAL_HOST,
-    credentials: true
-}));
-
 // Session and Passport Middleware
 app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(cors({
+    origin: isProduction ? process.env.RENDER_PROD_HOST : process.env.VITE_LOCAL_HOST,
+    credentials: true
+}));
 
 // Use Routes
 app.use('/api/auth', authRoutes);
