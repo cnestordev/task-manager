@@ -160,12 +160,15 @@ const TaskCard = ({
                       marginBottom="5"
                     >
                       <div>
-                        <StatusIndicator
-                          assignedTo={task.assignedTo}
-                          user={user}
-                          className={isTaskShared ? "" : "hidden"}
-                          status={isOnline ? "online" : "hidden"}
-                        />
+                        {!task.isExpanded && (
+                          <StatusIndicator
+                            assignedTo={task.assignedTo}
+                            user={user}
+                            className={isTaskShared ? "" : "hidden"}
+                            status={isOnline ? "online" : "hidden"}
+                            isExpanded={task.isExpanded}
+                          />
+                        )}
                       </div>
                       <p>{task.title}</p>
                       <div></div>
@@ -176,6 +179,17 @@ const TaskCard = ({
                 <AccordionPanel pb={2}>
                   <Box as="p" textAlign="center" fontSize="15px" mb={2}>
                     {task.description}
+                  </Box>
+                  <Box my={4} display="flex" justifyContent="center">
+                    {task.isExpanded && (
+                      <StatusIndicator
+                        assignedTo={task.assignedTo}
+                        user={user}
+                        className={isTaskShared ? "" : "hidden"}
+                        status={isOnline ? "online" : "hidden"}
+                        isExpanded={task.isExpanded}
+                      />
+                    )}
                   </Box>
                   <Flex gap="30px" justifyContent="center" marginTop="4">
                     <Button

@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Badge,
   Box,
   Flex,
   Heading,
@@ -197,7 +198,7 @@ const AdminDashboard = () => {
                   >
                     <Avatar src={cloudinaryUrl} />
                     <Text flex="1" color="gray.800" fontWeight="medium">
-                      {member.username}
+                      {member.username} {member._id === user.id && <Badge colorScheme='purple'>Admin</Badge>}
                     </Text>
                   </Box>
                   <IconButton

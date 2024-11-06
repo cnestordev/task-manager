@@ -9,6 +9,7 @@ import {
   Spinner,
   VStack,
   Avatar,
+  Badge,
 } from "@chakra-ui/react";
 import { getTeamDetails, removeMember } from "../api";
 import { useUser } from "../context/UserContext";
@@ -108,7 +109,9 @@ const MemberDashboard = () => {
         {team.members.length > 0 ? (
           <VStack spacing={4} align="stretch">
             {team.members.map((member) => {
-              const cloudinaryUrl = getCloudinaryAvatarUrl(member?._id || member?.id) 
+              const cloudinaryUrl = getCloudinaryAvatarUrl(
+                member?._id || member?.id
+              );
               return (
                 <Flex
                   key={member._id}
@@ -129,7 +132,7 @@ const MemberDashboard = () => {
                     <Avatar src={cloudinaryUrl} />
                     <Text flex="1" color="gray.800" fontWeight="medium">
                       {member.username}{" "}
-                      {member._id === team.createdBy && "- Admin"}
+                      {member._id === team.createdBy && <Badge colorScheme='purple'>Admin</Badge>}
                     </Text>
                   </Box>
                 </Flex>

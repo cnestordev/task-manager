@@ -1,8 +1,20 @@
-import { Avatar, AvatarBadge, AvatarGroup, HStack } from "@chakra-ui/react";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarGroup,
+  Box,
+  HStack,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
-export const StatusIndicator = ({ user, status, className, assignedTo }) => {
+export const StatusIndicator = ({
+  user,
+  status,
+  className,
+  assignedTo,
+  isExpanded,
+}) => {
   const statusColors = {
     online: "green.500",
     offline: "gray.500",
@@ -49,18 +61,43 @@ export const StatusIndicator = ({ user, status, className, assignedTo }) => {
   return (
     <div className={`status-container ${className}`}>
       <HStack spacing={2} alignItems="center">
-        <AvatarGroup>
-          {sortedAssignedTo.map((user, index) => (
-            <Avatar border="1px solid #cfcfcf" src={validatedAvatars[user]} key={user} size="sm">
-              {index === 0 && (
-                <AvatarBadge
-                  boxSize="1.25em"
-                  bg={statusColors[status] || "gray.500"}
-                />
-              )}
-            </Avatar>
-          ))}
-        </AvatarGroup>
+        {!isExpanded ? (
+          <AvatarGroup>
+            {sortedAssignedTo.map((user, index) => (
+              <Avatar
+                border="1px solid #cfcfcf"
+                src={validatedAvatars[user]}
+                key={user}
+                size="sm"
+              >
+                {index === 0 && (
+                  <AvatarBadge
+                    boxSize="1.25em"
+                    bg={statusColors[status] || "gray.500"}
+                  />
+                )}
+              </Avatar>
+            ))}
+          </AvatarGroup>
+        ) : (
+          <Box display="flex" gap={1.5}>
+            {sortedAssignedTo.map((user, index) => (
+              <Avatar
+                border="1px solid #cfcfcf"
+                src={validatedAvatars[user]}
+                key={user}
+                size="sm"
+              >
+                {index === 0 && (
+                  <AvatarBadge
+                    boxSize="1.25em"
+                    bg={statusColors[status] || "gray.500"}
+                  />
+                )}
+              </Avatar>
+            ))}
+          </Box>
+        )}
       </HStack>
     </div>
   );
