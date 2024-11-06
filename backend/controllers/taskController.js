@@ -230,8 +230,9 @@ exports.updateTasksServer = async (req, res) => {
 
 // Update multiple tasks
 const updateMultipleTasksWithTransaction = async (tasksToUpdate, userId) => {
+    let session;
     try {
-        const session = await mongoose.startSession();
+        session = await mongoose.startSession();
         const transactionResult = await session.withTransaction(async () => {
             const userIdObj = new mongoose.Types.ObjectId(userId);
 
