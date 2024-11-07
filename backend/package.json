@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "start:dev": "nodemon server.js",
-    "start:prod": "node server.js",
+    "start:prod": "pm2-runtime start ecosystem.config.js",
     "stop": "echo 'Stopping script not required without PM2'",
     "restart": "echo 'Restarting handled by Render in production environment'",
     "delete": "echo 'Deleting script not required without PM2'"
