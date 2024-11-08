@@ -144,7 +144,7 @@ const AdminDashboard = () => {
           </Text>
         </Box>
         <Flex
-          bg="#efefef"
+          bg="#f1f5fb"
           padding="15px"
           borderRadius="10"
           width={["100%", "90%", "50%"]}
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
                   alignItems="center"
                   justify="space-between"
                   p={3}
-                  bg="white"
+                  bg="#f1f5fb"
                   borderRadius="20"
                   padding="20px"
                   width="70%"

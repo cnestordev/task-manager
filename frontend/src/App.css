@@ -1,6 +1,6 @@
 .container {
   box-sizing: border-box;
-  background-color: #f5f6f7;
+  background-color: #fff;
   display: flex;
   flex-direction: column;
   padding: 25px;

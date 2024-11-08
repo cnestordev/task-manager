@@ -75,8 +75,9 @@ const PriorityColumn = ({
             <TabList>
               <Tab
                 _selected={{
-                  color: color,
-                  borderBottom: `2px solid ${color}`,
+                  color: "#000",
+                  backgroundColor: "#dce1e7",
+                  borderRadius: "50px",
                 }}
               >
                 In Progress ({inProgressTasksCount.length})
@@ -84,8 +85,9 @@ const PriorityColumn = ({
               <Tab
                 isDisabled={completedTasksCount.length === 0}
                 _selected={{
-                  color: color,
-                  borderBottom: `2px solid ${color}`,
+                  color: "#000",
+                  backgroundColor: "#dce1e7",
+                  borderRadius: "50px",
                 }}
               >
                 Completed ({completedTasks.length})
