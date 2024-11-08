@@ -12,7 +12,6 @@ const task = new AsyncTask(
     async () => {
         // Perform the cleanup operation
         const data = await Task.deleteMany({ assignedTo: { $eq: [] } });
-        console.log("Cleanup task result:", data);
 
         try {
             // CPU Monitoring Logic

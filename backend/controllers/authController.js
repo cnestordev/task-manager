@@ -63,6 +63,7 @@ exports.login = (req, res, next) => {
                 res.status(200).json(createResponse(200, 'Login successful', {
                     id: populatedUser._id,
                     username: populatedUser.username.toLowerCase(),
+                    isAdmin: populatedUser.isAdmin,
                     team: populatedUser.team
                         ? {
                             id: populatedUser.team._id,
@@ -90,6 +91,7 @@ exports.checkUser = async (req, res) => {
 
             const modifiedUser = {
                 username: user.username,
+                isAdmin: user.isAdmin,
                 _id: user._id,
                 id: user._id,
                 team: user.team ? {

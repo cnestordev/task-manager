@@ -9,6 +9,7 @@ const passport = require('./config/passportConfig');
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const teamRoutes = require("./routes/teamRoutes");
+const metricRoutes = require("./routes/metricRoutes")
 const SocketSession = require("./models/SocketSession");
 
 const app = express();
@@ -123,10 +124,6 @@ app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
 
-console.log('...............')
-console.log(process.env.NODE_ENV)
-console.log(isProduction ? process.env.RENDER_PROD_HOST : process.env.VITE_LOCAL_HOST)
-
 app.use(cors({
     origin: isProduction ? process.env.RENDER_PROD_HOST : process.env.VITE_LOCAL_HOST,
     credentials: true
@@ -136,6 +133,7 @@ app.use(cors({
 app.use('/api/auth', authRoutes);
 app.use('/api/task', taskRoutes);
 app.use('/api/team', teamRoutes);
+app.use('/api/metrics', metricRoutes);
 
 app.get('/', (req, res) => res.send('Server is running.'));
 
