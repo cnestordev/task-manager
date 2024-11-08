@@ -10,6 +10,7 @@ const MetricSchema = new mongoose.Schema({
     cpuUsage: [UsageSchema],
     memoryUsage: [UsageSchema],
     environment: { type: String, enum: ['production', 'development'], required: true },
+    timestamp: { type: Date, default: Date.now },
 });
 
 const Metric = mongoose.model('Metric', MetricSchema);

@@ -40,7 +40,7 @@ async function checkResourceUsage() {
         const memoryData = await fetchMetricData(memoryUrl);
 
         const cpuUsage = cpuData[0]?.values.map(entry => ({
-            value: entry.value,
+            value: parseFloat(entry.value.toFixed(2)),
             timestamp: new Date(entry.timestamp),
         })) || [];
 

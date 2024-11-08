@@ -5,11 +5,11 @@ exports.getMetrics = async (req, res) => {
         try {
             const environment = process.env.NODE_ENV;
 
-            const metrics = await Metric.find({ environment })
-                .sort({ timestamp: -1 })  // Sort by `timestamp` in descending order
-                .limit(20);  // Limit to the last 20 records
+            const latestMetric = await Metric.findOne({ environment })
+                .sort({ timestamp: -1 });  // Sort by `timestamp` in descending order
 
-            return res.status(200).json({ status: 200, metrics });
+
+            return res.status(200).json({ status: 200, metrics: latestMetric });
         } catch (err) {
             console.error('Error fetching metrics:', err);
             return res.status(500).json({ status: 500, data: null });

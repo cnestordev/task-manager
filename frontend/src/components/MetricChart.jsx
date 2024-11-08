@@ -20,7 +20,15 @@ const MetricChart = () => {
     const getMetrics = async () => {
       try {
         const { data } = await getMetricData();
-        setMetricData(data.metrics);
+
+        // Transform the response data
+        const transformedData = data.metrics.cpuUsage.map((cpu, index) => ({
+          timestamp: cpu.timestamp,
+          cpuUsage: cpu.value,
+          memoryUsage: data.metrics.memoryUsage[index]?.value || 0,
+        }));
+
+        setMetricData(transformedData);
       } catch (err) {
         toast({
           title: "Error",
@@ -51,7 +59,6 @@ const MetricChart = () => {
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={metricData}>
-            {/* X-Axis with Custom Date Formatting */}
             <XAxis
               dataKey="timestamp"
               tickFormatter={(timestamp) =>
@@ -68,7 +75,6 @@ const MetricChart = () => {
               stroke="#196527"
             />
 
-            {/* Y-Axis Label */}
             <YAxis
               label={{
                 value: "Usage",
@@ -79,7 +85,6 @@ const MetricChart = () => {
               stroke="#196527"
             />
 
-            {/* Tooltip Customization */}
             <Tooltip
               contentStyle={{
                 backgroundColor: "#f4fff6",
@@ -91,17 +96,13 @@ const MetricChart = () => {
                 })}`
               }
               formatter={(value, name) => [
-                name === "CPU Usage"
-                  ? `${value} (CPU units)` // Show raw CPU units
-                  : `${value} MB`, // Show memory usage in MB
+                name === "CPU Usage" ? `${value} (CPU units)` : `${value} MB`,
                 name === "CPU Usage" ? "CPU Usage" : "Memory Usage",
               ]}
             />
 
-            {/* Legend Customization */}
             <Legend verticalAlign="top" align="right" />
 
-            {/* CPU Usage Line */}
             <Line
               type="monotone"
               dataKey="cpuUsage"
@@ -112,7 +113,6 @@ const MetricChart = () => {
               name="CPU Usage"
             />
 
-            {/* Memory Usage Line */}
             <Line
               type="monotone"
               dataKey="memoryUsage"
