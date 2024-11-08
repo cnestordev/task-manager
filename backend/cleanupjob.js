@@ -16,7 +16,7 @@ const task = new AsyncTask(
 
         try {
             // CPU Monitoring Logic
-            checkResourceUsage();
+            await checkResourceUsage();
         } catch (error) {
             console.log("Error during resource usage check", error)
         }

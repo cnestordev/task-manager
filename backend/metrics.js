@@ -4,7 +4,6 @@ const Metric = require('./models/Metric');
 async function storeMetrics(metrics) {
     try {
         await Metric.create(metrics);
-        console.log("Metrics stored successfully:", metrics);
     } catch (err) {
         console.error("Error storing metrics:", err);
     }
@@ -22,7 +21,7 @@ async function checkResourceUsage() {
             const cpuUsagePercent = process.monit.cpu;
             const memoryUsageMB = (process.monit.memory / 1024 / 1024).toFixed(2);
 
-            if (process.name === "task-manager") {
+            if (process.name === "task-app") {
                 const metrics = {
                     appName: process.name,
                     cpuUsage: cpuUsagePercent,
