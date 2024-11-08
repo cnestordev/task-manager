@@ -123,6 +123,10 @@ app.use(sessionConfig);
 app.use(passport.initialize());
 app.use(passport.session());
 
+console.log('...............')
+console.log(process.env.NODE_ENV)
+console.log(isProduction ? process.env.RENDER_PROD_HOST : process.env.VITE_LOCAL_HOST)
+
 app.use(cors({
     origin: isProduction ? process.env.RENDER_PROD_HOST : process.env.VITE_LOCAL_HOST,
     credentials: true
