@@ -28,8 +28,8 @@ const task = new AsyncTask(
 // Initialize the scheduler
 const scheduler = new ToadScheduler();
 
-// Define the job with a 15-minute interval
-const job = new SimpleIntervalJob({ minutes: 15 }, task);
+// Define the job with a 60-minute interval
+const job = new SimpleIntervalJob({ minutes: 60 }, task);
 
 // Start the job
 const startJob = () => {
