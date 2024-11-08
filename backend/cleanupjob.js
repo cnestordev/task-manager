@@ -2,6 +2,7 @@ require("./config/loadEnv");
 const connectDB = require("./config/db");
 const { ToadScheduler, SimpleIntervalJob, AsyncTask } = require('toad-scheduler');
 const Task = require("./models/Task");
+const checkResourceUsage = require("./metrics");
 
 connectDB();
 
@@ -13,18 +14,11 @@ const task = new AsyncTask(
         const data = await Task.deleteMany({ assignedTo: { $eq: [] } });
         console.log("Cleanup task result:", data);
 
-        // CPU Monitoring Logic
-        const currentCpuUsage = process.cpuUsage();
-        const userCpuTime = currentCpuUsage.user / 1000;  // Convert to milliseconds
-        const systemCpuTime = currentCpuUsage.system / 1000;  // Convert to milliseconds
-
-        const cpuUsagePercent = ((userCpuTime + systemCpuTime) / 1000) * 100;  // approximation
-
-        // Log CPU usage if it exceeds 20%
-        if (cpuUsagePercent > 20) {
-            console.log(`High CPU Usage during cleanup: ${cpuUsagePercent.toFixed(2)}%`);
-        } else {
-            console.log(`CPU Usage during cleanup: ${cpuUsagePercent.toFixed(2)}%`);
+        try {
+            // CPU Monitoring Logic
+            checkResourceUsage();
+        } catch (error) {
+            console.log("Error during resource usage check", error)
         }
     },
     (err) => {
