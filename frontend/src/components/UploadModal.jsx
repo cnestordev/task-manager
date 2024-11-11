@@ -18,12 +18,6 @@ export const UploadModal = ({ children, userId }) => {
   const [isUploading, setIsUploading] = useState(false);
   const toast = useToast();
 
-  useEffect(() => {
-    return () => {
-      console.log("CLOSED")
-    }
-  }, [])
-
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (
