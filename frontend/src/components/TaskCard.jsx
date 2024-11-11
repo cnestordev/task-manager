@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { useLoading } from "../context/LoadingContext";
 import { useTask } from "../context/TaskContext";
 import { useUser } from "../context/UserContext";
-import useSocket from "../hooks/useSocket";
+// import useSocket from "../hooks/useSocket";
 import AlertModal from "./AlertModal";
 import { StatusIndicator } from "./StatusIndicator";
 import "./TaskCard.css";
@@ -44,50 +44,50 @@ const TaskCard = ({
     setIsTaskShared(task.assignedTo.length > 1);
   }, [task.assignedTo]);
 
-  const onJoinedRoom = (taskId) => {
-    if (taskId === task._id) {
-      setIsOnline(true);
-    }
-  };
+  // const onJoinedRoom = (taskId) => {
+  //   if (taskId === task._id) {
+  //     setIsOnline(true);
+  //   }
+  // };
 
   // Use the socket hook to join the task room and handle updates
-  const { updateTask } = useSocket(
-    task._id,
-    isTaskShared,
-    (taskData) => {
-      if (taskData.userId !== user.id) {
-        setPendingUpdateTask(taskData.task);
-        setIsModalOpen(true);
-      }
-    },
-    user,
-    onJoinedRoom
-  );
+  // const { updateTask } = useSocket(
+  //   task._id,
+  //   isTaskShared,
+  //   (taskData) => {
+  //     if (taskData.userId !== user.id) {
+  //       setPendingUpdateTask(taskData.task);
+  //       setIsModalOpen(true);
+  //     }
+  //   },
+  //   user,
+  //   onJoinedRoom
+  // );
 
-  useEffect(() => {
-    if (recentlyUpdatedTask && recentlyUpdatedTask._id === task._id) {
-      const clearId = setInterval(() => {
-        if (isOnline) {
-          updateTask(recentlyUpdatedTask);
-          setRecentlyUpdatedTask(null);
-          clearInterval(clearId);
-        }
-      }, 500);
+  // useEffect(() => {
+  //   if (recentlyUpdatedTask && recentlyUpdatedTask._id === task._id) {
+  //     const clearId = setInterval(() => {
+  //       if (isOnline) {
+  //         updateTask(recentlyUpdatedTask);
+  //         setRecentlyUpdatedTask(null);
+  //         clearInterval(clearId);
+  //       }
+  //     }, 500);
 
-      return () => {
-        clearInterval(clearId);
-      };
-    }
-  }, [recentlyUpdatedTask, isOnline, task._id]);
+  //     return () => {
+  //       clearInterval(clearId);
+  //     };
+  //   }
+  // }, [recentlyUpdatedTask, isOnline, task._id]);
 
-  const handleConfirm = () => {
-    // Update the context with the stored updated task
-    if (pendingUpdateTask) {
-      updateTaskContext(pendingUpdateTask);
-      setPendingUpdateTask(null);
-    }
-    setIsModalOpen(false);
-  };
+  // const handleConfirm = () => {
+  //   // Update the context with the stored updated task
+  //   if (pendingUpdateTask) {
+  //     updateTaskContext(pendingUpdateTask);
+  //     setPendingUpdateTask(null);
+  //   }
+  //   setIsModalOpen(false);
+  // };
 
   const handleEditTask = (selectedTask) => {
     editTask(selectedTask);

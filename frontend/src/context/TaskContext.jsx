@@ -14,7 +14,7 @@ export const TaskProvider = ({ children }) => {
   // Get User Tasks on initial load
   useEffect(() => {
     const fetchTasks = async () => {
-      console.log(user);
+
       try {
         // Fetch tasks from the database
         const {

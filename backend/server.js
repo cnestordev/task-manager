@@ -9,7 +9,7 @@ const passport = require('./config/passportConfig');
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const teamRoutes = require("./routes/teamRoutes");
-const metricRoutes = require("./routes/metricRoutes")
+const metricRoutes = require("./routes/metricRoutes");
 const SocketSession = require("./models/SocketSession");
 
 const app = express();
@@ -28,13 +28,18 @@ connectDB();
 
 const isProduction = process.env.NODE_ENV === "production";
 
+// Store room and users
+const rooms = new Map();
+
 // WebSocket Setup
 const io = socketIo(server, {
     cors: {
-        origin: isProduction ? process.env.RENDER_PROD_HOST : [process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP],
+        origin: isProduction
+            ? process.env.RENDER_PROD_HOST
+            : [process.env.VITE_LOCAL_HOST, process.env.VITE_LOCAL_IP],
         methods: ['GET', 'POST'],
         credentials: true,
-        transports: ['websocket', 'polling']
+        transports: ['websocket', 'polling'],
     },
     allowEIO3: true,
 });
@@ -55,13 +60,14 @@ const sendMessageToUser = async (userId, data) => {
 };
 
 io.on('connection', async (socket) => {
-    let userId, username;
+    let userId, username, teamId, room;
 
     try {
         userId = new mongoose.Types.ObjectId(socket.handshake.query.userId);
         username = socket.handshake.query.username;
+        teamId = socket.handshake.query.teamId;
     } catch (error) {
-        console.error('Invalid userId or username provided:', socket.handshake.query);
+        console.error('Invalid userId, username, or teamId provided:', socket.handshake.query);
         return socket.disconnect(true);
     }
 
@@ -71,29 +77,36 @@ io.on('connection', async (socket) => {
         // Add the new socket.id to the session in the database
         await SocketSession.updateOne(
             { userId: userId },
-            { $push: { socketIds: socket.id } },
+            { $set: { socketId: socket.id } },
             { upsert: true }
         );
-        sendMessageToUser(userId, { event: 'message', payload: "Hello There!" });
+
+        // Automatically join the user to their team room
+        socket.join(teamId);
+        console.log(`User ${username} joined team room: ${teamId}`);
+
+        // If the room doesn't exist, create it with a Set
+        if (!rooms.has(teamId)) {
+            rooms.set(teamId, new Set());
+        }
+
+        // Add user to the room
+        room = rooms.get(teamId);
+        room.add(userId);
+
+        console.log(room);
+
+        // Emit a confirmation message back to the team members
+        io.to(teamId).emit('joinedRoom', { message: `${username} successfully joined room ${teamId}`, users: Array.from(room), userId: userId });
     } catch (err) {
         console.error('Error saving socket ID for user:', username, err);
     }
-
-    // Handle task room joining
-    socket.on('joinTaskRoom', (taskId) => {
-        socket.join(taskId);
-        console.log(`User ${username} joined task room: ${taskId}`);
-
-        // Emit a confirmation message back to the client
-        socket.emit('joinedRoom', { taskId, message: `Successfully joined room ${taskId}` });
-    });
-
 
     // Handle task updates
     socket.on('taskUpdated', (task) => {
         const taskId = task._id;
         if (taskId) {
-            io.to(taskId).emit('taskUpdated', { task, userId });
+            io.to(teamId).emit('taskUpdated', { task, userId });
             console.log(`User ${username} updated task ${taskId}`);
         } else {
             console.error('Task ID is missing or invalid for user:', username);
@@ -101,14 +114,24 @@ io.on('connection', async (socket) => {
     });
 
     // Handle user disconnection
-    socket.on('disconnect', async (taskId) => {
+    socket.on('disconnect', async () => {
         console.log(`User ${username} disconnected with socket ID: ${socket.id}`);
-        socket.emit('leftRoom', { taskId, message: `Successfully left room ${taskId}` });
         try {
             await SocketSession.updateOne(
                 { userId: userId },
                 { $pull: { socketIds: socket.id } }
             );
+
+            if (room) {
+                room.delete(userId); // Remove user from the room
+                // If no users are in the room, delete the room
+                if (room.size === 0) {
+                    rooms.delete(teamId);
+                }
+            }
+
+            // Notify other team members
+            io.to(teamId).emit('userLeft', { userId, username });
             console.log(`Socket ID ${socket.id} removed for user ${username}`);
         } catch (err) {
             console.error('Error removing socket ID for user:', username, err);

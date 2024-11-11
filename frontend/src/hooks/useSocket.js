@@ -1,11 +1,14 @@
 import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
+const useSocket = (user, setConnected) => {
+    // Reference to store the socket instance, using useRef to keep it persistent across re-renders
     const socketRef = useRef(null);
 
+    // Function to wait until the socket connection is established before running a callback
     const waitForConnection = (callback, interval = 100) => {
         const checkConnection = setInterval(() => {
+            // Check if socket is connected, then clear interval and execute callback
             if (socketRef.current && socketRef.current.connected) {
                 clearInterval(checkConnection);
                 callback();
@@ -13,95 +16,75 @@ const useSocket = (taskId, isTaskShared, onTaskUpdated, user, onJoinedRoom) => {
         }, interval);
     };
 
+    // handle socket setup and teardown
     useEffect(() => {
-        // Establish the WebSocket connection
+
+        // Exit the hook if there's no user or user doesn't belong to a team
+        if (!user || !user?.team) return;
+
+        // Check the environment mode
         const mode = import.meta.env.VITE_MODE;
+
+        // Initialize socket if it hasn't been created yet
         if (!socketRef.current) {
+            // Use localhost in non-production modes, otherwise, use the environment backend URL
             const apiBaseUrl = mode !== 'production'
                 ? "http://localhost:3000"
                 : import.meta.env.VITE_BACKEND_BASE;
 
-            console.log("%c connecting to websocket", "color: cyan");
+            console.log("%c connecting to websocket", "background: hotpink; color: cyan; padding: 5px; ");
+
+            console.log(user);
+            // Create the socket connection with user data and configuration options
             socketRef.current = io(apiBaseUrl, {
-                query: { userId: user.id, username: user.username },
+                query: { userId: user.id, username: user.username, teamId: user.team._id },
                 transports: ['websocket'],
                 withCredentials: true
             });
 
-            // Always listen for the 'connect' event to know when the connection is ready
+            // Listen for the 'connect' event to confirm connection
             socketRef.current.on('connect', () => {
+                // Wait for socket to be fully connected, then log confirmation
                 waitForConnection(() => {
-                    if (taskId && isTaskShared) {
-                        console.log("%c established connection", "color: hotpink");
-                        socketRef.current.emit('joinTaskRoom', taskId);
-                    }
+                    console.log("%c connection established", "background: #0dddac; color: #cd1cd1; padding: 5px; border-radius: 50px ");
+                    socketRef.current.emit('joinTeamRoom', user.team._id);
                 });
             });
         }
 
-        // Remove old event listeners before re-adding them to avoid stacking
-        if (socketRef.current) {
-            socketRef.current.off('joinedRoom');
-            socketRef.current.off('leftRoom');
-            socketRef.current.off('taskUpdated');
-        }
-
-        // If already connected, join the room right away
-        if (taskId && isTaskShared && socketRef.current?.connected) {
-            waitForConnection(() => {
-                console.log("%c established connection", "color: hotpink");
-                socketRef.current.emit('joinTaskRoom', taskId);
-            });
-        }
-
-        // Listen for user-related events
+        // Set up listener for 'message' events and log any incoming messages
         socketRef.current.on('message', (message) => {
             console.log(`%c ${message}`, "background: cyan; color: hotpink; padding: 3px");
         });
 
-        // Listen for room-related events
-        socketRef.current.on('joinedRoom', ({ taskId, message }) => {
-            console.log(message);
-            if (onJoinedRoom) {
-                onJoinedRoom(taskId);
+        socketRef.current.on('joinedRoom', (data) => {
+            const joinedUser = data.userId;
+            const currentUser = user._id;
+            if (joinedUser === currentUser) {
+                setConnected(true);
             }
+            console.log(`%c ${data.message}`, "background: lime; color: red; padding: 5px;");
         });
 
-        socketRef.current.on('leftRoom', ({ taskId, message }) => {
-            console.log(message);
+
+        socketRef.current.on('userLeft', (data) => {
+            console.log(data);
         });
 
-        // Listen for taskUpdated event (specific to this task)
-        socketRef.current.on('taskUpdated', (updatedTask) => {
-            console.log(updatedTask);
-            if (onTaskUpdated) {
-                onTaskUpdated(updatedTask);
-            }
+        socketRef.current.on('connect_error', (err) => {
+            console.error("Socket connection error:", err);
         });
 
-        // Cleanup on component unmount or task change
+        // Cleanup function to disconnect socket when the component using this hook unmounts
         return () => {
-            if (taskId && isTaskShared) {
-                socketRef.current.emit('leaveTaskRoom', taskId);  // Leave the room on unmount
-            }
-
             if (socketRef.current) {
-                // Clean up all listeners on unmount
-                socketRef.current.off('taskUpdated');
-                socketRef.current.off('joinedRoom');
-                socketRef.current.off('leftRoom');
+                socketRef.current.disconnect();
             }
         };
-    }, [taskId, isTaskShared, onTaskUpdated]);
+    }, [user]);  // Dependency on the user prop
 
-    const updateTask = (updatedTask) => {
-        if (socketRef.current) {
-            const taskToEmit = { ...updatedTask, taskPosition: [] };
-            socketRef.current.emit('taskUpdated', taskToEmit);
-        }
-    };
-
-    return { socket: socketRef.current, updateTask };
+    // Return the socket instance to be used in other parts of the application
+    return { socket: socketRef.current };
 };
 
 export default useSocket;

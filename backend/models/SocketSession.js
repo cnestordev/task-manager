@@ -5,9 +5,7 @@ const socketSessionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
-    socketIds: [{
-        type: String
-    }],
+    socketId: { type: String },
     createdAt: {
         type: Date,
         default: Date.now,
