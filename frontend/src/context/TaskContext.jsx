@@ -14,7 +14,6 @@ export const TaskProvider = ({ children }) => {
   // Get User Tasks on initial load
   useEffect(() => {
     const fetchTasks = async () => {
-      console.log(user);
       try {
         // Fetch tasks from the database
         const {
@@ -40,14 +39,13 @@ export const TaskProvider = ({ children }) => {
   };
 
   const updateTask = (updatedTask, tempId = null) => {
+
     setTasks((prevTasks) => {
-      let tasksChanged = false;
+      let taskExists = false;
+
       const updatedTasks = prevTasks.map((task) => {
-        if (
-          (tempId && task._id === tempId) ||
-          task._id === updatedTask._id
-        ) {
-          tasksChanged = true;
+        if ((tempId && task._id === tempId) || task._id === updatedTask._id) {
+          taskExists = true;
 
           // If taskPosition is empty in updatedTask, inherit it from the original task
           if (updatedTask.taskPosition.length === 0) {
@@ -59,10 +57,13 @@ export const TaskProvider = ({ children }) => {
         return task;
       });
 
-      if (tasksChanged) {
-        return reorderTasks(updatedTasks, user);
+      // If the task doesn't exist in prevTasks, add it
+      if (!taskExists) {
+        updatedTasks.push(updatedTask);
       }
-      return prevTasks;
+
+      // reorder the tasks after updating or adding
+      return reorderTasks(updatedTasks, user);
     });
   };
 

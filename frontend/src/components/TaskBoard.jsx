@@ -8,6 +8,7 @@ import {
   updateTasksServer,
 } from "../api/index";
 import "../App.css";
+import { useSocketContext } from "../context/SocketContext";
 import { useTask } from "../context/TaskContext";
 import { useUser } from "../context/UserContext";
 import {
@@ -26,15 +27,9 @@ import Navbar from "./Navbar";
 import PriorityColumn from "./PriorityColumn";
 
 const TaskBoard = () => {
-  const {
-    tasks,
-    addNewTask,
-    removeTask,
-    updateTask,
-    updateTasks,
-    setRecentlyUpdatedTask,
-  } = useTask();
+  const { tasks, addNewTask, removeTask, updateTask, updateTasks } = useTask();
   const { user } = useUser();
+  const { notifyTaskUpdate, notifyTaskCreated } = useSocketContext();
   const toast = useToast();
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeColumn, setActiveColumn] = useState(null);
@@ -50,24 +45,32 @@ const TaskBoard = () => {
     ).length;
     try {
       const isTeamCard = formData.addedUsers.length > 0;
-      await handleAddTask(
-        {
-          title: formData.title,
-          description: formData.description,
-          assignedTo: [...formData.addedUsers.map((user) => user._id)],
-          teamId: isTeamCard ? ( user.team._id || user.team.id) : null,
-          taskPosition: [
-            {
-              priority: formData.priority,
-              position: newTaskPosition,
-            },
-          ],
-        },
+      const newTaskObj = {
+        title: formData.title,
+        description: formData.description,
+        assignedTo: [...formData.addedUsers.map((user) => user._id)],
+        teamId: isTeamCard ? user.team._id || user.team.id : null,
+        taskPosition: [
+          {
+            priority: formData.priority,
+            position: newTaskPosition,
+          },
+        ],
+      };
+      const data = await handleAddTask(
+        newTaskObj,
         addNewTask,
         updateTask,
         createTask,
         removeTask
       );
+
+      const createdTask = data.tasks;
+
+      // Notify websocket server of new task if it belongs to a team
+      if (createdTask.teamId) {
+        notifyTaskCreated(createdTask);
+      }
 
       toast({
         title: "Task created.",
@@ -134,12 +137,17 @@ const TaskBoard = () => {
         updateTasksOrderOnServer,
         backUpTasks
       );
-      setRecentlyUpdatedTask(updatedTask);
+
+      // Notify websocket server of task deletion if it belongs to a team
+      if (updatedTask.teamId) {
+        notifyTaskUpdate(updatedTask);
+      }
+
       setSelectedTask(null);
       toast({
         title: "Task deleted.",
         description: "Your task has been deleted successfully.",
-        status: "info",
+        status: "success",
         duration: 3000,
         isClosable: true,
       });
@@ -220,7 +228,9 @@ const TaskBoard = () => {
         backUpTasks
       );
 
-      setRecentlyUpdatedTask(updatedTask);
+      if (updatedTask.teamId) {
+        notifyTaskUpdate(updatedTask);
+      }
 
       setSelectedTask(null);
 
@@ -230,8 +240,8 @@ const TaskBoard = () => {
           : "Task marked incomplete.",
         description: updatedTask.isCompleted
           ? "Your task has been marked as completed successfully."
-          : "Your task has been marked as incomplete and moved to the end.",
-        status: "info",
+          : "Your task has been marked as incomplete.",
+        status: "success",
         duration: 3000,
         isClosable: true,
       });
@@ -255,7 +265,9 @@ const TaskBoard = () => {
       const updatedData = JSON.parse(JSON.stringify(selectedTask));
       updatedData.title = formData.title;
       updatedData.description = formData.description;
-      updatedData.teamId = isTeamCard ? ( user.team._id || user.team.id) : null,
+      (updatedData.teamId = isTeamCard
+        ? user.team._id || user.team.id
+        : updatedData.teamId),
         (updatedData.assignedTo = [
           ...updatedData.assignedTo,
           ...formData.addedUsers,
@@ -267,7 +279,13 @@ const TaskBoard = () => {
         updateTaskOrder,
         selectedTask
       );
-      setRecentlyUpdatedTask(data.tasks);
+      const returnedUpdatedTask = data.tasks;
+
+      // Notify the websocket server of updated task
+      if (returnedUpdatedTask.teamId) {
+        notifyTaskUpdate(returnedUpdatedTask);
+      }
+
       setIsEditModalOpen(false);
       setSelectedTask(null);
       resetForm();
