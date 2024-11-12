@@ -12,7 +12,6 @@ import { Draggable } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
 import { useLoading } from "../context/LoadingContext";
 import { useUser } from "../context/UserContext";
-// import useSocket from "../hooks/useSocket";
 import { StatusIndicator } from "./StatusIndicator";
 import "./TaskCard.css";
 
@@ -28,18 +27,11 @@ const TaskCard = ({
   const { loadingTaskId } = useLoading();
   const taskIdMatch = loadingTaskId === task._id;
   const { user } = useUser();
-  const [isOnline, setIsOnline] = useState(false);
   const [isTaskShared, setIsTaskShared] = useState(task.assignedTo.length > 1);
 
   useEffect(() => {
     setIsTaskShared(task.assignedTo.length > 1);
   }, [task.assignedTo]);
-
-  // const onJoinedRoom = (taskId) => {
-  //   if (taskId === task._id) {
-  //     setIsOnline(true);
-  //   }
-  // };
 
   const handleEditTask = (selectedTask) => {
     editTask(selectedTask);
@@ -108,7 +100,6 @@ const TaskCard = ({
                             assignedTo={task.assignedTo}
                             user={user}
                             className={isTaskShared ? "" : "hidden"}
-                            status={isOnline ? "online" : "hidden"}
                             isExpanded={task.isExpanded}
                           />
                         )}
@@ -129,7 +120,6 @@ const TaskCard = ({
                         assignedTo={task.assignedTo}
                         user={user}
                         className={isTaskShared ? "" : "hidden"}
-                        status={isOnline ? "online" : "hidden"}
                         isExpanded={task.isExpanded}
                       />
                     )}

@@ -173,9 +173,9 @@ io.on('connection', async (socket) => {
             }
 
             // Notify other team members
-            io.to(teamId).emit('userLeft', { userId, username });
+            io.to(teamId).emit('userLeft', { users: Array.from(room) });
             delete socketSessionCache[userId];
-            console.log(`Socket ID ${socket.id} removed for user ${username}`);
+            console.log(`Socket ID ${socket.id} removed for user ${username}`,);
         } catch (err) {
             console.error('Error removing socket ID for user:', username, err);
         }

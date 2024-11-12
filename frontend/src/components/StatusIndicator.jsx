@@ -7,6 +7,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
+import { useSocketContext } from "../context/SocketContext";
 
 export const StatusIndicator = ({
   user,
@@ -21,41 +22,37 @@ export const StatusIndicator = ({
   };
 
   const userId = user?._id || user?.id;
+  const { connectedUsers } = useSocketContext();
 
   const [validatedAvatars, setValidatedAvatars] = useState({});
   const [sortedAssignedTo, setSortedAssignedTo] = useState([]);
 
   useEffect(() => {
-    // check user id
+    // Prioritize current user in the assignedTo list
     const updatedAssignedTo = userId
       ? [userId, ...assignedTo.filter((id) => id !== userId)]
       : assignedTo;
     setSortedAssignedTo(updatedAssignedTo);
 
-    const checkAvatarExists = async (user) => {
-      const cloudinaryUrl = getCloudinaryAvatarUrl(user);
-      try {
-        const response = await fetch(cloudinaryUrl, { method: "HEAD" });
-        if (response.ok) {
-          return cloudinaryUrl;
-        } else {
-          return null;
-        }
-      } catch (error) {
-        console.error(`Image check failed for user ${user}:`, error);
-        return null;
-      }
+    // Fetch avatar URLs and validate their existence
+    const fetchAvatars = async () => {
+      const avatars = {};
+      await Promise.all(
+        updatedAssignedTo.map(async (id) => {
+          const cloudinaryUrl = getCloudinaryAvatarUrl(id);
+          try {
+            const response = await fetch(cloudinaryUrl, { method: "HEAD" });
+            avatars[id] = response.ok ? cloudinaryUrl : null;
+          } catch (error) {
+            console.error(`Image check failed for user ${id}:`, error);
+            avatars[id] = null;
+          }
+        })
+      );
+      setValidatedAvatars(avatars);
     };
 
-    // Check each user's avatar
-    updatedAssignedTo.forEach((user) => {
-      checkAvatarExists(user).then((url) => {
-        setValidatedAvatars((prevAvatars) => ({
-          ...prevAvatars,
-          [user]: url,
-        }));
-      });
-    });
+    fetchAvatars();
   }, [assignedTo, userId]);
 
   return (
@@ -63,36 +60,34 @@ export const StatusIndicator = ({
       <HStack spacing={2} alignItems="center">
         {!isExpanded ? (
           <AvatarGroup>
-            {sortedAssignedTo.map((user, index) => (
+            {sortedAssignedTo.map((id, index) => (
               <Avatar
                 border="1px solid #cfcfcf"
-                src={validatedAvatars[user]}
-                key={user}
+                src={validatedAvatars[id]}
+                key={id}
                 size="sm"
               >
-                {index === 0 && (
-                  <AvatarBadge
-                    boxSize="1.25em"
-                    bg={statusColors[status] || "gray.500"}
-                  />
+                {connectedUsers.includes(id) ? (
+                  <AvatarBadge boxSize="1em" bg="green.500" />
+                ) : (
+                  <AvatarBadge boxSize="1em" bg="gray.500" />
                 )}
               </Avatar>
             ))}
           </AvatarGroup>
         ) : (
           <Box display="flex" gap={1.5}>
-            {sortedAssignedTo.map((user, index) => (
+            {sortedAssignedTo.map((id, index) => (
               <Avatar
                 border="1px solid #cfcfcf"
-                src={validatedAvatars[user]}
-                key={user}
+                src={validatedAvatars[id]}
+                key={id}
                 size="sm"
               >
-                {index === 0 && (
-                  <AvatarBadge
-                    boxSize="1.25em"
-                    bg={statusColors[status] || "gray.500"}
-                  />
+                {connectedUsers.includes(id) ? (
+                  <AvatarBadge boxSize="1em" bg="green.500" />
+                ) : (
+                  <AvatarBadge boxSize="1em" bg="gray.500" />
                 )}
               </Avatar>
             ))}

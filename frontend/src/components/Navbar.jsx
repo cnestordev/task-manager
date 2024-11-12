@@ -1,14 +1,24 @@
-import { Avatar, Box, Container, Heading, Stack, Text } from "@chakra-ui/react";
+import {
+  Avatar,
+  AvatarBadge,
+  Box,
+  Container,
+  Heading,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { useUser } from "../context/UserContext";
 import LogoutButton from "./LogoutButton";
 import "./Navbar.css";
 import SettingsButton from "./SettingsButton";
 import { UploadModal } from "./UploadModal";
 import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
+import { useSocketContext } from "../context/SocketContext";
 
 const Navbar = ({ children }) => {
   const { user } = useUser();
   const cloudinaryUrl = getCloudinaryAvatarUrl(user?.id || user?._id);
+  const { connectedUsers } = useSocketContext();
 
   return (
     <Container mb={2} maxWidth="initial" className="navbar-container">
@@ -28,7 +38,11 @@ const Navbar = ({ children }) => {
               color="#ebedf0"
               bg="#c2c7d0"
               name={user?.username}
-            />
+            >
+              {connectedUsers.includes(user?.id || user?._id) && (
+                <AvatarBadge boxSize="1em" bg="green.500" />
+              )}
+            </Avatar>
           </UploadModal>
           <Box textAlign={["center", "left"]}>
             <Text

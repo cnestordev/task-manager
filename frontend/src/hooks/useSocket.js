@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-const useSocket = (user, setConnected, updateTask) => {
+const useSocket = (user, setConnected, setConnectedUsers, updateTask) => {
     // Reference to store the socket instance, using useRef to keep it persistent across re-renders
     const socketRef = useRef(null);
     const toast = useToast();
@@ -56,7 +56,6 @@ const useSocket = (user, setConnected, updateTask) => {
 
             console.log("%c connecting to websocket", "background: hotpink; color: cyan; padding: 5px; ");
 
-            console.log(user);
             // Create the socket connection with user data and configuration options
             socketRef.current = io(apiBaseUrl, {
                 query: { userId: user.id, username: user.username, teamId: user.team._id },
@@ -82,6 +81,7 @@ const useSocket = (user, setConnected, updateTask) => {
         socketRef.current.on('joinedRoom', (data) => {
             const joinedUser = data.userId;
             const currentUser = user._id;
+            setConnectedUsers(data?.users)
             if (joinedUser === currentUser) {
                 setConnected(true);
             }
@@ -113,7 +113,8 @@ const useSocket = (user, setConnected, updateTask) => {
 
 
         socketRef.current.on('userLeft', (data) => {
-            console.log(data);
+            console.log(data.users);
+            setConnectedUsers(data.users)
         });
 
         socketRef.current.on('connect_error', (err) => {

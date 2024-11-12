@@ -117,7 +117,7 @@ const MemberDashboard = () => {
                   key={member._id}
                   alignItems="center"
                   p={3}
-                  bg="white"
+                  bg="#f1f5fb"
                   borderRadius="20"
                   padding="20px"
                   width="100%"
