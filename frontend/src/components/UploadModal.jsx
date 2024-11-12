@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axiosImageUpload from "../services/axiosImages";
 
 export const UploadModal = ({ children, userId }) => {

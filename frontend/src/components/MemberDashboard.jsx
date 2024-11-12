@@ -44,7 +44,7 @@ const MemberDashboard = () => {
 
   const handleLeaveTeam = async () => {
     try {
-      await removeMember(user._id);
+      await removeMember(user._id || user.id);
       toast({
         title: "Left Team",
         description: "You have successfully left the team.",
