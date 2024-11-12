@@ -7,9 +7,9 @@ const Providers = ({ children }) => {
   return (
     <LoadingProvider>
       <UserProvider>
-        <SocketProvider>
-          <TaskProvider>{children}</TaskProvider>
-        </SocketProvider>
+        <TaskProvider>
+          <SocketProvider>{children}</SocketProvider>
+        </TaskProvider>
       </UserProvider>
     </LoadingProvider>
   );

@@ -1,9 +1,29 @@
+import { useToast } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-const useSocket = (user, setConnected) => {
+const useSocket = (user, setConnected, updateTask) => {
     // Reference to store the socket instance, using useRef to keep it persistent across re-renders
     const socketRef = useRef(null);
+    const toast = useToast();
+
+    // Notify function to emit task updates
+    const notifyTaskUpdate = (updatedTask) => {
+        if (socketRef.current?.connected) {
+            socketRef.current.emit("task-update-event", updatedTask, user.id || user._id);
+        } else {
+            console.warn("Socket is not connected.");
+        }
+    };
+
+    // Notify function to emit task updates
+    const notifyTaskCreated = (newTask) => {
+        if (socketRef.current?.connected) {
+            socketRef.current.emit("task-created-event", newTask, user.id || user._id);
+        } else {
+            console.warn("Socket is not connected.");
+        }
+    };
 
     // Function to wait until the socket connection is established before running a callback
     const waitForConnection = (callback, interval = 100) => {
@@ -29,7 +49,9 @@ const useSocket = (user, setConnected) => {
         if (!socketRef.current) {
             // Use localhost in non-production modes, otherwise, use the environment backend URL
             const apiBaseUrl = mode !== 'production'
-                ? "http://localhost:3000"
+                ? window.location.hostname === "localhost"
+                    ? import.meta.env.VITE_BACKEND_LOCALHOST_BASE
+                    : import.meta.env.VITE_BACKEND_LOCAL_IP_BASE
                 : import.meta.env.VITE_BACKEND_BASE;
 
             console.log("%c connecting to websocket", "background: hotpink; color: cyan; padding: 5px; ");
@@ -66,6 +88,29 @@ const useSocket = (user, setConnected) => {
             console.log(`%c ${data.message}`, "background: lime; color: red; padding: 5px;");
         });
 
+        socketRef.current.on('taskUpdatedByTeam', (data) => {
+            const { task } = data;
+
+            updateTask(task);
+
+            let actionMessage;
+            if (task.isDeleted) {
+                actionMessage = "deleted";
+            } else if (task.isCompleted) {
+                actionMessage = "marked as completed";
+            } else {
+                actionMessage = "updated";
+            }
+
+            toast({
+                title: "Task Updated",
+                description: `Task "${task.title}" has been ${actionMessage}.`,
+                status: "info",
+                duration: 7000,
+                isClosable: true,
+            });
+        });
+
 
         socketRef.current.on('userLeft', (data) => {
             console.log(data);
@@ -84,7 +129,7 @@ const useSocket = (user, setConnected) => {
     }, [user]);  // Dependency on the user prop
 
     // Return the socket instance to be used in other parts of the application
-    return { socket: socketRef.current };
+    return { socket: socketRef.current, notifyTaskUpdate, notifyTaskCreated };
 };
 
 export default useSocket;

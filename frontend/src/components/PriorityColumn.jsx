@@ -32,30 +32,19 @@ const PriorityColumn = ({
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
-  const getColor = (priority) => {
-    switch (priority) {
-      case "High":
-        return "#c36871";
-      case "Medium":
-        return "#c18f35";
-      case "Low":
-        return "#b1aa43";
-      default:
-        return "gray";
-    }
-  };
-
-  const color = getColor(priority);
-
   // Separate tasks into in-progress and completed
-  const inProgressTasks = tasks.filter((task) => task);
-  const completedTasks = tasks.filter((task) => task.isCompleted);
-  const inProgressTasksCount = tasks.filter(
+  const inProgressTasks = tasks.filter(
     (task) => !task.isCompleted && !task.isDeleted
   );
-  const completedTasksCount = tasks.filter(
+  const completedTasks = tasks.filter(
     (task) => task.isCompleted && !task.isDeleted
   );
+  const inProgressTasksCount = tasks.filter(
+    (task) => !task.isCompleted && !task.isDeleted
+  ).length;
+  const completedTasksCount = tasks.filter(
+    (task) => task.isCompleted && !task.isDeleted
+  ).length;
 
   return (
     <Box
@@ -80,10 +69,10 @@ const PriorityColumn = ({
                   borderRadius: "50px",
                 }}
               >
-                In Progress ({inProgressTasksCount.length})
+                In Progress ({inProgressTasksCount})
               </Tab>
               <Tab
-                isDisabled={completedTasksCount.length === 0}
+                isDisabled={completedTasksCount === 0}
                 _selected={{
                   color: "#000",
                   backgroundColor: "#dce1e7",
