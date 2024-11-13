@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Avatar,
   AvatarBadge,
@@ -19,11 +20,21 @@ import { ToggleDarkMode } from "./ToggleDarkMode";
 const Navbar = ({ children }) => {
   const { user } = useUser();
   const cloudinaryUrl = getCloudinaryAvatarUrl(user?.id || user?._id);
-  const { connectedUsers } = useSocketContext();
+  const { connectedUsers: contextConnectedUsers } = useSocketContext();
+  const [connectedUsers, setConnectedUsers] = useState(contextConnectedUsers);
   const darkMode = user?.darkMode || false;
 
+  // Update `connectedUsers` state whenever the context value changes
+  useEffect(() => {
+    setConnectedUsers(contextConnectedUsers);
+  }, [contextConnectedUsers]);
+
   return (
-    <Container mb={2} maxWidth="initial" className={`navbar-container ${darkMode ? "dark" : ""}`}>
+    <Container
+      mb={2}
+      maxWidth="initial"
+      className={`navbar-container ${darkMode ? "dark" : ""}`}
+    >
       <Stack
         direction={["column", "row"]}
         alignItems="center"
@@ -41,9 +52,14 @@ const Navbar = ({ children }) => {
               bg="#c2c7d0"
               name={user?.username}
             >
-              {connectedUsers.includes(user?.id || user?._id) && (
-                <AvatarBadge boxSize="1em" bg="green.500" />
-              )}
+              <AvatarBadge
+                boxSize="1em"
+                bg={
+                  connectedUsers.includes(user?.id || user?._id)
+                    ? "green.500"
+                    : "gray.500"
+                }
+              />
             </Avatar>
           </UploadModal>
           <Box textAlign={["center", "left"]}>
@@ -74,7 +90,12 @@ const Navbar = ({ children }) => {
           <SettingsButton size={["sm", "md"]} />
           {children}
         </Stack>
-        <Stack flexDirection="row" alignItems="center" justify="center" align="center">
+        <Stack
+          flexDirection="row"
+          alignItems="center"
+          justify="center"
+          align="center"
+        >
           <ToggleDarkMode />
           <LogoutButton size={["sm", "sm"]} />
         </Stack>
