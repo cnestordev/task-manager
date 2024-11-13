@@ -103,17 +103,40 @@ io.on('connection', async (socket) => {
     }
 
     socket.on('task-update-event', (task, updatingUserId) => {
+        // Base task object with an empty taskPosition array
         const userSpecificTask = { ...task, taskPosition: [] };
-
         const taskAssignees = userSpecificTask.assignedTo;
+        const newUsers = task.newUsers || []; // List of newly added users
+        const updatingUserTaskPosition = task.taskPosition[0];
 
         taskAssignees.forEach(userId => {
-            // Exclude the user who made the update
-            if (userId === updatingUserId) return;
+            if (userId === updatingUserId) return; // Skip the user who made the update
 
+            // Determine if the user is a newly added user
+            let taskToSend;
+            if (newUsers.includes(userId)) {
+                // For new users, set taskPosition based on the updating user's taskPosition
+                taskToSend = {
+                    ...userSpecificTask,
+                    taskPosition: [{
+                        isExpanded: updatingUserTaskPosition?.isExpanded ?? true,
+                        position: updatingUserTaskPosition?.position ?? -1,
+                        priority: updatingUserTaskPosition?.priority ?? "Medium",
+                        userId: userId
+                    }]
+                };
+            } else {
+                // For existing users, send the task without modifying taskPosition
+                taskToSend = userSpecificTask;
+            }
+
+            // Delete newUsers array before sending the task
+            delete taskToSend.newUsers;
+
+            // Emit the task update to each user
             const socketId = socketSessionCache[userId];
             if (socketId) {
-                io.to(socketId).emit('taskUpdatedByTeam', { task: userSpecificTask });
+                io.to(socketId).emit('taskUpdatedByTeam', { task: taskToSend });
                 console.log(`${task._id} updated for user ${userId}`);
             } else {
                 console.log(`User ${userId} not connected`);

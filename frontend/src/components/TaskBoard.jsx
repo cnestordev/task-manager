@@ -283,7 +283,11 @@ const TaskBoard = () => {
 
       // Notify the websocket server of updated task
       if (returnedUpdatedTask.teamId) {
-        notifyTaskUpdate(returnedUpdatedTask);
+        const taskWithNewUsers = {
+          ...returnedUpdatedTask,
+          newUsers: [...formData.addedUsers],
+        };
+        notifyTaskUpdate(taskWithNewUsers);
       }
 
       setIsEditModalOpen(false);
