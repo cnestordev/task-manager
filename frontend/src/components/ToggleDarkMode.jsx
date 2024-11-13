@@ -1,5 +1,5 @@
 import { Box, Icon, Spinner } from "@chakra-ui/react";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { MdDarkMode, MdSunny, MdCheck, MdError } from "react-icons/md";
 import { useUser } from "../context/UserContext";
 import axiosInstance from "../services/axiosInstance";
@@ -20,10 +20,13 @@ export const ToggleDarkMode = () => {
   const { user, updateUser } = useUser();
   const darkMode = user?.darkMode || false;
   const [status, setStatus] = useState("idle"); // "idle", "loading", "success", "error"
+  const isTogglingRef = useRef(false);
 
   // Debounced toggle handler
   const handleToggle = useCallback(
     debounce(async () => {
+      if (isTogglingRef.current) return;
+      isTogglingRef.current = true;
       setStatus("loading"); // Set to loading state when request starts
       try {
         const data = await axiosInstance.get("/auth/toggleDarkMode");
@@ -35,13 +38,19 @@ export const ToggleDarkMode = () => {
         setStatus("success"); // Set to success state on successful request
 
         // Reset to idle after 2 seconds
-        setTimeout(() => setStatus("idle"), 2000);
+        setTimeout(() => {
+          setStatus("idle");
+          isTogglingRef.current = false;
+        }, 2000);
       } catch (error) {
         console.error("Failed to toggle dark mode:", error);
         setStatus("error"); // Set to error state if request fails
 
         // Reset to idle after 2 seconds
-        setTimeout(() => setStatus("idle"), 2000);
+        setTimeout(() => {
+          setStatus("idle");
+          isTogglingRef.current = false;
+        }, 2000);
       }
     }, 500),
     [user]

@@ -5,6 +5,7 @@ import { MdCheckCircle } from "react-icons/md";
 
 import { AddIcon } from "@chakra-ui/icons";
 import {
+  Avatar,
   Box,
   Button,
   Collapse,
@@ -22,16 +23,17 @@ import {
   ListIcon,
   ListItem,
   Select,
+  Text,
   Textarea,
   UnorderedList,
   useColorMode,
-  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 
 import { useUser } from "../context/UserContext";
 import { getListOfUsers } from "../utils/userUtils";
 import { TaskSchema } from "../validation/taskValidation";
+import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 import "./FormContainer.css";
 
@@ -42,7 +44,7 @@ const FormContainer = ({ addTask }) => {
   const { isOpen: isOptionsOpen, onToggle } = useDisclosure();
   const [usersList, setUsersList] = useState([]);
   const [addedUsers, setAddedUsers] = useState([]);
-  
+
   const { colorMode, setColorMode } = useColorMode();
   const darkMode = user?.darkMode || false;
 
@@ -50,8 +52,13 @@ const FormContainer = ({ addTask }) => {
     setColorMode(darkMode ? "dark" : "light");
   }, [darkMode, setColorMode]);
 
-  const hoverBg = useColorModeValue("gray.100", "gray.700");
-  const borderBottomColor = useColorModeValue("#e2e8f0", "gray.600");
+  // color variables based on darkMode
+  const addedBgColor = darkMode ? "green.800" : "green.50";
+  const defaultBgColor = darkMode ? "#2d3748" : "white";
+  const textColor = darkMode ? "white" : "black";
+  const borderColor = darkMode ? "#4a5568" : "#e7e7e7";
+  const addedIconColor = darkMode ? "green.300" : "green.500";
+  const hoverBgColor = darkMode ? "gray.700" : "gray.100";
 
   const {
     register,
@@ -115,7 +122,7 @@ const FormContainer = ({ addTask }) => {
         size="md"
       >
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent bg={defaultBgColor} color={textColor}>
           <DrawerCloseButton />
           <DrawerHeader>Add New Task</DrawerHeader>
 
@@ -128,6 +135,9 @@ const FormContainer = ({ addTask }) => {
                   id="title"
                   placeholder="Enter task title"
                   {...register("title")}
+                  bg={defaultBgColor}
+                  color={textColor}
+                  borderColor={borderColor}
                 />
                 <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
               </FormControl>
@@ -139,6 +149,9 @@ const FormContainer = ({ addTask }) => {
                   id="description"
                   placeholder="Enter task description"
                   {...register("description")}
+                  bg={defaultBgColor}
+                  color={textColor}
+                  borderColor={borderColor}
                 />
                 <FormErrorMessage>
                   {errors.description?.message}
@@ -152,6 +165,9 @@ const FormContainer = ({ addTask }) => {
                   id="priority"
                   placeholder="Select priority"
                   {...register("priority")}
+                  bg={defaultBgColor}
+                  color={textColor}
+                  borderColor={borderColor}
                 >
                   <option value="High">High</option>
                   <option value="Medium">Medium</option>
@@ -160,6 +176,7 @@ const FormContainer = ({ addTask }) => {
                 <FormErrorMessage>{errors.priority?.message}</FormErrorMessage>
               </FormControl>
 
+              {/* Assign Users */}
               <Button mt={4} onClick={onToggle}>
                 Assign Users
               </Button>
@@ -170,8 +187,15 @@ const FormContainer = ({ addTask }) => {
                   shadow="md"
                   borderWidth="1px"
                   borderRadius="md"
+                  bg={defaultBgColor}
+                  color={textColor}
                 >
-                  <UnorderedList styleType="none" spacing={3}>
+                  <UnorderedList
+                    display="flex"
+                    flexWrap="wrap"
+                    gap={2}
+                    styleType="none"
+                  >
                     {usersList.length > 0 ? (
                       usersList.map((user) => {
                         const isAdded = addedUsers.some(
@@ -179,21 +203,31 @@ const FormContainer = ({ addTask }) => {
                         );
                         return (
                           <ListItem
+                            cursor="pointer"
                             key={user._id}
                             p={2}
-                            _hover={{ bg: hoverBg, cursor: "pointer" }}
-                            borderBottom={`1px solid ${borderBottomColor}`}
-                            _last={{ borderBottom: "none" }}
+                            bg={isAdded ? addedBgColor : defaultBgColor}
+                            color={textColor}
+                            border={
+                              !isAdded ? `1px solid ${borderColor}` : "none"
+                            }
+                            borderRadius="50px"
                             onClick={() => handleSelectedUser(user)}
                           >
-                            {user.username}
-                            {isAdded && (
-                              <ListIcon
-                                ml={2}
-                                as={MdCheckCircle}
-                                color="green.500"
+                            <Box display="flex" alignItems="center">
+                              <Avatar
+                                src={getCloudinaryAvatarUrl(user._id)}
+                                size="sm"
                               />
-                            )}
+                              <Text ml={2}>{user.username}</Text>
+                              {isAdded && (
+                                <ListIcon
+                                  as={MdCheckCircle}
+                                  color={addedIconColor}
+                                  ml={2}
+                                />
+                              )}
+                            </Box>
                           </ListItem>
                         );
                       })

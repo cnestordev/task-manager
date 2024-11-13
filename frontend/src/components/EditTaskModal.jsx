@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   Collapse,
@@ -15,8 +16,9 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Text,
   Textarea,
-  UnorderedList
+  UnorderedList,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
@@ -24,6 +26,8 @@ import { useForm } from "react-hook-form";
 import { MdCheckCircle } from "react-icons/md";
 import { getListOfUsers } from "../utils/userUtils";
 import { TaskSchema } from "../validation/taskValidation";
+import { useUser } from "../context/UserContext";
+import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
   const {
@@ -43,6 +47,8 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
   const [usersList, setUsersList] = useState([]);
   const [addedUsers, setAddedUsers] = useState([...selectedTask.assignedTo]);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const { user } = useUser();
+  const darkMode = user?.darkMode || false;
 
   useEffect(() => {
     // Fetch users when the modal opens
@@ -81,10 +87,19 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
     onClose();
   };
 
+  // color variables based on darkMode
+  const assignedBgColor = darkMode ? "blue.800" : "blue.50";
+  const addedBgColor = darkMode ? "green.800" : "green.50";
+  const defaultBgColor = darkMode ? "#2d3748" : "white";
+  const textColor = darkMode ? "white" : "black";
+  const borderBottomColor = darkMode ? "#4a5568" : "#e2e8f0";
+  const assignedIconColor = darkMode ? "blue.300" : "blue.500";
+  const addedIconColor = darkMode ? "green.300" : "green.500";
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent bg={defaultBgColor} color={textColor}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>Edit Task</ModalHeader>
           <ModalCloseButton />
@@ -95,6 +110,9 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
                 id="title"
                 placeholder="Edit task title"
                 {...register("title")}
+                bg={defaultBgColor}
+                color={textColor}
+                borderColor={borderBottomColor}
               />
               <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
             </FormControl>
@@ -105,6 +123,9 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
                 id="description"
                 placeholder="Edit task description"
                 {...register("description")}
+                bg={defaultBgColor}
+                color={textColor}
+                borderColor={borderBottomColor}
               />
               <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
             </FormControl>
@@ -114,8 +135,21 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
               Assign Users
             </Button>
             <Collapse in={isOptionsOpen} animateOpacity>
-              <Box p={4} mt={4} shadow="md" borderWidth="1px" borderRadius="md">
-                <UnorderedList styleType="none" spacing={3}>
+              <Box
+                p={4}
+                mt={4}
+                shadow="md"
+                borderWidth="1px"
+                borderRadius="md"
+                bg={defaultBgColor}
+                color={textColor}
+              >
+                <UnorderedList
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  styleType="none"
+                >
                   {usersList.length > 0 ? (
                     usersList.map((user) => {
                       const isAssigned = selectedTask.assignedTo.includes(
@@ -124,34 +158,40 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
                       const isAdded = addedUsers.includes(user._id); // Check if user is in addedUsers
                       return (
                         <ListItem
+                          cursor="pointer"
                           key={user._id}
-                          p={2}
-                          _hover={
-                            isAssigned
-                              ? {}
-                              : { bg: "gray.100", cursor: "pointer" }
-                          }
+                          p={3}
                           bg={
                             isAssigned
-                              ? "blue.50"
+                              ? assignedBgColor
                               : isAdded
-                              ? "green.50"
-                              : "white"
+                              ? addedBgColor
+                              : defaultBgColor
                           }
-                          borderBottom="1px solid #e2e8f0"
-                          _last={{ borderBottom: "none" }}
+                          color={textColor}
+                          border={!isAdded ? !isAssigned ? "1px solid #e7e7e7" : "1px solid transparent" : "none"}
+                          borderRadius="50px"
                           onClick={() =>
                             !isAssigned && handleSelectedUser(user)
                           }
                         >
-                          {user.username}
-                          {isAssigned ? (
-                            <ListIcon as={MdCheckCircle} color="blue.500" />
-                          ) : (
-                            isAdded && (
-                              <ListIcon as={MdCheckCircle} color="green.500" />
-                            )
-                          )}
+                          <Box display="flex" alignItems="center">
+                            <Avatar src={getCloudinaryAvatarUrl(user._id)} size="xs" />
+                            <Text w={50}>{user.username}</Text>
+                            {isAssigned ? (
+                              <ListIcon
+                                as={MdCheckCircle}
+                                color={assignedIconColor}
+                              />
+                            ) : (
+                              isAdded && (
+                                <ListIcon
+                                  as={MdCheckCircle}
+                                  color={addedIconColor}
+                                />
+                              )
+                            )}
+                          </Box>
                         </ListItem>
                       );
                     })
