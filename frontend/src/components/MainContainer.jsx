@@ -23,6 +23,7 @@ export const MainContainer = ({ children }) => {
   return (
     <Container
       maxWidth="100%"
+      height={{ base: "auto", md: "100vh" }}
       className={`container ${colorMode === "dark" ? "dark" : ""}`}
     >
       {children}
