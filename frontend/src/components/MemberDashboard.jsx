@@ -21,6 +21,7 @@ const MemberDashboard = () => {
   const toast = useToast();
 
   const { user, updateUser } = useUser();
+  const darkMode = user?.darkMode || false;
 
   useEffect(() => {
     const fetchTeamDetails = async () => {
@@ -72,7 +73,13 @@ const MemberDashboard = () => {
 
   return (
     <Box mx="auto" width={["100%", "50%"]} borderRadius="md">
-      <Heading as="h2" size="lg" mb={6} textAlign="center" color="gray.700">
+      <Heading
+        as="h2"
+        size="lg"
+        mb={6}
+        textAlign="center"
+        color={darkMode ? "white" : "gray.700"}
+      >
         Member Dashboard
       </Heading>
 
@@ -81,14 +88,18 @@ const MemberDashboard = () => {
         p={4}
         borderRadius="20"
         padding="35px"
-        bg="white"
+        bg={darkMode ? "#2a3745" : "white"}
         mb={6}
         textAlign="center"
         display="flex"
         alignItems="center"
         flexDirection="column"
       >
-        <Text fontSize="lg" fontWeight="bold" color="gray.800">
+        <Text
+          fontSize="lg"
+          fontWeight="bold"
+          color={darkMode ? "gray.200" : "gray.800"}
+        >
           Team Name: {team.name}
         </Text>
         <Button
@@ -103,7 +114,12 @@ const MemberDashboard = () => {
 
       {/* Team Members */}
       <Box>
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="gray.700">
+        <Text
+          fontSize="lg"
+          fontWeight="bold"
+          mb={4}
+          color={darkMode ? "gray.200" : "gray.700"}
+        >
           Team Members
         </Text>
         {team.members.length > 0 ? (
@@ -117,7 +133,7 @@ const MemberDashboard = () => {
                   key={member._id}
                   alignItems="center"
                   p={3}
-                  bg="#f1f5fb"
+                  bg={darkMode ? "#2a3745" : "#f1f5fb"}
                   borderRadius="20"
                   padding="20px"
                   width="100%"
@@ -130,9 +146,15 @@ const MemberDashboard = () => {
                     justifyContent="center"
                   >
                     <Avatar src={cloudinaryUrl} />
-                    <Text flex="1" color="gray.800" fontWeight="medium">
+                    <Text
+                      flex="1"
+                      color={darkMode ? "gray.200" : "gray.800"}
+                      fontWeight="medium"
+                    >
                       {member.username}{" "}
-                      {member._id === team.createdBy && <Badge colorScheme='purple'>Admin</Badge>}
+                      {member._id === team.createdBy && (
+                        <Badge colorScheme="purple">Admin</Badge>
+                      )}
                     </Text>
                   </Box>
                 </Flex>
@@ -140,7 +162,9 @@ const MemberDashboard = () => {
             })}
           </VStack>
         ) : (
-          <Text color="gray.600">No members in the team</Text>
+          <Text color={darkMode ? "gray.400" : "gray.600"}>
+            No members in the team
+          </Text>
         )}
       </Box>
     </Box>

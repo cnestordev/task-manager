@@ -19,7 +19,8 @@ import { TeamSchema } from "../validation/teamValidation";
 const CreateTeamDashboard = () => {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-  const { updateUser } = useUser();
+  const { user, updateUser } = useUser();
+  const darkMode = user?.darkMode || false;
 
   const {
     register,
@@ -86,12 +87,19 @@ const CreateTeamDashboard = () => {
           <Input
             id="teamName"
             placeholder="Enter your team name"
-            variant="filled"
             borderRadius="md"
-            bg="gray.100"
-            _focus={{ bg: "gray.200" }}
+            bgColor={darkMode ? "#1e2d3d" : "gray.200"}
+            color={darkMode ? "whiteAlpha.900" : "gray.800"}
+            _placeholder={{
+              color: darkMode ? "whiteAlpha.700" : "gray.500",
+            }}
+            _focus={{
+              bgColor: darkMode ? "#1e2d3d" : "gray.200",
+              color: darkMode ? "whiteAlpha.900" : "gray.800",
+            }}
             {...register("teamName")}
           />
+
           <FormErrorMessage>{errors.teamName?.message}</FormErrorMessage>
         </FormControl>
 

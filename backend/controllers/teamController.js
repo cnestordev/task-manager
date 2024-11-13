@@ -307,6 +307,7 @@ exports.joinTeam = async (req, res) => {
                 id: updatedUser._id,
                 username: updatedUser.username,
                 _id: updatedUser._id,
+                darkMode: updatedUser.darkMode
             }
         });
     } catch (error) {

@@ -18,6 +18,7 @@ import { Droppable } from "@hello-pangea/dnd";
 import { useState } from "react";
 import "./PriorityColumn.css";
 import TaskCard from "./TaskCard";
+import { useUser } from "../context/UserContext";
 
 const PriorityColumn = ({
   priority,
@@ -46,9 +47,12 @@ const PriorityColumn = ({
     (task) => task.isCompleted && !task.isDeleted
   ).length;
 
+  const { user } = useUser();
+  const darkMode = user?.darkMode || false;
+
   return (
     <Box
-      className={`column ${isActive ? "active" : ""}`}
+      className={`column ${darkMode ? "dark" : ""} ${isActive ? "active" : ""}`}
       minWidth="300px"
       flexShrink={0}
     >
@@ -65,7 +69,7 @@ const PriorityColumn = ({
               <Tab
                 _selected={{
                   color: "#000",
-                  backgroundColor: "#dce1e7",
+                  backgroundColor: darkMode ? "#527b95" : "#dce1e7",
                   borderRadius: "50px",
                 }}
               >
@@ -75,7 +79,7 @@ const PriorityColumn = ({
                 isDisabled={completedTasksCount === 0}
                 _selected={{
                   color: "#000",
-                  backgroundColor: "#dce1e7",
+                  backgroundColor: darkMode ? "#527b95" : "#dce1e7",
                   borderRadius: "50px",
                 }}
               >

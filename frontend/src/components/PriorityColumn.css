@@ -7,8 +7,16 @@
   transition: background-color 0.3s ease;
 }
 
+.column.dark {
+  background-color: var(--secondary-color);
+}
+
 .active {
   background-color: #dbe2ed;
+}
+
+.active.dark {
+  background-color: #283949;
 }
 
 .header {

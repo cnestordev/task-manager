@@ -14,14 +14,16 @@ import SettingsButton from "./SettingsButton";
 import { UploadModal } from "./UploadModal";
 import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 import { useSocketContext } from "../context/SocketContext";
+import { ToggleDarkMode } from "./toggleDarkMode";
 
 const Navbar = ({ children }) => {
   const { user } = useUser();
   const cloudinaryUrl = getCloudinaryAvatarUrl(user?.id || user?._id);
   const { connectedUsers } = useSocketContext();
+  const darkMode = user?.darkMode || false;
 
   return (
-    <Container mb={2} maxWidth="initial" className="navbar-container">
+    <Container mb={2} maxWidth="initial" className={`navbar-container ${darkMode ? "dark" : ""}`}>
       <Stack
         direction={["column", "row"]}
         alignItems="center"
@@ -72,7 +74,8 @@ const Navbar = ({ children }) => {
           <SettingsButton size={["sm", "md"]} />
           {children}
         </Stack>
-        <Stack justify="center" align="center">
+        <Stack flexDirection="row" alignItems="center" justify="center" align="center">
+          <ToggleDarkMode />
           <LogoutButton size={["sm", "sm"]} />
         </Stack>
       </Stack>

@@ -8,6 +8,7 @@ import { NewTeamContainer } from "./NewTeamContainer";
 
 const Dashboard = () => {
   const { user } = useUser();
+  const darkMode = user?.darkMode || false;
 
   const isAdmin = user?.team && user.id === user.team.createdBy;
   const isMember = user?.team && user.id !== user.team.createdBy;
@@ -15,21 +16,39 @@ const Dashboard = () => {
   return (
     <>
       <Navbar />
-      <Tabs>
+      <Tabs variant="enclosed">
         <TabList justifyContent="center">
-          <Tab>Teams</Tab>
-          {user.isAdmin && <Tab>Metrics</Tab>}
+          <Tab
+            color={darkMode ? "whiteAlpha.800" : "gray.800"}
+            _selected={{
+              color: darkMode ? "white" : "black",
+              bgColor: darkMode ? "#2d3748" : "gray.100",
+            }}
+          >
+            Teams
+          </Tab>
+          {user.isAdmin && (
+            <Tab
+              color={darkMode ? "whiteAlpha.800" : "gray.800"}
+              _selected={{
+                color: darkMode ? "white" : "black",
+                bgColor: darkMode ? "#2d3748" : "gray.100",
+              }}
+            >
+              Metrics
+            </Tab>
+          )}
         </TabList>
 
         <TabPanels>
-          <TabPanel>
+          <TabPanel color={darkMode ? "whiteAlpha.900" : "gray.800"}>
             {isAdmin && <AdminDashboard />}
             {isMember && <MemberDashboard />}
             {!user.team && <NewTeamContainer />}
           </TabPanel>
 
           {user.isAdmin && (
-            <TabPanel>
+            <TabPanel color={darkMode ? "whiteAlpha.900" : "gray.800"}>
               <MetricChart />
             </TabPanel>
           )}

@@ -15,6 +15,7 @@ const SettingsButton = () => {
 
   return (
     <Button
+      className="navbar-btns"
       onClick={handleNavigate}
       colorScheme="blue"
       aria-label={buttonLabel}

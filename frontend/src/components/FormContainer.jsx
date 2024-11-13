@@ -24,20 +24,34 @@ import {
   Select,
   Textarea,
   UnorderedList,
+  useColorMode,
+  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 
+import { useUser } from "../context/UserContext";
 import { getListOfUsers } from "../utils/userUtils";
 import { TaskSchema } from "../validation/taskValidation";
 
 import "./FormContainer.css";
 
 const FormContainer = ({ addTask }) => {
+  const { user } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
   const { isOpen: isOptionsOpen, onToggle } = useDisclosure();
   const [usersList, setUsersList] = useState([]);
   const [addedUsers, setAddedUsers] = useState([]);
+  
+  const { colorMode, setColorMode } = useColorMode();
+  const darkMode = user?.darkMode || false;
+
+  useEffect(() => {
+    setColorMode(darkMode ? "dark" : "light");
+  }, [darkMode, setColorMode]);
+
+  const hoverBg = useColorModeValue("gray.100", "gray.700");
+  const borderBottomColor = useColorModeValue("#e2e8f0", "gray.600");
 
   const {
     register,
@@ -85,7 +99,12 @@ const FormContainer = ({ addTask }) => {
 
   return (
     <>
-      <Button ref={btnRef} colorScheme="blue" onClick={onOpen}>
+      <Button
+        className="navbar-btns"
+        ref={btnRef}
+        colorScheme="blue"
+        onClick={onOpen}
+      >
         <AddIcon boxSize={3} mr={2} /> Create
       </Button>
       <Drawer
@@ -162,8 +181,8 @@ const FormContainer = ({ addTask }) => {
                           <ListItem
                             key={user._id}
                             p={2}
-                            _hover={{ bg: "gray.100", cursor: "pointer" }}
-                            borderBottom="1px solid #e2e8f0"
+                            _hover={{ bg: hoverBg, cursor: "pointer" }}
+                            borderBottom={`1px solid ${borderBottomColor}`}
                             _last={{ borderBottom: "none" }}
                             onClick={() => handleSelectedUser(user)}
                           >

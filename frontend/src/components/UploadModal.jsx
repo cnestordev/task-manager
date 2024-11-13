@@ -105,7 +105,6 @@ export const UploadModal = ({ children, userId }) => {
               p={6}
               textAlign="center"
               cursor="pointer"
-              _hover={{ bg: "gray.50" }}
               mb={4}
             >
               {file ? "Image selected: " + file.name : "Click to upload image"}

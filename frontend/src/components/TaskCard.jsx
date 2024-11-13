@@ -28,6 +28,7 @@ const TaskCard = ({
   const taskIdMatch = loadingTaskId === task._id;
   const { user } = useUser();
   const [isTaskShared, setIsTaskShared] = useState(task.assignedTo.length > 1);
+  const darkMode = user?.darkMode || false;
 
   useEffect(() => {
     setIsTaskShared(task.assignedTo.length > 1);
@@ -53,6 +54,7 @@ const TaskCard = ({
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             className={`task-card 
+            ${darkMode ? "dark" : ""}
             ${taskIdMatch ? "loading-border" : ""} 
             ${
               task.isCompleted ? "task-card-completed" : "task-card-inprogress"

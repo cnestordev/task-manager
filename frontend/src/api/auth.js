@@ -28,3 +28,8 @@ export const uploadImage = async () => {
   const response = await axiosInstance.post('/auth/uploadImage');
   return response;
 };
+
+export const toggleDarkMode = async () => {
+  const response = await axiosInstance.get('/auth/toggleDarkMode')
+  return response
+}

@@ -27,8 +27,9 @@ const InviteCodeSchema = Yup.object().shape({
 const JoinTeamDashboard = () => {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-  const { updateUser } = useUser();
+  const { user, updateUser } = useUser();
   const [isPinComplete, setIsPinComplete] = useState(false);
+  const darkMode = user?.darkMode || false;
 
   const {
     handleSubmit,
@@ -103,7 +104,18 @@ const JoinTeamDashboard = () => {
               onComplete={handleSubmit(onSubmit)}
             >
               {[...Array(8)].map((_, idx) => (
-                <PinInputField key={idx} />
+                <PinInputField
+                  key={idx}
+                  bgColor={darkMode ? "#1e2d3d" : "gray.200"}
+                  color={darkMode ? "whiteAlpha.900" : "gray.800"}
+                  _focus={{
+                    bgColor: darkMode ? "#1e2d3d" : "gray.200",
+                    color: darkMode ? "whiteAlpha.900" : "gray.800",
+                  }}
+                  _placeholder={{
+                    color: darkMode ? "whiteAlpha.700" : "gray.500",
+                  }}
+                />
               ))}
             </PinInput>
           </HStack>

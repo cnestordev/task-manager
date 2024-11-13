@@ -8,6 +8,8 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  console.log(user)
+
   // Check the user session on initial load
   useEffect(() => {
     const checkUserSession = async () => {

@@ -7,6 +7,10 @@
     border-radius: 20px;
 }
 
+.navbar-container.dark {
+    background-color: var(--secondary-color);
+}
+
 .navbar-user-container {
     display: flex;
     align-items: center;
@@ -31,4 +35,15 @@
 .nav-welcome-text {
     font-size: 20px;
     font-weight: 700;
+}
+
+/* dark mode btns */
+.navbar-btns.dark:hover {
+    background-color: #2b6cb0 !important;
+    color: #fff;
+}
+
+.logout-btn.dark:hover {
+    background-color: #c53030 !important;
+    color: #ffd1d1;
 }

@@ -14,14 +14,16 @@ import {
   Icon,
   Text,
   Link,
+  useColorMode,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useUser } from "../context/UserContext";
 import { register as registerUser } from "../api/index";
 import { RegistrationSchema } from "../validation/userValidation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { useState, useEffect } from "react";
+import { ViewIcon, ViewOffIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
 
 const Register = () => {
   const [showPrimary, setShowPrimary] = useState(false);
@@ -29,6 +31,14 @@ const Register = () => {
   const { login } = useUser();
   const navigate = useNavigate();
   const toast = useToast();
+  const { colorMode, toggleColorMode, setColorMode } = useColorMode();
+
+  // Dynamic colors based on color mode
+  const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("black", "white");
+  const borderColor = useColorModeValue("gray.300", "gray.600");
+  const buttonBg = useColorModeValue("green.500", "green.400");
+  const buttonHoverBg = useColorModeValue("green.600", "green.500");
 
   const {
     register,
@@ -40,23 +50,24 @@ const Register = () => {
     mode: "onBlur",
   });
 
+  useEffect(() => {
+    const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setColorMode(darkModePreference ? "dark" : "light");
+  }, [setColorMode]);
+
   const handleRegistration = async (formData) => {
     const { username, password } = formData;
 
     try {
       const { data } = await registerUser(username, password);
 
-      // Check if the registration was successful
       if (data.statusCode === 201 && data.user) {
         login(data.user);
         navigate("/taskboard");
       } else {
-        // Handle any unexpected responses
         throw new Error(data.error);
       }
     } catch (error) {
-      // Handle specific error responses
-      console.log(error);
       if (error.response && error.response.status === 400) {
         toast({
           title: "Error",
@@ -89,10 +100,16 @@ const Register = () => {
       mx="auto"
       mt="100px"
       p="4"
+      bg={bgColor}
+      color={textColor}
       borderWidth="1px"
+      borderColor={borderColor}
       borderRadius="lg"
     >
       <Heading mb="6">Register</Heading>
+      <Button onClick={toggleColorMode} mb="4" variant="ghost" alignSelf="flex-end">
+        {colorMode === "dark" ? <SunIcon /> : <MoonIcon />}
+      </Button>
       <form onSubmit={handleSubmit(handleRegistration)}>
         <VStack spacing="4">
           <FormControl isInvalid={!!errors.username} isRequired>
@@ -101,6 +118,7 @@ const Register = () => {
               id="username"
               placeholder="Enter a username"
               {...register("username")}
+              bg={colorMode === "dark" ? "gray.700" : "white"}
             />
             <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
           </FormControl>
@@ -112,6 +130,7 @@ const Register = () => {
                 id="password"
                 placeholder="Enter your password"
                 {...register("password")}
+                bg={colorMode === "dark" ? "gray.700" : "white"}
               />
               <InputRightElement width="4.5rem">
                 <Button h="1.75rem" size="sm" onClick={handleClick}>
@@ -127,12 +146,13 @@ const Register = () => {
           </FormControl>
           <FormControl isInvalid={!!errors.confirmPassword} isRequired>
             <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
-            <InputGroup size="md">
+            <InputGroup>
               <Input
                 type={showSecondary ? "text" : "password"}
                 id="confirmPassword"
                 placeholder="Confirm your password"
                 {...register("confirmPassword")}
+                bg={colorMode === "dark" ? "gray.700" : "white"}
               />
               <InputRightElement width="4.5rem">
                 <Button h="1.75rem" size="sm" onClick={handleClickConfirmation}>
@@ -148,7 +168,13 @@ const Register = () => {
               {errors.confirmPassword?.message}
             </FormErrorMessage>
           </FormControl>
-          <Button type="submit" colorScheme="green" width="full">
+          <Button
+            type="submit"
+            bg={buttonBg}
+            _hover={{ bg: buttonHoverBg }}
+            color="white"
+            width="full"
+          >
             Register
           </Button>
         </VStack>

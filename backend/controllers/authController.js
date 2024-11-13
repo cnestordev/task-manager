@@ -39,6 +39,7 @@ exports.register = async (req, res, next) => {
             return res.status(201).json(createResponse(201, 'Registration and login successful', {
                 id: newUser._id,
                 username: newUser.username,
+                darkMode: newUser.darkMode,
                 team: null // Set `team` to null since the user hasn't joined or created a team
             }));
         });
@@ -64,6 +65,7 @@ exports.login = (req, res, next) => {
                     id: populatedUser._id,
                     username: populatedUser.username.toLowerCase(),
                     isAdmin: populatedUser.isAdmin,
+                    darkMode: populatedUser.darkMode,
                     team: populatedUser.team
                         ? {
                             id: populatedUser.team._id,
@@ -92,6 +94,7 @@ exports.checkUser = async (req, res) => {
             const modifiedUser = {
                 username: user.username,
                 isAdmin: user.isAdmin,
+                darkMode: user.darkMode,
                 _id: user._id,
                 id: user._id,
                 team: user.team ? {
@@ -110,6 +113,36 @@ exports.checkUser = async (req, res) => {
         }
     } else {
         return res.status(401).json(createResponse(401, 'User not authenticated'));
+    }
+};
+
+// Toggle Dark Mode
+exports.toggleDarkMode = async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json(createResponse(401, 'User not authenticated'));
+        }
+        const userId = req.user._id;
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        // If user is not found, return an error
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Toggle darkMode
+        user.darkMode = !user.darkMode;
+
+        // Save the updated user record
+        await user.save();
+
+        res.status(200).json({ message: 'Dark mode toggled successfully', darkMode: user.darkMode });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 

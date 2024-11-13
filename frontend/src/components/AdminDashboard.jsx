@@ -23,6 +23,7 @@ const AdminDashboard = () => {
   const toast = useToast();
 
   const { user, updateUser } = useUser();
+  const darkMode = user?.darkMode || false;
 
   // Fetch team details on component mount
   useEffect(() => {
@@ -119,7 +120,13 @@ const AdminDashboard = () => {
 
   return (
     <Box mx="auto" width={["100%", "50%"]} borderRadius="md">
-      <Heading as="h2" size="lg" mb={6} textAlign="center" color="gray.700">
+      <Heading
+        as="h2"
+        size="lg"
+        mb={6}
+        textAlign="center"
+        color={darkMode ? "white" : "gray.700"}
+      >
         Admin Dashboard
       </Heading>
 
@@ -128,7 +135,7 @@ const AdminDashboard = () => {
         p={4}
         borderRadius="20"
         padding="35px"
-        bg="white"
+        bg="transparent"
         mb={6}
         textAlign="center"
         display="flex"
@@ -136,15 +143,15 @@ const AdminDashboard = () => {
         flexDirection="column"
       >
         <Box mb={2}>
-          <Text fontSize="24px" fontWeight="bold" color="gray.800">
+          <Text fontSize="24px" fontWeight="bold">
             {team.name}
           </Text>
-          <Text fontSize="14px" color="gray.600">
+          <Text fontSize="14px" color="gray.500">
             Team Name
           </Text>
         </Box>
         <Flex
-          bg="#f1f5fb"
+          bgColor={darkMode ? "#2a3745" : "#f1f5fb"}
           padding="15px"
           borderRadius="10"
           width={["100%", "90%", "50%"]}
@@ -153,10 +160,10 @@ const AdminDashboard = () => {
           mt={2}
         >
           <Box>
-            <Text fontSize="20px" fontWeight="bold" color="#535353">
+            <Text fontSize="20px" fontWeight="bold">
               {team.inviteCode}
             </Text>
-            <Text mb={2} fontSize="13px" color="#535353">
+            <Text mb={2} fontSize="13px" color="gray.500">
               Invite Code
             </Text>
             <CustomizeInviteCodeModal
@@ -169,7 +176,7 @@ const AdminDashboard = () => {
 
       {/* Team Members */}
       <Box>
-        <Text fontSize="lg" fontWeight="bold" mb={4} color="gray.700">
+        <Text fontSize="lg" fontWeight="bold" mb={4} color="gray.500">
           Team Members
         </Text>
         {team.members.length > 0 ? (
@@ -184,7 +191,7 @@ const AdminDashboard = () => {
                   alignItems="center"
                   justify="space-between"
                   p={3}
-                  bg="#f1f5fb"
+                  bg={darkMode ? "#2a3745" : "#f1f5fb"}
                   borderRadius="20"
                   padding="20px"
                   width="70%"
@@ -197,8 +204,13 @@ const AdminDashboard = () => {
                     justifyContent="center"
                   >
                     <Avatar src={cloudinaryUrl} />
-                    <Text flex="1" color="gray.800" fontWeight="medium">
-                      {member.username} {member._id === user.id && <Badge colorScheme='purple'>Admin</Badge>}
+                    <Text flex="1" color="gray.500" fontWeight="medium">
+                      {member.username}{" "}
+                      {member._id === user.id && (
+                        <Badge ml={2} colorScheme="purple">
+                          Admin
+                        </Badge>
+                      )}
                     </Text>
                   </Box>
                   <IconButton

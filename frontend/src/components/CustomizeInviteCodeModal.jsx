@@ -1,25 +1,33 @@
-import { useState } from "react";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
+  Button,
   FormControl,
   FormLabel,
   Input,
-  Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useColorMode,
   useDisclosure,
-  useToast,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { useUser } from "../context/UserContext";
 
 const CustomizeInviteCodeModal = ({ currentCode, onSave }) => {
+  const { user } = useUser();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [inviteCode, setInviteCode] = useState(currentCode || "");
   const [isValid, setIsValid] = useState(false);
-  const toast = useToast();
+  
+  const darkMode = user?.darkMode || false;
+  const { colorMode, setColorMode } = useColorMode();
+
+  useEffect(() => {
+    setColorMode(darkMode ? "dark" : "light");
+  }, [darkMode, setColorMode]);
 
   const handleChange = (event) => {
     const newCode = event.target.value;

@@ -1,30 +1,29 @@
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
+  Box,
   Button,
+  Collapse,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Input,
-  Select,
-  FormErrorMessage,
-  Textarea,
-  Box,
-  UnorderedList,
-  ListItem,
   ListIcon,
-  Collapse,
+  ListItem,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Textarea,
+  UnorderedList
 } from "@chakra-ui/react";
-import { MdCheckCircle } from "react-icons/md";
-import { TaskSchema } from "../validation/taskValidation";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { MdCheckCircle } from "react-icons/md";
 import { getListOfUsers } from "../utils/userUtils";
+import { TaskSchema } from "../validation/taskValidation";
 
 const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
   const {

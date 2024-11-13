@@ -23,6 +23,14 @@
   background-color: #dddddd;
 }
 
+.task-card-inprogress.dark {
+  background-color: var(--card-primary-color);
+}
+
+.task-card-completed.dark {
+  background-color: #0b141c;
+}
+
 .task-card-hidden {
   display: none;
 }
