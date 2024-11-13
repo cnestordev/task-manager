@@ -14,7 +14,7 @@ import SettingsButton from "./SettingsButton";
 import { UploadModal } from "./UploadModal";
 import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 import { useSocketContext } from "../context/SocketContext";
-import { ToggleDarkMode } from "./toggleDarkMode";
+import { ToggleDarkMode } from "./ToggleDarkMode";
 
 const Navbar = ({ children }) => {
   const { user } = useUser();
