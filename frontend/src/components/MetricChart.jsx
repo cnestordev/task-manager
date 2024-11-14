@@ -10,18 +10,31 @@ import {
 } from "recharts";
 import { getMetricData } from "../api";
 import { useToast, Spinner } from "@chakra-ui/react";
+import { useUser } from "../context/UserContext";
 
 const MetricChart = () => {
   const [metricData, setMetricData] = useState([]);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
+  const { user } = useUser();
+  const darkMode = user?.darkMode || false;
+
+  // dark and light theme colors
+  const themeStyles = {
+    backgroundColor: darkMode ? "#162029" : "#f8fff9",
+    textColor: darkMode ? "#f0f0f0" : "#196527",
+    axisColor: darkMode ? "#a0aec0" : "#196527",
+    cpuLineColor: darkMode ? "#63b3ed" : "#0dcb1d",
+    memoryLineColor: darkMode ? "#f6ad55" : "#cb810d",
+    tooltipBackgroundColor: darkMode ? "#2d3748" : "#f4fff6",
+  };
+
   useEffect(() => {
     const getMetrics = async () => {
       try {
         const { data } = await getMetricData();
 
-        // Transform the response data
         const transformedData = data.metrics.cpuUsage.map((cpu, index) => ({
           timestamp: cpu.timestamp,
           cpuUsage: cpu.value,
@@ -47,15 +60,21 @@ const MetricChart = () => {
   }, []);
 
   return (
-    <div style={styles.card}>
-      <h3 style={styles.cardTitle}>System Resource Metrics</h3>
+    <div
+      style={{ ...styles.card, backgroundColor: themeStyles.backgroundColor }}
+    >
+      <h3 style={{ ...styles.cardTitle, color: themeStyles.textColor }}>
+        System Resource Metrics
+      </h3>
 
       {loading ? (
         <div style={styles.spinnerContainer}>
-          <Spinner size="lg" color="#196527" />
+          <Spinner size="lg" color={themeStyles.axisColor} />
         </div>
       ) : metricData.length === 0 ? (
-        <p style={styles.noDataText}>No metric data available</p>
+        <p style={{ ...styles.noDataText, color: themeStyles.textColor }}>
+          No metric data available
+        </p>
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={metricData}>
@@ -71,8 +90,10 @@ const MetricChart = () => {
                 value: "Time",
                 position: "insideBottomRight",
                 offset: -5,
+                fill: themeStyles.textColor,
               }}
-              stroke="#196527"
+              stroke={themeStyles.axisColor}
+              tick={{ fill: themeStyles.axisColor }}
             />
 
             <YAxis
@@ -81,13 +102,16 @@ const MetricChart = () => {
                 angle: -90,
                 position: "insideLeft",
                 offset: -5,
+                fill: themeStyles.textColor,
               }}
-              stroke="#196527"
+              stroke={themeStyles.axisColor}
+              tick={{ fill: themeStyles.axisColor }}
             />
 
             <Tooltip
               contentStyle={{
-                backgroundColor: "#f4fff6",
+                backgroundColor: themeStyles.tooltipBackgroundColor,
+                color: themeStyles.textColor,
               }}
               labelFormatter={(label) =>
                 `Time: ${new Date(label).toLocaleTimeString([], {
@@ -106,7 +130,7 @@ const MetricChart = () => {
             <Line
               type="monotone"
               dataKey="cpuUsage"
-              stroke="#0dcb1d"
+              stroke={themeStyles.cpuLineColor}
               strokeWidth={3}
               dot={{ r: 4 }}
               activeDot={{ r: 6, strokeWidth: 2 }}
@@ -116,7 +140,7 @@ const MetricChart = () => {
             <Line
               type="monotone"
               dataKey="memoryUsage"
-              stroke="#cb810d"
+              stroke={themeStyles.memoryLineColor}
               strokeWidth={3}
               dot={{ r: 4 }}
               activeDot={{ r: 6, strokeWidth: 2 }}
@@ -129,10 +153,8 @@ const MetricChart = () => {
   );
 };
 
-// Inline styling for the card layout and additional elements
 const styles = {
   card: {
-    backgroundColor: "#f8fff9",
     borderRadius: "20px",
     padding: "25px",
     width: "100%",
@@ -141,7 +163,6 @@ const styles = {
   },
   cardTitle: {
     margin: "0 0 15px 0",
-    color: "#196527",
     fontSize: "1.4em",
     fontWeight: "bold",
     textAlign: "center",
@@ -153,7 +174,6 @@ const styles = {
     height: "100px",
   },
   noDataText: {
-    color: "#888",
     textAlign: "center",
     marginTop: "20px",
     fontStyle: "italic",
