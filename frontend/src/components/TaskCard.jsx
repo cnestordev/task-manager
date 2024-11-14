@@ -61,7 +61,13 @@ const TaskCard = ({
                 ? "task-card-hidden"
                 : ""
             }
-            ${snapshot.isDragging ? "task-card-dragging" : ""} 
+            ${
+              snapshot.isDragging
+                ? darkMode
+                  ? "task-card-dragging-dark"
+                  : "task-card-dragging"
+                : ""
+            }
           `}
           onClick={() => toggleExpand(task)}
         >
