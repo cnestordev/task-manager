@@ -101,10 +101,16 @@ exports.updateTaskOrder = async (req, res) => {
         }
 
         // Step 2: Check if any of the specific fields have changed
-        const fieldsToTriggerIncrement = ['title', 'description'];
+        const fieldsToTriggerIncrement = ['title', 'description', 'isCompleted', 'isDeleted'];
         const hasTriggerFieldChanged = fieldsToTriggerIncrement.some(
             field => req.body[field] !== undefined && req.body[field] !== existingTask[field]
         );
+
+        // Check if there are any changes in the assignedTo array (either length or ids)
+        const hasAssigneesChanges =
+            req.body.assignedTo.length !== existingTask.assignedTo.length ||
+            req.body.assignedTo.some((id, index) => id.toString() !== existingTask.assignedTo[index].toString());
+
 
         // Step 3: Create a map of existing taskPosition entries by userId for quick lookup
         const taskPositionMap = new Map(
@@ -147,9 +153,8 @@ exports.updateTaskOrder = async (req, res) => {
                 taskPosition: updatedTaskPositionArray
             }
         };
-
         // Step 8: Conditionally add the version increment
-        if (hasTriggerFieldChanged) {
+        if (hasTriggerFieldChanged || hasAssigneesChanges) {
             updateObject.$inc = { __v: 1 };
         }
 
@@ -236,60 +241,52 @@ const updateMultipleTasksWithTransaction = async (tasksToUpdate, userId) => {
         const transactionResult = await session.withTransaction(async () => {
             const userIdObj = new mongoose.Types.ObjectId(userId);
 
-            const updatePromises = tasksToUpdate.map((taskData) => {
+            const updatePromises = tasksToUpdate.map(async (taskData) => {
+                const existingTask = await Task.findById(taskData._id).session(session);
 
-                const buildSetObject = () => {
-                    const setObj = {};
+                if (!existingTask) {
+                    throw new Error(`Task not found: ${taskData._id}`);
+                }
 
-                    // Handle other fields
-                    const allowedFields = ['title', 'description', 'isDeleted', 'isCompleted'];
-                    allowedFields.forEach(field => {
-                        if (taskData[field] !== undefined) {
-                            setObj[field] = taskData[field];
-                        }
-                    });
+                // Check for version mismatch
+                if (existingTask.__v !== taskData.__v) {
+                    throw new Error(`Version mismatch for task: ${taskData._id}`);
+                }
 
-                    // Update the taskPosition array
-                    setObj.taskPosition = {
-                        $concatArrays: [
-                            {
-                                $filter: {
-                                    input: '$taskPosition',
-                                    cond: {
-                                        $ne: [
-                                            { $toString: '$$this.userId' },
-                                            userIdObj.toString()
-                                        ]
-                                    }
-                                }
-                            },
-                            [
-                                {
-                                    ...taskData.taskPosition[0],
-                                    userId: userIdObj
-                                }
-                            ]
-                        ]
-                    };
-                    return setObj;
+                // Filter out the current user's taskPosition entry
+                const updatedTaskPosition = existingTask.taskPosition.filter(
+                    (pos) => pos.userId.toString() !== userIdObj.toString()
+                );
+
+                // Add or update the current user's taskPosition entry
+                updatedTaskPosition.push({
+                    ...taskData.taskPosition[0],
+                    userId: userIdObj
+                });
+
+                // Determine if isDeleted or isCompleted has changed
+                const shouldIncrementVersion =
+                    (taskData.isDeleted !== undefined && taskData.isDeleted !== existingTask.isDeleted) ||
+                    (taskData.isCompleted !== undefined && taskData.isCompleted !== existingTask.isCompleted);
+
+                // Build the $set object
+                const setObj = {
+                    title: taskData.title,
+                    description: taskData.description,
+                    isDeleted: taskData.isDeleted,
+                    isCompleted: taskData.isCompleted,
+                    taskPosition: updatedTaskPosition
                 };
 
-                // Prepare the aggregation pipeline update
-                const update = [
-                    {
-                        $set: buildSetObject()
-                    }
-                ];
+                // Conditionally include the version increment
+                const updateObject = shouldIncrementVersion
+                    ? { $set: setObj, $inc: { __v: 1 } }
+                    : { $set: setObj };
 
-                const options = { new: true, session };
-
-                return Task.findOneAndUpdate(
-                    {
-                        _id: new mongoose.Types.ObjectId(taskData._id),
-                        assignedTo: { $in: [userIdObj] }
-                    },
-                    update,
-                    options
+                return Task.findByIdAndUpdate(
+                    taskData._id,
+                    updateObject,
+                    { new: true, session, runValidators: true }
                 );
             });
 
@@ -301,11 +298,9 @@ const updateMultipleTasksWithTransaction = async (tasksToUpdate, userId) => {
                 throw new Error(`${failedUpdates.length} tasks were not found or not assigned to the user.`);
             }
 
-            // If all tasks are successfully updated, return the updated tasks
             return { success: true, updatedTasks };
         });
 
-        // Return the transaction result if successful
         return transactionResult;
     } catch (error) {
         console.error('Error during transaction:', error);
