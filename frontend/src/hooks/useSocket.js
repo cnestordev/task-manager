@@ -2,12 +2,18 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-const useSocket = (user, setConnected, setConnectedUsers, updateTask) => {
-    // Reference to store the socket instance, using useRef to keep it persistent across re-renders
+const useSocket = (user, setConnectedUsers, updateTask, setHasError) => {
     const socketRef = useRef(null);
     const toast = useToast();
 
-    // Notify function to emit task updates
+    // Sends a periodic health check if the socket is connected
+    const healthcheck = () => {
+        if (socketRef.current?.connected) {
+            socketRef.current.emit("health-check");
+        }
+    };
+
+    // Emits an update for a modified task to notify other users
     const notifyTaskUpdate = (updatedTask) => {
         if (socketRef.current?.connected) {
             socketRef.current.emit("task-update-event", updatedTask, user.id || user._id);
@@ -16,7 +22,7 @@ const useSocket = (user, setConnected, setConnectedUsers, updateTask) => {
         }
     };
 
-    // Notify function to emit task updates
+    // Emits an event when a new task is created, alerting other users
     const notifyTaskCreated = (newTask) => {
         if (socketRef.current?.connected) {
             socketRef.current.emit("task-created-event", newTask, user.id || user._id);
@@ -25,10 +31,9 @@ const useSocket = (user, setConnected, setConnectedUsers, updateTask) => {
         }
     };
 
-    // Function to wait until the socket connection is established before running a callback
+    // Checks for a connected socket before calling a callback, retrying every 100ms
     const waitForConnection = (callback, interval = 100) => {
         const checkConnection = setInterval(() => {
-            // Check if socket is connected, then clear interval and execute callback
             if (socketRef.current && socketRef.current.connected) {
                 clearInterval(checkConnection);
                 callback();
@@ -36,18 +41,15 @@ const useSocket = (user, setConnected, setConnectedUsers, updateTask) => {
         }, interval);
     };
 
-    // handle socket setup and teardown
     useEffect(() => {
-
-        // Exit the hook if there's no user or user doesn't belong to a team
+        // Only initialize socket if there is a valid user in a team
         if (!user || !user?.team) return;
 
-        // Check the environment mode
+        // Sets API base URL based on environment (local, staging, production)
         const mode = import.meta.env.VITE_MODE;
 
-        // Initialize socket if it hasn't been created yet
+        // Create a new socket connection if none exists
         if (!socketRef.current) {
-            // Use localhost in non-production modes, otherwise, use the environment backend URL
             const apiBaseUrl = mode !== 'production'
                 ? window.location.hostname === "localhost"
                     ? import.meta.env.VITE_BACKEND_LOCALHOST_BASE
@@ -56,16 +58,14 @@ const useSocket = (user, setConnected, setConnectedUsers, updateTask) => {
 
             console.log("%c connecting to websocket", "background: hotpink; color: cyan; padding: 5px; ");
 
-            // Create the socket connection with user data and configuration options
             socketRef.current = io(apiBaseUrl, {
                 query: { userId: user.id, username: user.username, teamId: user.team._id },
                 transports: ['websocket'],
                 withCredentials: true
             });
 
-            // Listen for the 'connect' event to confirm connection
+            // Once connected, join the team room
             socketRef.current.on('connect', () => {
-                // Wait for socket to be fully connected, then log confirmation
                 waitForConnection(() => {
                     console.log("%c connection established", "background: #0dddac; color: #cd1cd1; padding: 5px; border-radius: 50px ");
                     socketRef.current.emit('joinTeamRoom', user.team._id);
@@ -73,34 +73,29 @@ const useSocket = (user, setConnected, setConnectedUsers, updateTask) => {
             });
         }
 
-        // Set up listener for 'message' events and log any incoming messages
-        socketRef.current.on('message', (message) => {
+        // Define event handlers to manage socket responses and updates
+
+        // Logs any messages sent from the server
+        const handleMessages = (message) => {
             console.log(`%c ${message}`, "background: cyan; color: hotpink; padding: 3px");
-        });
+        };
 
-        socketRef.current.on('joinedRoom', (data) => {
-            const joinedUser = data.userId;
-            const currentUser = user._id;
-            setConnectedUsers(data?.users)
-            if (joinedUser === currentUser) {
-                setConnected(true);
-            }
+        // Updates the connected users list when someone joins the room
+        const handleJoinedRoom = (data) => {
+            setConnectedUsers(data?.users);
             console.log(`%c ${data.message}`, "background: lime; color: red; padding: 5px;");
-        });
+        };
 
-        socketRef.current.on('taskUpdatedByTeam', (data) => {
+        // Updates a task, shows a toast notification about the change
+        const handleTaskUpdatedByTeam = (data) => {
             const { task } = data;
-
             updateTask(task);
 
-            let actionMessage;
-            if (task.isDeleted) {
-                actionMessage = "deleted";
-            } else if (task.isCompleted) {
-                actionMessage = "marked as completed";
-            } else {
-                actionMessage = "updated";
-            }
+            let actionMessage = task.isDeleted
+                ? "deleted"
+                : task.isCompleted
+                    ? "marked as completed"
+                    : "updated";
 
             toast({
                 title: "Task Updated",
@@ -109,27 +104,66 @@ const useSocket = (user, setConnected, setConnectedUsers, updateTask) => {
                 duration: 7000,
                 isClosable: true,
             });
-        });
+        };
 
-
-        socketRef.current.on('userLeft', (data) => {
+        // Updates the connected users list when someone leaves the room
+        const handleUserLeft = (data) => {
             console.log(data.users);
-            setConnectedUsers(data.users)
-        });
+            setConnectedUsers(data.users);
+        };
 
-        socketRef.current.on('connect_error', (err) => {
+        // Handles socket connection errors by updating connection state and user list
+        const handleConnectError = (err) => {
             console.error("Socket connection error:", err);
-        });
+            const userId = user?.id || user?._id;
 
-        // Cleanup function to disconnect socket when the component using this hook unmounts
+            setConnectedUsers((prevUsers) =>
+                prevUsers.filter((connectedUserId) => connectedUserId !== userId)
+            );
+        };
+
+        // Handles health-check responses, setting error state if server reports an issue
+        const handleHealthCheckResponse = (data) => {
+            console.log(data);
+            if (data.status === 500) {
+                setHasError(true);
+            } else if (data.status === 200) {
+                setHasError(false)
+            }
+        };
+
+        // Attach all necessary socket event listeners
+        socketRef.current.on('message', handleMessages);
+        socketRef.current.on('joinedRoom', handleJoinedRoom);
+        socketRef.current.on('taskUpdatedByTeam', handleTaskUpdatedByTeam);
+        socketRef.current.on('userLeft', handleUserLeft);
+        socketRef.current.on('connect_error', handleConnectError);
+        socketRef.current.on('health-check-response', handleHealthCheckResponse);
+
+        // Schedule a regular health check every 5 minutes
+        const fiveMinutesInMS = 300000;
+        const healthCheckInterval = setInterval(() => {
+            healthcheck();
+        }, fiveMinutesInMS);
+
+        // Cleanup on component unmount: remove listeners and disconnect socket
         return () => {
+            clearInterval(healthCheckInterval);
+
             if (socketRef.current) {
+                socketRef.current.off('message', handleMessages);
+                socketRef.current.off('joinedRoom', handleJoinedRoom);
+                socketRef.current.off('taskUpdatedByTeam', handleTaskUpdatedByTeam);
+                socketRef.current.off('userLeft', handleUserLeft);
+                socketRef.current.off('connect_error', handleConnectError);
+                socketRef.current.off('health-check-response', handleHealthCheckResponse);
+
                 socketRef.current.disconnect();
             }
         };
-    }, [user]);  // Dependency on the user prop
+    }, [user]);
 
-    // Return the socket instance to be used in other parts of the application
+    // Return socket instance and notification functions for use in the component
     return { socket: socketRef.current, notifyTaskUpdate, notifyTaskCreated };
 };
 

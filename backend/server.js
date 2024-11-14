@@ -178,6 +178,34 @@ io.on('connection', async (socket) => {
         });
     });
 
+    socket.on('health-check', async () => {
+        // Mock response object
+        const mockRes = {
+            statusCode: null,
+            responseData: null,
+            status(code) {
+                this.statusCode = code;
+                return this;
+            },
+            json(data) {
+                this.responseData = data;
+                return this;
+            }
+        };
+
+        try {
+            await performHealthCheck(null, mockRes);
+
+            socket.emit('health-check-response', {
+                status: mockRes.statusCode,
+                message: mockRes.responseData.message,
+            });
+        } catch (error) {
+            socket.emit('health-check-response', { status: 500, message: 'Server health check failed.' });
+        }
+    });
+
+
     // Handle user disconnection
     socket.on('disconnect', async () => {
         console.log(`User ${username} disconnected with socket ID: ${socket.id}`);
@@ -226,6 +254,17 @@ app.use('/api/task', taskRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/metrics', metricRoutes);
 
-app.get('/', (req, res) => res.send('Server is running.'));
+const performHealthCheck = async (req, res) => {
+    try {
+        await mongoose.connection.db.admin().ping();
+        res.status(200).json({ status: 200, message: 'Server health check passed.' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ status: 500, message: 'Server health check failed.' });
+    }
+};
+
+// Health check HTTP route
+app.get('/healthcheck', performHealthCheck);
 
 server.listen(PORT, '0.0.0.0', () => console.log(`Server running on http://0.0.0.0:${PORT}`));

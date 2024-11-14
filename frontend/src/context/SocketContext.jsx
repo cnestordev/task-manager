@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import useSocket from "../hooks/useSocket";
 import { useUser } from "./UserContext";
 import { useTask } from "./TaskContext";
@@ -10,18 +10,23 @@ export const useSocketContext = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const { user } = useUser();
   const { updateTask } = useTask();
-  const [connected, setConnected] = useState(false);
   const [connectedUsers, setConnectedUsers] = useState([]);
+  const [hasError, setHasError] = useState(false);
   const { notifyTaskUpdate, notifyTaskCreated } = useSocket(
     user,
-    setConnected,
     setConnectedUsers,
-    updateTask
+    updateTask,
+    setHasError
   );
 
   return (
     <SocketContext.Provider
-      value={{ connected, notifyTaskUpdate, notifyTaskCreated, connectedUsers }}
+      value={{
+        notifyTaskUpdate,
+        notifyTaskCreated,
+        connectedUsers,
+        hasError,
+      }}
     >
       {children}
     </SocketContext.Provider>
