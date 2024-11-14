@@ -250,7 +250,7 @@ const updateMultipleTasksWithTransaction = async (tasksToUpdate, userId) => {
 
                 // Check for version mismatch
                 if (existingTask.__v !== taskData.__v) {
-                    throw new Error(`Version mismatch for task: ${taskData._id}`);
+                    throw new Error("Update conflict: The task was modified elsewhere. Please refresh and try again.");
                 }
 
                 // Filter out the current user's taskPosition entry
@@ -304,7 +304,7 @@ const updateMultipleTasksWithTransaction = async (tasksToUpdate, userId) => {
         return transactionResult;
     } catch (error) {
         console.error('Error during transaction:', error);
-        return { success: false, message: 'An error occurred during the transaction.', error };
+        return { success: false, message: error.message, error };
     } finally {
         session.endSession();
     }

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { getTasks } from "../api";
 import { reorderTasks } from "../utils/taskTransformations";
 import { useUser } from "./UserContext";
+import { useToast } from "@chakra-ui/react";
 
 const TaskContext = createContext(null);
 export const useTask = () => useContext(TaskContext);
@@ -10,27 +11,35 @@ export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [recentlyUpdatedTask, setRecentlyUpdatedTask] = useState(null);
   const { user } = useUser();
+  const toast = useToast();
 
   // Get User Tasks on initial load
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        // Fetch tasks from the database
-        const {
-          data: { tasks: fetchedTasks },
-        } = await getTasks(user);
-        const flattenedTasks = reorderTasks(fetchedTasks, user);
-
-        setTasks(flattenedTasks);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     if (user) {
       fetchTasks();
     }
   }, [user]);
+
+  const fetchTasks = async () => {
+    try {
+      // Fetch tasks from the database
+      const {
+        data: { tasks: fetchedTasks },
+      } = await getTasks(user);
+      const flattenedTasks = reorderTasks(fetchedTasks, user);
+
+      setTasks(flattenedTasks);
+      toast({
+        title: "Tasks Updated Successfully",
+        description: "Your task has been updated successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const addNewTask = (newTask) => {
     setTasks((prevTasks) => {
@@ -39,7 +48,6 @@ export const TaskProvider = ({ children }) => {
   };
 
   const updateTask = (updatedTask, tempId = null) => {
-
     setTasks((prevTasks) => {
       let taskExists = false;
 
@@ -89,6 +97,7 @@ export const TaskProvider = ({ children }) => {
   return (
     <TaskContext.Provider
       value={{
+        fetchTasks,
         tasks,
         addNewTask,
         updateTask,

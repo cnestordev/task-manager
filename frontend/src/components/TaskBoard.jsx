@@ -1,4 +1,4 @@
-import { Box, useToast } from "@chakra-ui/react";
+import { Box, Button, Text, useToast } from "@chakra-ui/react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useState } from "react";
 import {
@@ -27,7 +27,7 @@ import Navbar from "./Navbar";
 import PriorityColumn from "./PriorityColumn";
 
 const TaskBoard = () => {
-  const { tasks, addNewTask, removeTask, updateTask, updateTasks } = useTask();
+  const { tasks, addNewTask, removeTask, updateTask, updateTasks, fetchTasks } = useTask();
   const { user } = useUser();
   const { notifyTaskUpdate, notifyTaskCreated } = useSocketContext();
   const toast = useToast();
@@ -153,13 +153,35 @@ const TaskBoard = () => {
       });
     } catch (error) {
       console.error("Error deleting task:", error);
+      const errorMessage = error.response.data.message;
 
       toast({
         title: "Error",
-        description: "Failed to delete task. Please try again.",
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            color="white"
+            p={3}
+            bg="red.500"
+            borderRadius="md"
+          >
+            <Text mb={2}>{errorMessage}</Text>
+            <Button
+              colorScheme="white"
+              onClick={() => {
+                fetchTasks();
+                onClose();
+              }}
+            >
+              Refresh
+            </Button>
+          </Box>
+        ),
       });
     }
   };
@@ -247,13 +269,35 @@ const TaskBoard = () => {
       });
     } catch (error) {
       console.error("Error toggling task completion:", error);
+      const errorMessage = error.response.data.message;
 
       toast({
         title: "Error",
-        description: "Failed to toggle task completion. Please try again.",
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            color="white"
+            p={3}
+            bg="red.500"
+            borderRadius="md"
+          >
+            <Text mb={2}>{errorMessage}</Text>
+            <Button
+              colorScheme="white"
+              onClick={() => {
+                fetchTasks();
+                onClose();
+              }}
+            >
+              Refresh
+            </Button>
+          </Box>
+        ),
       });
     }
   };
@@ -306,10 +350,31 @@ const TaskBoard = () => {
       const errorMessage = error.response.data.message;
       toast({
         title: "Error",
-        description: errorMessage,
         status: "error",
         duration: 5000,
         isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            color="white"
+            p={3}
+            bg="red.500"
+            borderRadius="md"
+          >
+            <Text mb={2}>{errorMessage}</Text>
+            <Button
+              colorScheme="white"
+              onClick={() => {
+                fetchTasks();
+                onClose();
+              }}
+            >
+              Refresh
+            </Button>
+          </Box>
+        ),
       });
     }
   };
@@ -322,10 +387,31 @@ const TaskBoard = () => {
       const errorMessage = error.response.data.message;
       toast({
         title: "Error",
-        description: errorMessage,
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            color="white"
+            p={3}
+            bg="red.500"
+            borderRadius="md"
+          >
+            <Text mb={2}>{errorMessage}</Text>
+            <Button
+              colorScheme="white"
+              onClick={() => {
+                fetchTasks();
+                onClose();
+              }}
+            >
+              Refresh
+            </Button>
+          </Box>
+        ),
       });
     }
   };
@@ -347,10 +433,31 @@ const TaskBoard = () => {
       const errorMessage = error.response.data.message;
       toast({
         title: "Error",
-        description: errorMessage,
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            color="white"
+            p={3}
+            bg="red.500"
+            borderRadius="md"
+          >
+            <Text mb={2}>{errorMessage}</Text>
+            <Button
+              colorScheme="white"
+              onClick={() => {
+                fetchTasks();
+                onClose();
+              }}
+            >
+              Refresh
+            </Button>
+          </Box>
+        ),
       });
     }
   };
@@ -422,12 +529,35 @@ const TaskBoard = () => {
             );
           } catch (error) {
             console.error("Error handling drag end:", error);
+            const errorMessage = error.response.data.message;
+
             toast({
               title: "Error",
-              description: "Failed to update task order. Please try again.",
               status: "error",
-              duration: 3000,
+              duration: 5000,
               isClosable: true,
+              render: ({ onClose }) => (
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  color="white"
+                  p={3}
+                  bg="red.500"
+                  borderRadius="md"
+                >
+                  <Text mb={2}>{errorMessage}</Text>
+                  <Button
+                    colorScheme="white"
+                    onClick={() => {
+                      fetchTasks();
+                      onClose();
+                    }}
+                  >
+                    Refresh
+                  </Button>
+                </Box>
+              ),
             });
           }
         }}
