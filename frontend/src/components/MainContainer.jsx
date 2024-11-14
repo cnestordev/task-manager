@@ -1,12 +1,10 @@
 import { Container, useColorMode } from "@chakra-ui/react";
 import { useUser } from "../context/UserContext";
-import { useSocketContext } from "../context/SocketContext";
 import { useEffect } from "react";
 import { ServerErrorModal } from "./ServerErrorModal";
 
-export const MainContainer = ({ children }) => {
+export const MainContainer = ({ serverHealthy, children }) => {
   const { user } = useUser();
-  const { hasError } = useSocketContext();
   const { colorMode, setColorMode } = useColorMode();
   const darkMode = user?.darkMode || false;
 
@@ -25,11 +23,7 @@ export const MainContainer = ({ children }) => {
 
   return (
     <>
-    {
-      hasError && (
-        <ServerErrorModal />
-      )
-    }
+      {!serverHealthy && <ServerErrorModal />}
       <Container
         maxWidth="100%"
         height={{ base: "auto", md: "100vh" }}

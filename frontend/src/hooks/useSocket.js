@@ -2,16 +2,9 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-const useSocket = (user, setConnectedUsers, updateTask, setHasError) => {
+const useSocket = (user, setConnectedUsers, updateTask) => {
     const socketRef = useRef(null);
     const toast = useToast();
-
-    // Sends a periodic health check if the socket is connected
-    const healthcheck = () => {
-        if (socketRef.current?.connected) {
-            socketRef.current.emit("health-check");
-        }
-    };
 
     // Emits an update for a modified task to notify other users
     const notifyTaskUpdate = (updatedTask) => {
@@ -122,41 +115,21 @@ const useSocket = (user, setConnectedUsers, updateTask, setHasError) => {
             );
         };
 
-        // Handles health-check responses, setting error state if server reports an issue
-        const handleHealthCheckResponse = (data) => {
-            console.log(data);
-            if (data.status === 500) {
-                setHasError(true);
-            } else if (data.status === 200) {
-                setHasError(false)
-            }
-        };
-
         // Attach all necessary socket event listeners
         socketRef.current.on('message', handleMessages);
         socketRef.current.on('joinedRoom', handleJoinedRoom);
         socketRef.current.on('taskUpdatedByTeam', handleTaskUpdatedByTeam);
         socketRef.current.on('userLeft', handleUserLeft);
         socketRef.current.on('connect_error', handleConnectError);
-        socketRef.current.on('health-check-response', handleHealthCheckResponse);
-
-        // Schedule a regular health check every 5 minutes
-        const fiveMinutesInMS = 300000;
-        const healthCheckInterval = setInterval(() => {
-            healthcheck();
-        }, fiveMinutesInMS);
 
         // Cleanup on component unmount: remove listeners and disconnect socket
         return () => {
-            clearInterval(healthCheckInterval);
-
             if (socketRef.current) {
                 socketRef.current.off('message', handleMessages);
                 socketRef.current.off('joinedRoom', handleJoinedRoom);
                 socketRef.current.off('taskUpdatedByTeam', handleTaskUpdatedByTeam);
                 socketRef.current.off('userLeft', handleUserLeft);
                 socketRef.current.off('connect_error', handleConnectError);
-                socketRef.current.off('health-check-response', handleHealthCheckResponse);
 
                 socketRef.current.disconnect();
             }

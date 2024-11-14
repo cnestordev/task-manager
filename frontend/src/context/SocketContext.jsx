@@ -11,12 +11,10 @@ export const SocketProvider = ({ children }) => {
   const { user } = useUser();
   const { updateTask } = useTask();
   const [connectedUsers, setConnectedUsers] = useState([]);
-  const [hasError, setHasError] = useState(false);
   const { notifyTaskUpdate, notifyTaskCreated } = useSocket(
     user,
     setConnectedUsers,
     updateTask,
-    setHasError
   );
 
   return (
@@ -25,7 +23,6 @@ export const SocketProvider = ({ children }) => {
         notifyTaskUpdate,
         notifyTaskCreated,
         connectedUsers,
-        hasError,
       }}
     >
       {children}

@@ -12,16 +12,32 @@ import TaskBoard from "./components/TaskBoard";
 
 import { MainContainer } from "./components/MainContainer";
 import { useUser } from "./context/UserContext";
+import { checkServerHealth } from "./utils/heathCheck";
+import { useEffect, useState } from "react";
 
 const App = () => {
   const { user, loading } = useUser();
+  const [serverHealthy, setServerHealthy] = useState(true);
+
+  useEffect(() => {
+    // Perform a health check on app load
+    const checkHealth = async () => {
+      const isHealthy = await checkServerHealth();
+      setServerHealthy(isHealthy);
+    };
+    checkHealth();
+
+    const fiveMinutesInMs = 300000;
+    const interval = setInterval(checkHealth, fiveMinutesInMs);
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <MainContainer>
+    <MainContainer serverHealthy={serverHealthy}>
       <Router>
         <Routes>
           {/* Public Routes */}
