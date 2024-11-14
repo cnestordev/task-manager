@@ -69,7 +69,7 @@ const PriorityColumn = ({
               <Tab
                 _selected={{
                   color: "#000",
-                  backgroundColor: darkMode ? "#527b95" : "#dce1e7",
+                  backgroundColor: darkMode ? "#4e5f6b" : "#dce1e7",
                   borderRadius: "50px",
                 }}
               >
@@ -79,7 +79,7 @@ const PriorityColumn = ({
                 isDisabled={completedTasksCount === 0}
                 _selected={{
                   color: "#000",
-                  backgroundColor: darkMode ? "#527b95" : "#dce1e7",
+                  backgroundColor: darkMode ? "#4e5f6b" : "#dce1e7",
                   borderRadius: "50px",
                 }}
               >
@@ -116,8 +116,8 @@ const PriorityColumn = ({
         <Droppable droppableId={id}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {tabIndex === 0 &&
-                inProgressTasks.map((task, index) => (
+              {(tabIndex === 0 ? inProgressTasks : completedTasks).map(
+                (task, index) => (
                   <TaskCard
                     toggleExpand={toggleExpand}
                     deleteTask={deleteTask}
@@ -126,22 +126,10 @@ const PriorityColumn = ({
                     key={task._id}
                     task={task}
                     index={index}
-                    tab="inprogress"
+                    tab={tabIndex === 0 ? "inprogress" : "completed"}
                   />
-                ))}
-              {tabIndex === 1 &&
-                completedTasks.map((task, index) => (
-                  <TaskCard
-                    toggleExpand={toggleExpand}
-                    deleteTask={deleteTask}
-                    editTask={editTask}
-                    completedTask={completedTask}
-                    key={task._id}
-                    task={task}
-                    index={index}
-                    tab="completed"
-                  />
-                ))}
+                )
+              )}
               {provided.placeholder}
             </div>
           )}

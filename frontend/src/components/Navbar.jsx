@@ -9,25 +9,15 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useUser } from "../context/UserContext";
-import LogoutButton from "./LogoutButton";
 import "./Navbar.css";
 import SettingsButton from "./SettingsButton";
 import { UploadModal } from "./UploadModal";
-import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
-import { useSocketContext } from "../context/SocketContext";
-import { ToggleDarkMode } from "./ToggleDarkMode";
+
+import { UserModal } from "./UserModal";
 
 const Navbar = ({ children }) => {
   const { user } = useUser();
-  const cloudinaryUrl = getCloudinaryAvatarUrl(user?.id || user?._id);
-  const { connectedUsers: contextConnectedUsers } = useSocketContext();
-  const [connectedUsers, setConnectedUsers] = useState(contextConnectedUsers);
   const darkMode = user?.darkMode || false;
-
-  // Update `connectedUsers` state whenever the context value changes
-  useEffect(() => {
-    setConnectedUsers(contextConnectedUsers);
-  }, [contextConnectedUsers]);
 
   return (
     <Container
@@ -45,24 +35,7 @@ const Navbar = ({ children }) => {
       >
         {/* Avatar and Greeting Section */}
         <Stack direction="row" alignItems="center" spacing={3}>
-          <UploadModal userId={user.id || user._id}>
-            <Avatar
-              src={cloudinaryUrl}
-              color="#ebedf0"
-              bg="#c2c7d0"
-              name={user?.username}
-            >
-              <AvatarBadge
-                boxSize="1em"
-                bg={
-                  connectedUsers.includes(user?.id || user?._id)
-                    ? "green.500"
-                    : "gray.500"
-                }
-              />
-            </Avatar>
-          </UploadModal>
-          <Box textAlign={["center", "left"]}>
+          <Box ml={3} display="flex" flexDirection="column" alignItems="center">  
             <Text
               className="greeting-text"
               margin="0"
@@ -73,7 +46,7 @@ const Navbar = ({ children }) => {
             <Heading
               className="greeting-name"
               margin="0"
-              fontSize={["2xl", "5xl"]}
+              fontSize={["2xl", "40px"]}
             >
               {user?.username || "Guest"}
             </Heading>
@@ -95,9 +68,9 @@ const Navbar = ({ children }) => {
           alignItems="center"
           justify="center"
           align="center"
+          cursor="pointer"
         >
-          <ToggleDarkMode />
-          <LogoutButton size={["sm", "sm"]} />
+          <UserModal />
         </Stack>
       </Stack>
     </Container>

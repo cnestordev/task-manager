@@ -1,0 +1,9 @@
+.upload-modal {
+    background-color: #f7f7f7;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.upload-modal.dark {
+    background-color: #313d49;
+}

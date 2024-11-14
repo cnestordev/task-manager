@@ -173,7 +173,8 @@ export const handleDragEnd = async (
 // Expand or collapse individual task
 export const toggleExpand = async (task, updateTask, updateTaskOrder, originalTasks) => {
     const cleanedUpTask = cleanupTask(task);
-    await updateTasksOptimistically(cleanedUpTask, updateTask, updateTaskOrder, originalTasks);
+    const response = await updateTasksOptimistically(cleanedUpTask, updateTask, updateTaskOrder, originalTasks);
+    return response;
 };
 
 // Expand or collapse all tasks in a priority

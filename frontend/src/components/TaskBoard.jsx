@@ -319,10 +319,10 @@ const TaskBoard = () => {
       const updatedTask = { ...task, isExpanded: !task.isExpanded };
       await toggleExpand(updatedTask, updateTask, updateTaskOrder, task);
     } catch (error) {
-      console.error("Error toggling task expansion:", error);
+      const errorMessage = error.response.data.message;
       toast({
         title: "Error",
-        description: "Failed to toggle task expansion. Please try again.",
+        description: errorMessage,
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -344,9 +344,10 @@ const TaskBoard = () => {
       );
     } catch (error) {
       console.error("Error toggling all task expansions:", error);
+      const errorMessage = error.response.data.message;
       toast({
         title: "Error",
-        description: "Failed to toggle task expansions. Please try again.",
+        description: errorMessage,
         status: "error",
         duration: 3000,
         isClosable: true,

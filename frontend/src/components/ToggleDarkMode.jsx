@@ -1,4 +1,4 @@
-import { Box, Icon, Spinner } from "@chakra-ui/react";
+import { Box, Button, Icon, Spinner } from "@chakra-ui/react";
 import { useCallback, useRef, useState } from "react";
 import { MdDarkMode, MdSunny, MdCheck, MdError } from "react-icons/md";
 import { useUser } from "../context/UserContext";
@@ -58,19 +58,21 @@ export const ToggleDarkMode = () => {
 
   return (
     <Box onClick={handleToggle} display="flex" alignContent="center">
-      {status === "loading" ? (
-        <Spinner color="#918200" />
-      ) : status === "success" ? (
-        <Icon className="darkmode-toggle" color="green" as={MdCheck} />
-      ) : status === "error" ? (
-        <Icon className="darkmode-toggle" color="red" as={MdError} />
-      ) : (
-        <Icon
-          color="#918200"
-          className="darkmode-toggle"
-          as={darkMode ? MdSunny : MdDarkMode}
-        />
-      )}
+      <Button>
+        {status === "loading" ? (
+          <Spinner color="#918200" />
+        ) : status === "success" ? (
+          <Icon className="darkmode-toggle" color="green" as={MdCheck} />
+        ) : status === "error" ? (
+          <Icon className="darkmode-toggle" color="red" as={MdError} />
+        ) : (
+          <Icon
+            color="#918200"
+            className="darkmode-toggle"
+            as={darkMode ? MdSunny : MdDarkMode}
+          />
+        )}
+      </Button>
     </Box>
   );
 };
