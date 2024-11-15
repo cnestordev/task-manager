@@ -1,19 +1,17 @@
-import {
-  Box,
-  Container,
-  Heading,
-  Stack,
-  Text
-} from "@chakra-ui/react";
+import { Box, Container, Heading, Stack, Text } from "@chakra-ui/react";
 import { useUser } from "../context/UserContext";
+import { useLocation } from "react-router-dom";
 import "./Navbar.css";
 import SettingsButton from "./SettingsButton";
-
 import { UserModal } from "./UserModal";
+import FormContainer from "./FormContainer";
 
-const Navbar = ({ children }) => {
+const Navbar = ({ dashboardFunction }) => {
   const { user } = useUser();
   const darkMode = user?.darkMode || false;
+
+  // Get the current location
+  const location = useLocation();
 
   return (
     <Container
@@ -31,7 +29,7 @@ const Navbar = ({ children }) => {
       >
         {/* Avatar and Greeting Section */}
         <Stack direction="row" alignItems="center" spacing={3}>
-          <Box ml={3} display="flex" flexDirection="column" alignItems="center">  
+          <Box ml={3} display="flex" flexDirection="column" alignItems="center">
             <Text
               className="greeting-text"
               margin="0"
@@ -57,8 +55,12 @@ const Navbar = ({ children }) => {
           justifyContent="center"
         >
           <SettingsButton size={["sm", "md"]} />
-          {children}
+
+          {location.pathname === "/taskboard" && (
+            <FormContainer addTask={dashboardFunction} />
+          )}
         </Stack>
+
         <Stack
           flexDirection="row"
           alignItems="center"

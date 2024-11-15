@@ -1,6 +1,6 @@
 import { Box, Button, Text, useToast } from "@chakra-ui/react";
 import { DragDropContext } from "@hello-pangea/dnd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   createTask,
   updateTaskOrder,
@@ -22,12 +22,11 @@ import {
 import CompletedTaskModal from "./CompletedTaskModal";
 import DeleteTaskModal from "./DeleteTaskModal";
 import EditTaskModal from "./EditTaskModal";
-import FormContainer from "./FormContainer";
-import Navbar from "./Navbar";
 import PriorityColumn from "./PriorityColumn";
 
-const TaskBoard = () => {
-  const { tasks, addNewTask, removeTask, updateTask, updateTasks, fetchTasks } = useTask();
+const TaskBoard = ({ setDashboardFunction }) => {
+  const { tasks, addNewTask, removeTask, updateTask, updateTasks, fetchTasks } =
+    useTask();
   const { user } = useUser();
   const { notifyTaskUpdate, notifyTaskCreated } = useSocketContext();
   const toast = useToast();
@@ -90,6 +89,15 @@ const TaskBoard = () => {
       });
     }
   };
+
+  // pass addTask back up to App
+  useEffect(() => {
+    const dashboardSpecificFunction = (formData) => {
+      addTask(formData);
+    };
+
+    setDashboardFunction(() => dashboardSpecificFunction);
+  }, [setDashboardFunction]);
 
   const onRemoveTask = async () => {
     try {
@@ -477,11 +485,6 @@ const TaskBoard = () => {
 
   return (
     <>
-      <Navbar>
-        {/* Form to Add New Task */}
-        <FormContainer addTask={addTask} />
-      </Navbar>
-
       {/* Delete Task Modal */}
       {selectedTask && isDeleteModalOpen && (
         <DeleteTaskModal

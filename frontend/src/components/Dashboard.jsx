@@ -15,7 +15,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <Navbar />
       <Tabs variant="enclosed">
         <TabList justifyContent="center">
           <Tab

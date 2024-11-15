@@ -14,10 +14,12 @@ import { MainContainer } from "./components/MainContainer";
 import { useUser } from "./context/UserContext";
 import { checkServerHealth } from "./utils/heathCheck";
 import { useEffect, useState } from "react";
+import Navbar from "./components/Navbar";
 
 const App = () => {
   const { user, loading } = useUser();
   const [serverHealthy, setServerHealthy] = useState(true);
+  const [dashboardFunction, setDashboardFunction] = useState(null);
 
   useEffect(() => {
     // Perform a health check on app load
@@ -39,6 +41,7 @@ const App = () => {
   return (
     <MainContainer serverHealthy={serverHealthy}>
       <Router>
+        <Navbar dashboardFunction={dashboardFunction} />
         <Routes>
           {/* Public Routes */}
           <Route
@@ -55,7 +58,7 @@ const App = () => {
             path="/taskboard"
             element={
               <ProtectedRoute>
-                <TaskBoard />
+                <TaskBoard setDashboardFunction={setDashboardFunction} />
               </ProtectedRoute>
             }
           />
