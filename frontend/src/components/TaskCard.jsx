@@ -88,7 +88,7 @@ const TaskCard = ({
           </svg>
           <Accordion allowToggle index={task.isExpanded ? [0] : []}>
             <AccordionItem border="none">
-              <h2>
+              <>
                 <AccordionButton padding="0" _hover={{ background: "none" }}>
                   <Box
                     as="span"
@@ -111,12 +111,12 @@ const TaskCard = ({
                         />
                       )}
                     </div>
-                    <p>{task.title}</p>
+                    <h2>{task.title}</h2>
                     <div></div>
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
-              </h2>
+              </>
               <AccordionPanel pb={2}>
                 <Box as="p" textAlign="center" fontSize="15px" mb={2}>
                   {task.description}
@@ -135,7 +135,7 @@ const TaskCard = ({
                   <Button
                     aria-label="Edit Task"
                     size="sm"
-                    className="task-btns edit-btn"
+                    className={`task-btns edit-btn ${darkMode ? "dark" : ""}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleEditTask(task);
@@ -146,7 +146,7 @@ const TaskCard = ({
                   <Button
                     aria-label="Complete Task"
                     size="sm"
-                    className="task-btns complete-btn"
+                    className={`task-btns complete-btn ${darkMode ? "dark" : ""}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       completedTask(task);
@@ -157,7 +157,7 @@ const TaskCard = ({
                   <Button
                     aria-label="Delete Task"
                     size="sm"
-                    className="task-btns delete-btn"
+                    className={`task-btns delete-btn ${darkMode ? "dark" : ""}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteTask(task);

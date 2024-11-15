@@ -1,5 +1,5 @@
 .column {
-  background-color: #f1f5fb;
+  background-color: var(--secondary-bg-color-light);
   box-sizing: border-box;
   border-radius: 20px;
   flex-basis: 33%;
@@ -8,15 +8,25 @@
 }
 
 .column.dark {
-  background-color: var(--secondary-color);
+  background-color: var(--secondary-bg-color-dark);
 }
 
 .active {
-  background-color: #dbe2ed;
+  background-color: var(--column-active-bg-color-light);
 }
 
 .active.dark {
-  background-color: #283949;
+  background-color: var(--column-active-bg-color-dark);
+}
+
+.column-pill.selected {
+  background-color: var(--column-pill-bg-color-light);
+  color: var(--column-pill-text-color-light);
+}
+
+.column-pill.selected.dark {
+  background-color: var(--column-pill-bg-color-dark);
+  color: var(--column-pill-text-color-dark);
 }
 
 .header {

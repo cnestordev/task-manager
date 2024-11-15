@@ -67,19 +67,21 @@ const PriorityColumn = ({
           >
             <TabList>
               <Tab
+                className={`column-pill ${darkMode ? "dark" : ""} ${
+                  tabIndex === 0 ? "selected" : ""
+                }`}
                 _selected={{
-                  color: "#000",
-                  backgroundColor: darkMode ? "#4e5f6b" : "#dce1e7",
                   borderRadius: "50px",
                 }}
               >
                 In Progress ({inProgressTasksCount})
               </Tab>
               <Tab
+                className={`column-pill ${darkMode ? "dark" : ""} ${
+                  tabIndex === 1 ? "selected" : ""
+                }`}
                 isDisabled={completedTasksCount === 0}
                 _selected={{
-                  color: "#000",
-                  backgroundColor: darkMode ? "#4e5f6b" : "#dce1e7",
                   borderRadius: "50px",
                 }}
               >

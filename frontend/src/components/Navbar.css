@@ -1,49 +1,63 @@
 .navbar-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 25px;
-    background-color: #f1f5fb;
-    border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 25px;
+  background-color: var(--secondary-bg-color-light);
+  border-radius: 20px;
 }
 
 .navbar-container.dark {
-    background-color: var(--secondary-color);
+  background-color: var(--secondary-bg-color-dark);
 }
 
 .navbar-user-container {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .navbar-user-greeting {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .greeting-text {
-    color: #828e9f;
+  color: #828e9f;
 }
 
 .greeting-name {
-    color: #5c636d;
+  color: #5c636d;
 }
 
 .nav-welcome-text {
-    font-size: 20px;
-    font-weight: 700;
+  font-size: 20px;
+  font-weight: 700;
 }
 
-/* dark mode btns */
+.navbar-btns {
+  border: 1px solid var(--button-border-color-light) !important;
+  color: var(--button-text-color-light) !important;
+}
+
+.navbar-btns:hover {
+  background-color: var(--button-border-color-light) !important;
+  color: #fff !important;
+}
+
+.navbar-btns.dark {
+  border: 1px solid var(--button-border-color-dark) !important;
+  color: var(--button-text-color-dark) !important;
+}
+
 .navbar-btns.dark:hover {
-    background-color: #2b6cb0 !important;
-    color: #fff;
+  background-color: var(--button-border-color-dark) !important;
+  color: #fff !important;
 }
 
 .logout-btn.dark:hover {
-    background-color: #c53030 !important;
-    color: #ffd1d1;
+  background-color: #c53030 !important;
+  color: #ffd1d1;
 }

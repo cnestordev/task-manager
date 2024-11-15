@@ -106,9 +106,8 @@ const FormContainer = ({ addTask }) => {
   return (
     <>
       <Button
-        className="navbar-btns"
+        className={`navbar-btns ${darkMode ? "dark" : ""}`}
         ref={btnRef}
-        colorScheme="blue"
         onClick={onOpen}
       >
         <AddIcon boxSize={3} mr={2} /> Create

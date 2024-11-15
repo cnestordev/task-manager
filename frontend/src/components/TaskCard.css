@@ -11,24 +11,44 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  color: #3f6ca1;
   cursor: pointer;
 }
 
+.task-card h2 {
+  font-size: 1rem;
+}
+
 .task-card-inprogress {
-  background-color: #fff;
+  background-color: var(--card-background-color-light);
+}
+
+.task-card h2 {
+  font-size: 1rem;
+  color: var(--card-header-color-light);
+}
+
+.task-card-inprogress p {
+  color: var(--card-subtext-color-light);
 }
 
 .task-card-completed {
-  background-color: #dddddd;
+  background-color: #00000014;
 }
 
 .task-card-inprogress.dark {
-  background-color: var(--card-primary-color);
+  background-color: var(--card-background-color-dark);
+}
+
+.task-card.dark h2 {
+  color: var(--card-header-color-dark);
+}
+
+.task-card-inprogress.dark p {
+  color: var(--card-subtext-color-dark);
 }
 
 .task-card-completed.dark {
-  background-color: #0b141c;
+  background-color: #ffffff08;
 }
 
 .task-card-hidden {
@@ -76,40 +96,58 @@ p {
   text-align: center;
 }
 
+/* Delete Button */
 .delete-btn {
-  border: 1px solid #fa2f43 !important;
-  color: #fa2f43 !important;
+  color: var(--delete-btn-color) !important;
+  border: 1px solid var(--delete-btn-border-color) !important;
   transition: 300ms !important;
 }
 
 .delete-btn:hover {
-  background-color: #fa2f43 !important;
+  background-color: var(--delete-btn-hover-bg-color) !important;
   color: #fff !important;
   transition: 300ms !important;
 }
 
-.edit-btn {
-  border: 1px solid #bbbdbf !important;
-  color: #676767 !important;
-  transition: 300ms !important;
-}
-
-.edit-btn:hover {
-  background-color: #bfbfbf !important;
-  color: #fff !important;
-  transition: 300ms !important;
-}
-
+/* Light Mode Buttons */
+.edit-btn,
 .complete-btn {
-  border: 1px solid #bbbdbf !important;
-  color: #676767 !important;
+  transition: 300ms !important;
+  border: 1px solid var(--edit-complete-btn-border-color-light) !important;
+  color: var(--edit-complete-btn-text-color-light) !important;
+}
+
+.edit-btn:hover,
+.complete-btn:hover {
+  background-color: var(--edit-complete-btn-hover-bg-color-light) !important;
+  border-color: var(--edit-complete-btn-hover-bg-color-light) !important;
+  color: #fff !important;
+}
+
+/* Dark Mode Buttons */
+.edit-btn.dark,
+.complete-btn.dark {
+  border: 1px solid var(--edit-complete-btn-border-color-dark) !important;
+  color: var(--edit-complete-btn-text-color-dark) !important;
+}
+
+.edit-btn.dark:hover,
+.complete-btn.dark:hover {
+  background-color: var(--edit-complete-btn-hover-bg-color-dark) !important;
+  border-color: var(--edit-complete-btn-hover-bg-color-dark) !important;
+  color: #fff !important;
+}
+
+/* Delete Button */
+.delete-btn {
+  color: var(--delete-btn-color) !important;
+  border: 1px solid var(--delete-btn-border-color) !important;
   transition: 300ms !important;
 }
 
-.complete-btn:hover {
-  background-color: #bfbfbf !important;
+.delete-btn:hover {
+  background-color: var(--delete-btn-hover-bg-color) !important;
   color: #fff !important;
-  transition: 300ms !important;
 }
 
 .loading-border {

@@ -11,13 +11,15 @@ const loginValidationSchema = Joi.object(baseSchema);
 
 // Task Validation Schema
 const taskValidationSchema = Joi.object({
-    title: Joi.string().required().min(1).max(255),
-    description: Joi.string().required().min(1).max(1024),
+    title: Joi.string().min(1).max(255).required(),
+    description: Joi.string().min(1).max(1024).required(),
     priority: Joi.string().valid('low', 'medium', 'high').required(),
+    theme: Joi.string().valid('blueTheme', 'greenTheme', 'purpleTheme').optional(),
     isDeleted: Joi.boolean().default(false),
     isExpanded: Joi.boolean().default(true),
-    avatarUrl: Joi.string()
+    avatarUrl: Joi.string().uri().optional(),
 });
+
 
 // Registration Validation Schema
 const userValidationSchema = Joi.object({

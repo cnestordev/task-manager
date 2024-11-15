@@ -41,6 +41,7 @@ exports.register = async (req, res, next) => {
                 id: newUser._id,
                 username: newUser.username,
                 darkMode: newUser.darkMode,
+                theme: newUser.theme,
                 team: null,
                 avatarUrl: null
             }));
@@ -70,6 +71,7 @@ exports.login = (req, res, next) => {
                     username: populatedUser.username.toLowerCase(),
                     isAdmin: populatedUser.isAdmin,
                     darkMode: populatedUser.darkMode,
+                    theme: populatedUser.theme,
                     avatarUrl: populatedUser.avatarUrl,
                     team: populatedUser.team
                         ? {
@@ -104,6 +106,7 @@ exports.checkUser = async (req, res) => {
                 username: user.username,
                 isAdmin: user.isAdmin,
                 darkMode: user.darkMode,
+                theme: user.theme,
                 avatarUrl: user.avatarUrl,
                 _id: user._id,
                 id: user._id,
@@ -186,6 +189,7 @@ exports.uploadImage = async (req, res) => {
             username: updatedUser.username,
             isAdmin: updatedUser.isAdmin,
             darkMode: updatedUser.darkMode,
+            theme: updatedUser.theme,
             avatarUrl: updatedUser.avatarUrl,
             _id: updatedUser._id,
             id: updatedUser._id,

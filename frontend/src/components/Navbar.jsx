@@ -5,13 +5,18 @@ import "./Navbar.css";
 import SettingsButton from "./SettingsButton";
 import { UserModal } from "./UserModal";
 import FormContainer from "./FormContainer";
+import { useEffect, useState } from "react";
 
 const Navbar = ({ dashboardFunction }) => {
   const { user } = useUser();
-  const darkMode = user?.darkMode || false;
+  const [darkMode, setDarkMode] = useState(user?.darkMode);
 
   // Get the current location
   const location = useLocation();
+
+  useEffect(() => {
+    setDarkMode(user?.darkMode);
+  }, [user?.darkMode]);
 
   return (
     <Container
@@ -42,7 +47,7 @@ const Navbar = ({ dashboardFunction }) => {
               margin="0"
               fontSize={["2xl", "40px"]}
             >
-              {user?.username || "Guest"}
+              {user?.username}
             </Heading>
           </Box>
         </Stack>

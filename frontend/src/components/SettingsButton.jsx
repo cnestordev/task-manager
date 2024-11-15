@@ -1,5 +1,6 @@
 import { Button } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
 const SettingsButton = () => {
   const navigate = useNavigate();
@@ -8,6 +9,8 @@ const SettingsButton = () => {
   const isDashboard = location.pathname === "/dashboard";
   const nextPath = isDashboard ? "/taskboard" : "/dashboard";
   const buttonLabel = isDashboard ? "Go to Taskboard" : "Go to Dashboard";
+  const { user } = useUser();
+  const darkMode = user?.darkMode || false;
 
   const handleNavigate = () => {
     navigate(nextPath);
@@ -15,9 +18,8 @@ const SettingsButton = () => {
 
   return (
     <Button
-      className="navbar-btns"
+      className={`navbar-btns ${darkMode ? "dark" : ""}`}
       onClick={handleNavigate}
-      colorScheme="blue"
       aria-label={buttonLabel}
     >
       {buttonLabel}

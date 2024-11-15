@@ -1,16 +1,6 @@
-:root {
-  --primary-color: #1f2933;
-  --secondary-color: #162029;
-  --card-primary-color: #1f2e3b;
-  --card-secondary-color: #1f2e3b;
-  --tab-primary-color: #13171a;
-  --light-bg: #f1f5fb;
-  --dark-bg: #162029;
-}
-
 .container {
   box-sizing: border-box;
-  background-color: #fff;
+  background-color: var(--background-color-light);
   display: flex;
   flex-direction: column;
   padding: 25px;
@@ -18,7 +8,7 @@
 }
 
 .container.dark {
-  background-color: var(--primary-color);
+  background-color: var(--background-color-dark);
 }
 
 .columns-container {

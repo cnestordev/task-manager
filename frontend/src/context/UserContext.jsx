@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { checkUser } from "../api/index";
+import { applyTheme } from "../utils/themeUtil";
 
 const UserContext = createContext(null);
 export const useUser = () => useContext(UserContext);
@@ -7,8 +8,7 @@ export const useUser = () => useContext(UserContext);
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  console.log(user)
+  const currentThemeLink = useRef(null);
 
   // Check the user session on initial load
   useEffect(() => {
@@ -18,6 +18,11 @@ export const UserProvider = ({ children }) => {
         // Check if response is valid and contains user information
         if (data.statusCode === 200 && data.user) {
           setUser(data.user);
+          console.log(data.user)
+          // Apply the user's theme if it exists
+          if (data.user.theme) {
+            applyTheme(data.user.theme, currentThemeLink);
+          }
         } else {
           throw new Error("No user data found.");
         }
@@ -33,14 +38,21 @@ export const UserProvider = ({ children }) => {
 
   const login = (userData) => {
     setUser(userData);
+    if (userData.theme) {
+      applyTheme(userData.theme, currentThemeLink); // Apply theme on login
+    }
   };
 
   const logout = () => {
     setUser(null);
+    applyTheme(null, currentThemeLink); // Remove theme on logout
   };
 
   const updateUser = (updatedUser) => {
     setUser(updatedUser);
+    if (updatedUser.theme) {
+      applyTheme(updatedUser.theme, currentThemeLink); // Apply new theme if it’s updated
+    }
   };
 
   return (
