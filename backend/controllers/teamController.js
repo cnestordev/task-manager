@@ -117,7 +117,7 @@ exports.getTeamMembers = async (req, res) => {
 
             // Find all team members by team ID, excluding the current user
             const members = await User.find({ team: user.team._id, _id: { $ne: req.user._id } })
-                .select('_id username');
+                .select('_id username avatarUrl');
 
             // Return the list of team members
             return res.status(200).json(createResponse(200, 'Team members fetched successfully', members));

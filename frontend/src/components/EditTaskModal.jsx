@@ -24,10 +24,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MdCheckCircle } from "react-icons/md";
+import { useUser } from "../context/UserContext";
 import { getListOfUsers } from "../utils/userUtils";
 import { TaskSchema } from "../validation/taskValidation";
-import { useUser } from "../context/UserContext";
-import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
   const {
@@ -176,7 +175,7 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
                           }
                         >
                           <Box display="flex" alignItems="center">
-                            <Avatar src={getCloudinaryAvatarUrl(user._id)} size="xs" />
+                            <Avatar src={user.avatarUrl} size="xs" />
                             <Text w={50}>{user.username}</Text>
                             {isAssigned ? (
                               <ListIcon

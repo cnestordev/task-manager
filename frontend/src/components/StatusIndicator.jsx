@@ -4,14 +4,13 @@ import {
   AvatarGroup,
   Box,
   HStack,
+  SkeletonCircle,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 import { useSocketContext } from "../context/SocketContext";
 
 export const StatusIndicator = ({
   user,
-  status,
   className,
   assignedTo,
   isExpanded,
@@ -24,8 +23,14 @@ export const StatusIndicator = ({
   const userId = user?._id || user?.id;
   const { connectedUsers } = useSocketContext();
 
-  const [validatedAvatars, setValidatedAvatars] = useState({});
+  // Convert connectedUsers to a Set for efficient lookup
+  const connectedUsersSet = new Set(connectedUsers);
+
+  // Access the team assets
+  const userAssets = user?.team?.assets || {};
+
   const [sortedAssignedTo, setSortedAssignedTo] = useState([]);
+  const [imageLoadingState, setImageLoadingState] = useState({});
 
   useEffect(() => {
     // Prioritize current user in the assignedTo list
@@ -33,61 +38,63 @@ export const StatusIndicator = ({
       ? [userId, ...assignedTo.filter((id) => id !== userId)]
       : assignedTo;
     setSortedAssignedTo(updatedAssignedTo);
-
-    // Fetch avatar URLs and validate their existence
-    const fetchAvatars = async () => {
-      const avatars = {};
-      await Promise.all(
-        updatedAssignedTo.map(async (id) => {
-          const cloudinaryUrl = getCloudinaryAvatarUrl(id);
-          try {
-            const response = await fetch(cloudinaryUrl, { method: "HEAD" });
-            avatars[id] = response.ok ? cloudinaryUrl : null;
-          } catch (error) {
-            console.error(`Image check failed for user ${id}:`, error);
-            avatars[id] = null;
-          }
-        })
-      );
-      setValidatedAvatars(avatars);
-    };
-
-    fetchAvatars();
   }, [assignedTo, userId]);
+
+  useEffect(() => {
+    // Preload images and track loading state
+    sortedAssignedTo.forEach((id) => {
+      const imageUrl = userAssets[id] || "/default-avatar.png";
+      const img = new Image();
+
+      img.src = imageUrl;
+      setImageLoadingState((prev) => ({ ...prev, [id]: "loading" }));
+
+      img.onload = () => {
+        setImageLoadingState((prev) => ({ ...prev, [id]: "loaded" }));
+      };
+      img.onerror = () => {
+        setImageLoadingState((prev) => ({ ...prev, [id]: "error" }));
+      };
+    });
+  }, [sortedAssignedTo, userAssets]);
 
   return (
     <div className={`status-container ${className}`}>
       <HStack spacing={2} alignItems="center">
         {!isExpanded ? (
           <AvatarGroup>
-            {sortedAssignedTo.map((id, index) => (
-              <Avatar
-                border="1px solid #cfcfcf"
-                src={validatedAvatars[id]}
-                key={id}
-                size="sm"
-              >
-                {connectedUsers.includes(id) ? (
-                  <AvatarBadge boxSize="1em" bg="green.500" />
-                ) : (
-                  <AvatarBadge boxSize="1em" bg="gray.500" />
-                )}
-              </Avatar>
-            ))}
+            {sortedAssignedTo.map((id) =>
+              imageLoadingState[id] === "loading" ? (
+                <SkeletonCircle key={id} size="10" />
+              ) : (
+                <Avatar
+                  border="1px solid #cfcfcf"
+                  src={userAssets[id] || "/default-avatar.png"}
+                  key={id}
+                  size="sm"
+                >
+                  {connectedUsersSet.has(id) ? (
+                    <AvatarBadge boxSize="1em" bg={statusColors.online} />
+                  ) : (
+                    <AvatarBadge boxSize="1em" bg={statusColors.offline} />
+                  )}
+                </Avatar>
+              )
+            )}
           </AvatarGroup>
         ) : (
           <Box display="flex" gap={1.5}>
-            {sortedAssignedTo.map((id, index) => (
+            {sortedAssignedTo.map((id) => (
               <Avatar
                 border="1px solid #cfcfcf"
-                src={validatedAvatars[id]}
+                src={userAssets[id] || "/default-avatar.png"}
                 key={id}
                 size="sm"
               >
-                {connectedUsers.includes(id) ? (
-                  <AvatarBadge boxSize="1em" bg="green.500" />
+                {connectedUsersSet.has(id) ? (
+                  <AvatarBadge boxSize="1em" bg={statusColors.online} />
                 ) : (
-                  <AvatarBadge boxSize="1em" bg="gray.500" />
+                  <AvatarBadge boxSize="1em" bg={statusColors.offline} />
                 )}
               </Avatar>
             ))}

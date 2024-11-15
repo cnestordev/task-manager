@@ -40,7 +40,8 @@ exports.register = async (req, res, next) => {
                 id: newUser._id,
                 username: newUser.username,
                 darkMode: newUser.darkMode,
-                team: null // Set `team` to null since the user hasn't joined or created a team
+                team: null,
+                avatarUrl: null
             }));
         });
     } catch (error) {
@@ -61,18 +62,35 @@ exports.login = (req, res, next) => {
                 // Populate the user's team details if they belong to one
                 const populatedUser = await User.findById(user._id).populate('team', 'name inviteCode createdBy members _id');
 
+                let assets = {};
+
+                // If the user has a team, fetch avatars for team members
+                if (populatedUser.team && populatedUser.team.members && populatedUser.team.members.length > 0) {
+                    // Fetch avatarUrl for each team member
+                    const teamMemberIds = populatedUser.team.members;
+                    const teamMembers = await User.find({ _id: { $in: teamMemberIds } }, 'avatarUrl');
+
+                    // Populate the assets object with userId and avatarUrl
+                    teamMembers.forEach(member => {
+                        assets[member._id] = member.avatarUrl;
+                    });
+                }
+
+
                 res.status(200).json(createResponse(200, 'Login successful', {
                     id: populatedUser._id,
                     username: populatedUser.username.toLowerCase(),
                     isAdmin: populatedUser.isAdmin,
                     darkMode: populatedUser.darkMode,
+                    avatarUrl: populatedUser.avatarUrl,
                     team: populatedUser.team
                         ? {
                             id: populatedUser.team._id,
                             name: populatedUser.team.name,
                             inviteCode: populatedUser.team.inviteCode,
                             createdBy: populatedUser.team.createdBy,
-                            members: populatedUser.team.members
+                            members: populatedUser.team.members,
+                            assets: assets
                         }
                         : null // Set team to null if the user is not part of a team
                 }));
@@ -91,10 +109,24 @@ exports.checkUser = async (req, res) => {
             const user = await User.findOne({ _id: req.user._id })
                 .populate('team', 'createdBy name inviteCode members');
 
+            // If the user has a team, fetch avatars for team members
+            let assets = {};
+            if (user.team && user.team.members && user.team.members.length > 0) {
+                // Fetch avatarUrl for each team member
+                const teamMemberIds = user.team.members;
+                const teamMembers = await User.find({ _id: { $in: teamMemberIds } }, 'avatarUrl');
+
+                // Create the assets object with userId and avatarUrl
+                teamMembers.forEach(member => {
+                    assets[member._id] = member.avatarUrl;
+                });
+            }
+
             const modifiedUser = {
                 username: user.username,
                 isAdmin: user.isAdmin,
                 darkMode: user.darkMode,
+                avatarUrl: user.avatarUrl,
                 _id: user._id,
                 id: user._id,
                 team: user.team ? {
@@ -103,6 +135,7 @@ exports.checkUser = async (req, res) => {
                     name: user.team.name,
                     inviteCode: user.team.inviteCode,
                     members: user.team.members,
+                    assets: assets,
                 } : null
             };
 
@@ -148,10 +181,61 @@ exports.toggleDarkMode = async (req, res) => {
 
 // Upload avatar image
 exports.uploadImage = async (req, res) => {
+    const imageUrl = req?.file?.path || null;
+
+    if (!imageUrl) {
+        return res.status(502).json({ message: 'An error occurred updating your image' });
+    }
+
     try {
-        res.json({ imageUrl: req.file.path });
+        // Update the user's avatarUrl field
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: req.user._id },
+            { avatarUrl: imageUrl },
+            { new: true }
+        ).populate('team', 'createdBy name inviteCode members');
+
+        // Check if the user was found and updated
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Initialize an empty assets object
+        let assets = {};
+
+        // If the user has a team, fetch avatars for team members
+        if (updatedUser.team && updatedUser.team.members && updatedUser.team.members.length > 0) {
+            // Fetch avatarUrl for each team member
+            const teamMemberIds = updatedUser.team.members;
+            const teamMembers = await User.find({ _id: { $in: teamMemberIds } }, 'avatarUrl');
+
+            // Populate the assets object with userId and avatarUrl
+            teamMembers.forEach(member => {
+                assets[member._id] = member.avatarUrl;
+            });
+        }
+
+        // Construct the modifiedUser object to send to the client
+        const modifiedUser = {
+            username: updatedUser.username,
+            isAdmin: updatedUser.isAdmin,
+            darkMode: updatedUser.darkMode,
+            avatarUrl: updatedUser.avatarUrl,
+            _id: updatedUser._id,
+            id: updatedUser._id,
+            team: updatedUser.team ? {
+                _id: updatedUser.team._id,
+                createdBy: updatedUser.team.createdBy,
+                name: updatedUser.team.name,
+                inviteCode: updatedUser.team.inviteCode,
+                members: updatedUser.team.members,
+                assets: assets
+            } : null
+        };
+
+        res.status(200).json({ user: modifiedUser });
     } catch (err) {
-        res.status(500).send(err);
+        res.status(500).send({ message: 'Server error', error: err });
     }
 };
 

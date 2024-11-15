@@ -16,11 +16,11 @@ export const TaskProvider = ({ children }) => {
   // Get User Tasks on initial load
   useEffect(() => {
     if (user) {
-      fetchTasks();
+      fetchTasks(false);
     }
   }, [user]);
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (updatedManually) => {
     try {
       // Fetch tasks from the database
       const {
@@ -29,13 +29,15 @@ export const TaskProvider = ({ children }) => {
       const flattenedTasks = reorderTasks(fetchedTasks, user);
 
       setTasks(flattenedTasks);
-      toast({
-        title: "Tasks Updated Successfully",
-        description: "Your task has been updated successfully.",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      if (updatedManually) {
+        toast({
+          title: "Tasks Updated Successfully",
+          description: "Your task has been updated successfully.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     } catch (err) {
       console.log(err);
     }

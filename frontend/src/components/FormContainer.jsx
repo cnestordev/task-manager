@@ -33,7 +33,6 @@ import {
 import { useUser } from "../context/UserContext";
 import { getListOfUsers } from "../utils/userUtils";
 import { TaskSchema } from "../validation/taskValidation";
-import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 import "./FormContainer.css";
 
@@ -216,7 +215,7 @@ const FormContainer = ({ addTask }) => {
                           >
                             <Box display="flex" alignItems="center">
                               <Avatar
-                                src={getCloudinaryAvatarUrl(user._id)}
+                                src={user.avatarUrl}
                                 size="sm"
                               />
                               <Text ml={2}>{user.username}</Text>

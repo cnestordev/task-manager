@@ -15,7 +15,8 @@ const taskValidationSchema = Joi.object({
     description: Joi.string().required().min(1).max(1024),
     priority: Joi.string().valid('low', 'medium', 'high').required(),
     isDeleted: Joi.boolean().default(false),
-    isExpanded: Joi.boolean().default(true)
+    isExpanded: Joi.boolean().default(true),
+    avatarUrl: Joi.string()
 });
 
 // Registration Validation Schema

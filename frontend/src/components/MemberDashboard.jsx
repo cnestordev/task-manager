@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
 import {
-  Box,
-  Heading,
-  Text,
-  Flex,
-  Button,
-  useToast,
-  Spinner,
-  VStack,
   Avatar,
   Badge,
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Spinner,
+  Text,
+  useToast,
+  VStack,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { getTeamDetails, removeMember } from "../api";
 import { useUser } from "../context/UserContext";
-import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 const MemberDashboard = () => {
-  const [team, setTeam] = useState();
+  const [team, setTeam] = useState(null);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
@@ -84,33 +83,39 @@ const MemberDashboard = () => {
       </Heading>
 
       {/* Team Information */}
-      <Box
-        p={4}
-        borderRadius="20"
-        padding="35px"
-        bg={darkMode ? "#2a3745" : "white"}
-        mb={6}
-        textAlign="center"
-        display="flex"
-        alignItems="center"
-        flexDirection="column"
-      >
-        <Text
-          fontSize="lg"
-          fontWeight="bold"
-          color={darkMode ? "gray.200" : "gray.800"}
+      {team ? (
+        <Box
+          p={4}
+          borderRadius="20"
+          padding="35px"
+          bg={darkMode ? "#2a3745" : "white"}
+          mb={6}
+          textAlign="center"
+          display="flex"
+          alignItems="center"
+          flexDirection="column"
         >
-          Team Name: {team.name}
+          <Text
+            fontSize="lg"
+            fontWeight="bold"
+            color={darkMode ? "gray.200" : "gray.800"}
+          >
+            Team Name: {team.name}
+          </Text>
+          <Button
+            colorScheme="red"
+            variant="outline"
+            mt={4}
+            onClick={handleLeaveTeam}
+          >
+            Leave Team
+          </Button>
+        </Box>
+      ) : (
+        <Text color={darkMode ? "gray.400" : "gray.600"}>
+          No team information available
         </Text>
-        <Button
-          colorScheme="red"
-          variant="outline"
-          mt={4}
-          onClick={handleLeaveTeam}
-        >
-          Leave Team
-        </Button>
-      </Box>
+      )}
 
       {/* Team Members */}
       <Box>
@@ -122,12 +127,11 @@ const MemberDashboard = () => {
         >
           Team Members
         </Text>
-        {team.members.length > 0 ? (
+        {team && team.members && team.members.length > 0 ? (
           <VStack spacing={4} align="stretch">
             {team.members.map((member) => {
-              const cloudinaryUrl = getCloudinaryAvatarUrl(
-                member?._id || member?.id
-              );
+              // Check if team.assets and the specific member's avatar URL exist
+              const cloudinaryUrl = user?.team?.assets?.[member._id] || "/default-avatar.png";
               return (
                 <Flex
                   key={member._id}

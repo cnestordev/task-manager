@@ -174,7 +174,7 @@ const TaskBoard = () => {
             <Button
               colorScheme="white"
               onClick={() => {
-                fetchTasks();
+                fetchTasks(true);
                 onClose();
               }}
             >
@@ -290,7 +290,7 @@ const TaskBoard = () => {
             <Button
               colorScheme="white"
               onClick={() => {
-                fetchTasks();
+                fetchTasks(true);
                 onClose();
               }}
             >
@@ -367,7 +367,7 @@ const TaskBoard = () => {
             <Button
               colorScheme="white"
               onClick={() => {
-                fetchTasks();
+                fetchTasks(true);
                 onClose();
               }}
             >
@@ -404,7 +404,7 @@ const TaskBoard = () => {
             <Button
               colorScheme="white"
               onClick={() => {
-                fetchTasks();
+                fetchTasks(true);
                 onClose();
               }}
             >
@@ -450,7 +450,7 @@ const TaskBoard = () => {
             <Button
               colorScheme="white"
               onClick={() => {
-                fetchTasks();
+                fetchTasks(true);
                 onClose();
               }}
             >
@@ -550,7 +550,7 @@ const TaskBoard = () => {
                   <Button
                     colorScheme="white"
                     onClick={() => {
-                      fetchTasks();
+                      fetchTasks(true);
                       onClose();
                     }}
                   >

@@ -16,7 +16,6 @@ import {
 import { useUser } from "../context/UserContext";
 import LogoutButton from "./LogoutButton";
 import { ToggleDarkMode } from "./ToggleDarkMode";
-import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 import { useSocketContext } from "../context/SocketContext";
 import { useEffect, useState } from "react";
 import axiosImageUpload from "../services/axiosImages";
@@ -24,9 +23,8 @@ import "./UserModal.css"
 
 export const UserModal = ({ comp }) => {
   const { onOpen, onClose, isOpen } = useDisclosure();
-  const { user } = useUser();
+  const { user, updateUser } = useUser();
   const { connectedUsers: contextConnectedUsers } = useSocketContext();
-  const cloudinaryUrl = getCloudinaryAvatarUrl(user?.id || user?._id);
   const [connectedUsers, setConnectedUsers] = useState(contextConnectedUsers);
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -79,6 +77,8 @@ export const UserModal = ({ comp }) => {
         "/auth/uploadImage",
         formData
       );
+      const updatedUser = response.data.user;
+      updateUser(updatedUser);
       setIsUploading(false);
       setFile(null);
       toast({
@@ -113,7 +113,7 @@ export const UserModal = ({ comp }) => {
     >
       <PopoverTrigger>
         <Avatar
-          src={cloudinaryUrl}
+          src={user.avatarUrl}
           color="#ebedf0"
           bg="#c2c7d0"
           name={user?.username}

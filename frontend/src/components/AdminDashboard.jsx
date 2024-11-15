@@ -15,10 +15,9 @@ import { MdDelete } from "react-icons/md";
 import { editInviteCode, getTeamDetails, removeMember } from "../api";
 import { useUser } from "../context/UserContext";
 import CustomizeInviteCodeModal from "./CustomizeInviteCodeModal";
-import { getCloudinaryAvatarUrl } from "../utils/getCloudinaryAvatarUrl";
 
 const AdminDashboard = () => {
-  const [team, setTeam] = useState();
+  const [team, setTeam] = useState(null);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
@@ -144,7 +143,7 @@ const AdminDashboard = () => {
       >
         <Box mb={2}>
           <Text fontSize="24px" fontWeight="bold">
-            {team.name}
+            {team?.name || "No Team Name"}
           </Text>
           <Text fontSize="14px" color="gray.500">
             Team Name
@@ -161,13 +160,13 @@ const AdminDashboard = () => {
         >
           <Box>
             <Text fontSize="20px" fontWeight="bold">
-              {team.inviteCode}
+              {team?.inviteCode || "N/A"}
             </Text>
             <Text mb={2} fontSize="13px" color="gray.500">
               Invite Code
             </Text>
             <CustomizeInviteCodeModal
-              currentCode={team.inviteCode}
+              currentCode={team?.inviteCode || ""}
               onSave={handleSaveInviteCode}
             />
           </Box>
@@ -179,12 +178,12 @@ const AdminDashboard = () => {
         <Text fontSize="lg" fontWeight="bold" mb={4} color="gray.500">
           Team Members
         </Text>
-        {team.members.length > 0 ? (
+        {team && team.members && team.members.length > 0 ? (
           <VStack spacing={4} align="stretch">
             {team.members.map((member) => {
-              const cloudinaryUrl = getCloudinaryAvatarUrl(
-                member?._id || member?.id
-              );
+              // Check if team.assets and the specific member's avatar URL exist
+              const cloudinaryUrl =
+                user?.team?.assets?.[member._id] || "/default-avatar.png";
               return (
                 <Flex
                   key={member._id}
