@@ -19,7 +19,7 @@ import { ToggleDarkMode } from "./ToggleDarkMode";
 import { useSocketContext } from "../context/SocketContext";
 import { useEffect, useState } from "react";
 import axiosImageUpload from "../services/axiosImages";
-import "./UserModal.css"
+import "./UserModal.css";
 
 export const UserModal = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
@@ -114,7 +114,7 @@ export const UserModal = () => {
     >
       <PopoverTrigger>
         <Avatar
-          src={user.avatarUrl}
+          src={user?.avatarUrl}
           color="#ebedf0"
           bg="#c2c7d0"
           name={user?.username}
@@ -136,7 +136,11 @@ export const UserModal = () => {
         <PopoverHeader>User Settings</PopoverHeader>
         <PopoverBody>
           {/* Upload section */}
-          <Box className={`upload-modal ${darkMode ? "dark" : ""}`} mb={8} mt={4}>
+          <Box
+            className={`upload-modal ${darkMode ? "dark" : ""}`}
+            mb={8}
+            mt={4}
+          >
             <input
               id="file-input"
               type="file"

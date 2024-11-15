@@ -106,7 +106,7 @@ const TaskCard = ({
                         <StatusIndicator
                           assignedTo={task.assignedTo}
                           user={user}
-                          className={isTaskShared ? "" : "hidden"}
+                          nameofClass={isTaskShared ? "" : "hidden"}
                           isExpanded={task.isExpanded}
                         />
                       )}
@@ -126,7 +126,7 @@ const TaskCard = ({
                     <StatusIndicator
                       assignedTo={task.assignedTo}
                       user={user}
-                      className={isTaskShared ? "" : "hidden"}
+                      nameofClass={isTaskShared ? "" : "hidden"}
                       isExpanded={task.isExpanded}
                     />
                   )}

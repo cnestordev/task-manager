@@ -4,14 +4,14 @@ import {
   AvatarGroup,
   Box,
   HStack,
-  SkeletonCircle,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useSocketContext } from "../context/SocketContext";
+import { useImageContext } from "../context/ImageContext";
 
 export const StatusIndicator = ({
   user,
-  className,
+  nameofClass,
   assignedTo,
   isExpanded,
 }) => {
@@ -26,11 +26,10 @@ export const StatusIndicator = ({
   // Convert connectedUsers to a Set for efficient lookup
   const connectedUsersSet = new Set(connectedUsers);
 
-  // Access the team assets
-  const userAssets = user?.team?.assets || {};
+  // Access the preloaded images from ImageContext
+  const { images } = useImageContext();
 
   const [sortedAssignedTo, setSortedAssignedTo] = useState([]);
-  const [imageLoadingState, setImageLoadingState] = useState({});
 
   useEffect(() => {
     // Prioritize current user in the assignedTo list
@@ -40,64 +39,53 @@ export const StatusIndicator = ({
     setSortedAssignedTo(updatedAssignedTo);
   }, [assignedTo, userId]);
 
-  useEffect(() => {
-    // Preload images and track loading state
-    sortedAssignedTo.forEach((id) => {
-      const imageUrl = userAssets[id] || "/default-avatar.png";
-      const img = new Image();
-
-      img.src = imageUrl;
-      setImageLoadingState((prev) => ({ ...prev, [id]: "loading" }));
-
-      img.onload = () => {
-        setImageLoadingState((prev) => ({ ...prev, [id]: "loaded" }));
-      };
-      img.onerror = () => {
-        setImageLoadingState((prev) => ({ ...prev, [id]: "error" }));
-      };
-    });
-  }, [sortedAssignedTo, userAssets]);
-
   return (
-    <div className={`status-container ${className}`}>
+    <div className={`status-container ${nameofClass}`}>
       <HStack spacing={2} alignItems="center">
         {!isExpanded ? (
           <AvatarGroup>
-            {sortedAssignedTo.map((id) =>
-              imageLoadingState[id] === "loading" ? (
-                <SkeletonCircle key={id} size="10" />
-              ) : (
-                <Avatar
-                  border="1px solid #cfcfcf"
-                  src={userAssets[id] || "/default-avatar.png"}
-                  key={id}
-                  size="sm"
-                >
-                  {connectedUsersSet.has(id) ? (
-                    <AvatarBadge boxSize="1em" bg={statusColors.online} />
-                  ) : (
-                    <AvatarBadge boxSize="1em" bg={statusColors.offline} />
-                  )}
-                </Avatar>
-              )
-            )}
+            {sortedAssignedTo.map((id) => {
+              const memberImage = images[id];
+              const isImageLoaded = memberImage && memberImage.complete;
+              const imageUrl = isImageLoaded
+                ? memberImage.src
+                : "/default-avatar.png";
+              return (
+                isImageLoaded && (
+                  <Avatar key={id} src={imageUrl} size="sm">
+                    {connectedUsersSet.has(id) ? (
+                      <AvatarBadge boxSize="1em" bg={statusColors.online} />
+                    ) : (
+                      <AvatarBadge boxSize="1em" bg={statusColors.offline} />
+                    )}
+                  </Avatar>
+                )
+              );
+            })}
           </AvatarGroup>
         ) : (
-          <Box display="flex" gap={1.5}>
-            {sortedAssignedTo.map((id) => (
-              <Avatar
-                border="1px solid #cfcfcf"
-                src={userAssets[id] || "/default-avatar.png"}
-                key={id}
-                size="sm"
-              >
-                {connectedUsersSet.has(id) ? (
-                  <AvatarBadge boxSize="1em" bg={statusColors.online} />
-                ) : (
-                  <AvatarBadge boxSize="1em" bg={statusColors.offline} />
-                )}
-              </Avatar>
-            ))}
+          <Box display="flex" gap={1}>
+            {sortedAssignedTo.map((id) => {
+              const memberImage = images[id];
+              const isImageLoaded = memberImage && memberImage.complete;
+              const imageUrl = isImageLoaded
+                ? memberImage.src
+                : "/default-avatar.png";
+
+              return (
+                <Box key={id} position="relative">
+                  {isImageLoaded && (
+                    <Avatar src={imageUrl} size="sm">
+                      {connectedUsersSet.has(id) ? (
+                        <AvatarBadge boxSize="1em" bg={statusColors.online} />
+                      ) : (
+                        <AvatarBadge boxSize="1em" bg={statusColors.offline} />
+                      )}
+                    </Avatar>
+                  )}
+                </Box>
+              );
+            })}
           </Box>
         )}
       </HStack>
