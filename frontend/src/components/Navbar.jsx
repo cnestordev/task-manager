@@ -1,17 +1,13 @@
-import { useEffect, useState } from "react";
 import {
-  Avatar,
-  AvatarBadge,
   Box,
   Container,
   Heading,
   Stack,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { useUser } from "../context/UserContext";
 import "./Navbar.css";
 import SettingsButton from "./SettingsButton";
-import { UploadModal } from "./UploadModal";
 
 import { UserModal } from "./UserModal";
 

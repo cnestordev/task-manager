@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import axiosImageUpload from "../services/axiosImages";
 import "./UserModal.css"
 
-export const UserModal = ({ comp }) => {
+export const UserModal = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
   const { user, updateUser } = useUser();
   const { connectedUsers: contextConnectedUsers } = useSocketContext();
@@ -88,6 +88,7 @@ export const UserModal = ({ comp }) => {
         duration: 3000,
         isClosable: true,
       });
+      onClose();
     } catch (error) {
       setIsUploading(false);
       console.error("Error uploading avatar:", error);
@@ -109,7 +110,7 @@ export const UserModal = ({ comp }) => {
       onOpen={onOpen}
       onClose={onClose}
       placement="bottom"
-      closeOnBlur={false}
+      closeOnBlur={true}
     >
       <PopoverTrigger>
         <Avatar

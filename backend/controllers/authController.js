@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Team = require("../models/Team");
 const argon2 = require('argon2');
 const passport = require('passport');
+const createAssetsObject = require('../util/avatarUtils');
 
 const createResponse = (statusCode, message, user = null, sessionID = null) => ({
     statusCode,
@@ -62,20 +63,7 @@ exports.login = (req, res, next) => {
                 // Populate the user's team details if they belong to one
                 const populatedUser = await User.findById(user._id).populate('team', 'name inviteCode createdBy members _id');
 
-                let assets = {};
-
-                // If the user has a team, fetch avatars for team members
-                if (populatedUser.team && populatedUser.team.members && populatedUser.team.members.length > 0) {
-                    // Fetch avatarUrl for each team member
-                    const teamMemberIds = populatedUser.team.members;
-                    const teamMembers = await User.find({ _id: { $in: teamMemberIds } }, 'avatarUrl');
-
-                    // Populate the assets object with userId and avatarUrl
-                    teamMembers.forEach(member => {
-                        assets[member._id] = member.avatarUrl;
-                    });
-                }
-
+               const assets = await createAssetsObject(populatedUser.team)
 
                 res.status(200).json(createResponse(200, 'Login successful', {
                     id: populatedUser._id,
@@ -110,17 +98,7 @@ exports.checkUser = async (req, res) => {
                 .populate('team', 'createdBy name inviteCode members');
 
             // If the user has a team, fetch avatars for team members
-            let assets = {};
-            if (user.team && user.team.members && user.team.members.length > 0) {
-                // Fetch avatarUrl for each team member
-                const teamMemberIds = user.team.members;
-                const teamMembers = await User.find({ _id: { $in: teamMemberIds } }, 'avatarUrl');
-
-                // Create the assets object with userId and avatarUrl
-                teamMembers.forEach(member => {
-                    assets[member._id] = member.avatarUrl;
-                });
-            }
+            let assets = await createAssetsObject(user.team)
 
             const modifiedUser = {
                 username: user.username,
@@ -201,19 +179,7 @@ exports.uploadImage = async (req, res) => {
         }
 
         // Initialize an empty assets object
-        let assets = {};
-
-        // If the user has a team, fetch avatars for team members
-        if (updatedUser.team && updatedUser.team.members && updatedUser.team.members.length > 0) {
-            // Fetch avatarUrl for each team member
-            const teamMemberIds = updatedUser.team.members;
-            const teamMembers = await User.find({ _id: { $in: teamMemberIds } }, 'avatarUrl');
-
-            // Populate the assets object with userId and avatarUrl
-            teamMembers.forEach(member => {
-                assets[member._id] = member.avatarUrl;
-            });
-        }
+        let assets = await createAssetsObject(updatedUser.team)
 
         // Construct the modifiedUser object to send to the client
         const modifiedUser = {
