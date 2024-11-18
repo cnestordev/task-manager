@@ -2,22 +2,17 @@ import { Box, Icon } from "@chakra-ui/react";
 import { MdCheck, MdError } from "react-icons/md";
 import "./ThemeOption.css";
 import { useUser } from "../context/UserContext";
-
-// Light and dark colors for each theme
-const themeColors = {
-  blueTheme: { light: "#c9f2ff", dark: "#162029" },
-  onyxTheme: { light: "#e9e9e9", dark: "#2a2a2a" },
-  purpleTheme: { light: "#dac4f9", dark: "#261e39" },
-  greenTheme: { light: "#c8f7da", dark: "#172623" },
-};
+import { themeColors } from "../utils/themeColors";
+import { THEMES } from "../utils/themeConstants";
 
 export const ThemeOption = ({ themeName, status, onClick }) => {
+  // Destructure the light and dark colors for the theme
   const { light, dark } = themeColors[themeName];
   const { user } = useUser();
   const darkMode = user?.darkMode || false;
-  const theme = user?.theme || "blueTheme"; // Current active theme
+  const theme = user?.theme || THEMES.BLUE;
 
-  // Background color based on status, active theme, and dark mode
+  // Determine if this is the active theme and set the background color
   const isActiveTheme = theme === themeName;
   const backgroundColor = isActiveTheme
     ? darkMode

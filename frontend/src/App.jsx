@@ -32,7 +32,7 @@ const App = () => {
     checkHealth();
 
     const fiveMinutesInMs = 300000;
-    const interval = setInterval(checkHealth, 5000);
+    const interval = setInterval(checkHealth, fiveMinutesInMs);
     return () => clearInterval(interval);
   }, []);
 

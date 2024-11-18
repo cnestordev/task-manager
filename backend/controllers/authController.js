@@ -3,6 +3,7 @@ const Team = require("../models/Team");
 const argon2 = require('argon2');
 const passport = require('passport');
 const createAssetsObject = require('../util/avatarUtils');
+const { THEMES } = require('../util/themeConstants');
 
 const createResponse = (statusCode, message, user = null, sessionID = null) => ({
     statusCode,
@@ -177,7 +178,7 @@ exports.toggleTheme = async (req, res) => {
         }
 
         // Toggle darkMode
-        user.theme = req?.body?.theme || "blueTheme";
+        user.theme = req?.body?.theme || THEMES.BLUE;
 
         // Save the updated user record
         await user.save();

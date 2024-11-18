@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { THEMES } = require('../util/themeConstants');
 
 // User Schema and Model
 const UserSchema = new mongoose.Schema({
@@ -8,7 +9,7 @@ const UserSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   darkMode: { type: Boolean, default: false },
   avatarUrl: { type: String, required: false, default: null },
-  theme: { type: String, required: false, default: "blueTheme" }
+  theme: { type: String, required: false, default: THEMES.BLUE}
 });
 
 // Pre-save hook to ensure username is stored as lowercase

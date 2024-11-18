@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
 import axiosInstance from "../services/axiosInstance";
 import { ThemeOption } from "./ThemeOption";
+import { THEMES } from "../utils/themeConstants";
 
 const debounce = (func, delay) => {
   let timer;
@@ -14,19 +15,20 @@ const debounce = (func, delay) => {
   };
 };
 
-const themes = ["blueTheme", "onyxTheme", "purpleTheme", "greenTheme"];
+// define the themes array
+const themes = [THEMES.BLUE, THEMES.ONYX, THEMES.PURPLE, THEMES.GREEN];
 
 export const ThemeToggler = () => {
   const { user, updateUser } = useUser();
   const [status, setStatus] = useState({});
   const isTogglingRef = useRef({});
-  const theme = user?.theme || "blueTheme";
+  const theme = user?.theme || THEMES.BLUE;
 
   // Handle theme toggling
   const handleToggle = useCallback(
     debounce(async (themeName) => {
       if (isTogglingRef.current[themeName]) return;
-      if (theme === themeName) return;
+      if (theme === themeName) return; // Don't toggle if already the current theme
       isTogglingRef.current[themeName] = true;
       setStatus((prevStatus) => ({ ...prevStatus, [themeName]: "loading" }));
 
