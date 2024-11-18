@@ -38,3 +38,9 @@
   background-color: var(--edit-complete-btn-hover-bg-color-dark) !important;
   border: 1px solid var(--edit-complete-btn-hover-bg-color-dark) !important;
 }
+
+.input-users {
+  border: 1px solid var(--button-border-color-light) !important;
+  border-radius: 15px !important;
+  padding: 15px 0;
+}

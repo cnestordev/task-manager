@@ -123,9 +123,11 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
               Assign Users
             </Button>
             <Collapse in={isOptionsOpen} animateOpacity>
-              <Box p={4} mt={4} shadow="md" borderWidth="1px" borderRadius="md">
+              <Box ml={0} mt={4} shadow="md" borderWidth="1px" borderRadius="md">
                 <UnorderedList
+                  className={`input-users ${darkMode ? "dark" : ""}`}
                   display="flex"
+                  m={0}
                   alignItems="center"
                   gap={2}
                   styleType="none"

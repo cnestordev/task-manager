@@ -169,17 +169,18 @@ const FormContainer = ({ addTask }) => {
               </Button>
               <Collapse in={isOptionsOpen} animateOpacity>
                 <Box
-                  p={4}
                   mt={4}
                   shadow="md"
                   borderWidth="1px"
                   borderRadius="md"
                 >
                   <UnorderedList
+                    className={`input-users ${darkMode ? "dark" : ""}`}
                     display="flex"
                     flexWrap="wrap"
                     gap={2}
                     styleType="none"
+                    m={0}
                   >
                     {usersList.length > 0 ? (
                       usersList.map((user) => {
