@@ -10,7 +10,7 @@ export const applyTheme = async (themeName, currentThemeLink) => {
     if (themeName) {
         const link = document.createElement("link");
         link.rel = "stylesheet";
-        link.href = `/${themeName}.css`;
+        link.href = `/themes/${themeName}.css`;
         console.log(link.href)
         link.type = "text/css";
         document.head.appendChild(link);

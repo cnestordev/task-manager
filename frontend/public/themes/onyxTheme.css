@@ -1,0 +1,31 @@
+:root {
+  --background-color-light: #f4f4f4;
+  --background-color-dark: #252525;
+  --secondary-bg-color-light: #e9e9e9;
+  --secondary-bg-color-dark: #2a2a2a;
+  --card-background-color-light: #f3f3f3;
+  --card-background-color-dark: #2f2f2f;
+  --card-header-color-light: #393939;
+  --card-header-color-dark: #8e8e8e;
+  --card-subtext-color-light: #7c7c7c;
+  --card-subtext-color-dark: #c5c5c5;
+  --column-active-bg-color-light: #dbdbdb;
+  --column-active-bg-color-dark: #383838;
+  --column-pill-bg-color-light: #d9d9d9;
+  --column-pill-bg-color-dark: #333333;
+  --column-pill-text-color-light: #595959;
+  --column-pill-text-color-dark: #a6a6a6;
+  --button-border-color-light: #a3a3a3;
+  --button-text-color-light: #808080;
+  --button-border-color-dark: #333333;
+  --button-text-color-dark: #737373;
+  --edit-complete-btn-border-color-light: #bcbcbc;
+  --edit-complete-btn-hover-bg-color-light: #bcbcbc;
+  --edit-complete-btn-text-color-light: #7b7b7b;
+  --edit-complete-btn-border-color-dark: #575757;
+  --edit-complete-btn-hover-bg-color-dark: #575757;
+  --edit-complete-btn-text-color-dark: #8a8a8a;
+  --delete-btn-color: #f0717e;
+  --delete-btn-border-color: #f0717e;
+  --delete-btn-hover-bg-color: #f0717e;
+}

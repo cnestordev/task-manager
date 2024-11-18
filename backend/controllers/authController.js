@@ -64,7 +64,7 @@ exports.login = (req, res, next) => {
                 // Populate the user's team details if they belong to one
                 const populatedUser = await User.findById(user._id).populate('team', 'name inviteCode createdBy members _id');
 
-               const assets = await createAssetsObject(populatedUser.team)
+                const assets = await createAssetsObject(populatedUser.team);
 
                 res.status(200).json(createResponse(200, 'Login successful', {
                     id: populatedUser._id,
@@ -100,7 +100,7 @@ exports.checkUser = async (req, res) => {
                 .populate('team', 'createdBy name inviteCode members');
 
             // If the user has a team, fetch avatars for team members
-            let assets = await createAssetsObject(user.team)
+            let assets = await createAssetsObject(user.team);
 
             const modifiedUser = {
                 username: user.username,
@@ -160,6 +160,36 @@ exports.toggleDarkMode = async (req, res) => {
     }
 };
 
+// Toggle Theme
+exports.toggleTheme = async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json(createResponse(401, 'User not authenticated'));
+        }
+        const userId = req.user._id;
+
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        // If user is not found, return an error
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Toggle darkMode
+        user.theme = req?.body?.theme || "blueTheme";
+
+        // Save the updated user record
+        await user.save();
+
+        res.status(200).json({ message: 'Theme updated successfully', theme: user.theme });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 // Upload avatar image
 exports.uploadImage = async (req, res) => {
     const imageUrl = req?.file?.path || null;
@@ -182,7 +212,7 @@ exports.uploadImage = async (req, res) => {
         }
 
         // Initialize an empty assets object
-        let assets = await createAssetsObject(updatedUser.team)
+        let assets = await createAssetsObject(updatedUser.team);
 
         // Construct the modifiedUser object to send to the client
         const modifiedUser = {

@@ -33,3 +33,8 @@ export const toggleDarkMode = async () => {
   const response = await axiosInstance.get('/auth/toggleDarkMode')
   return response
 }
+
+export const toggleTheme = async () => {
+  const response = await axiosInstance.get('/auth/toggleTheme')
+  return response
+}

@@ -12,5 +12,6 @@ router.get('/user', authController.checkUser);
 router.get('/logout', authController.logout);
 router.post('/uploadImage', checkAuthentication, upload.single('image'), authController.uploadImage);
 router.get('/toggleDarkMode', checkAuthentication, authController.toggleDarkMode)
+router.post('/toggleTheme', checkAuthentication, authController.toggleTheme)
 
 module.exports = router;

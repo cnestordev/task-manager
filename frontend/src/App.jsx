@@ -41,7 +41,7 @@ const App = () => {
   return (
     <MainContainer serverHealthy={serverHealthy}>
       <Router>
-        <Navbar dashboardFunction={dashboardFunction} />
+        {user && <Navbar dashboardFunction={dashboardFunction} />}
         <Routes>
           {/* Public Routes */}
           <Route

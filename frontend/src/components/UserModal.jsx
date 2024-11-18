@@ -20,6 +20,7 @@ import { useSocketContext } from "../context/SocketContext";
 import { useEffect, useState } from "react";
 import axiosImageUpload from "../services/axiosImages";
 import "./UserModal.css";
+import { ThemeToggler } from "./ThemeToggler";
 
 export const UserModal = () => {
   const { onOpen, onClose, isOpen } = useDisclosure();
@@ -175,6 +176,9 @@ export const UserModal = () => {
           </Box>
           <Box display="flex" justifyContent="space-around">
             <ToggleDarkMode />
+            <ThemeToggler />
+          </Box>
+          <Box display="flex" justifyContent="space-around" mt={5}>
             <LogoutButton size={["sm", "sm"]} />
           </Box>
         </PopoverBody>
