@@ -1,0 +1,7 @@
+.card-item {
+  background-color: var(--secondary-bg-color-light);
+}
+
+.card-item.dark {
+  background-color: var(--secondary-bg-color-dark)
+}

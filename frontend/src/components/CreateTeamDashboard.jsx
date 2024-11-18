@@ -85,17 +85,12 @@ const CreateTeamDashboard = () => {
             Team Name
           </FormLabel>
           <Input
+            className={`input-border ${user?.darkMode ? "dark" : ""}`}
             id="teamName"
             placeholder="Enter your team name"
             borderRadius="md"
-            bgColor={darkMode ? "#1e2d3d" : "gray.200"}
-            color={darkMode ? "whiteAlpha.900" : "gray.800"}
             _placeholder={{
               color: darkMode ? "whiteAlpha.700" : "gray.500",
-            }}
-            _focus={{
-              bgColor: darkMode ? "#1e2d3d" : "gray.200",
-              color: darkMode ? "whiteAlpha.900" : "gray.800",
             }}
             {...register("teamName")}
           />
@@ -104,7 +99,7 @@ const CreateTeamDashboard = () => {
         </FormControl>
 
         <Button
-          colorScheme="blue"
+          className={`input-border color-btn ${user?.darkMode ? "dark" : ""}`}
           type="submit"
           isLoading={loading}
           loadingText="Creating Team"

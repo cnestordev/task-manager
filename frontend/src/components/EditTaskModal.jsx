@@ -27,6 +27,7 @@ import { MdCheckCircle } from "react-icons/md";
 import { useUser } from "../context/UserContext";
 import { getListOfUsers } from "../utils/userUtils";
 import { TaskSchema } from "../validation/taskValidation";
+import "./EditTaskModal.css";
 
 const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
   const {
@@ -50,7 +51,6 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
   const darkMode = user?.darkMode || false;
 
   useEffect(() => {
-    // Fetch users when the modal opens
     const fetchUsers = async () => {
       try {
         const users = await getListOfUsers();
@@ -61,7 +61,6 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
     };
     fetchUsers();
 
-    // Load assigned users when a task is selected
     if (selectedTask) {
       reset({
         title: selectedTask.title,
@@ -86,19 +85,10 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
     onClose();
   };
 
-  // color variables based on darkMode
-  const assignedBgColor = darkMode ? "blue.800" : "blue.50";
-  const addedBgColor = darkMode ? "green.800" : "green.50";
-  const defaultBgColor = darkMode ? "#2d3748" : "white";
-  const textColor = darkMode ? "white" : "black";
-  const borderBottomColor = darkMode ? "#4a5568" : "#e2e8f0";
-  const assignedIconColor = darkMode ? "blue.300" : "blue.500";
-  const addedIconColor = darkMode ? "green.300" : "green.500";
-
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent bg={defaultBgColor} color={textColor}>
+      <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader>Edit Task</ModalHeader>
           <ModalCloseButton />
@@ -106,12 +96,10 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
             <FormControl isInvalid={errors.title} isRequired>
               <FormLabel>Title</FormLabel>
               <Input
+                className={`input-border ${darkMode ? "dark" : ""}`}
                 id="title"
                 placeholder="Edit task title"
                 {...register("title")}
-                bg={defaultBgColor}
-                color={textColor}
-                borderColor={borderBottomColor}
               />
               <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
             </FormControl>
@@ -119,30 +107,23 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
             <FormControl isInvalid={errors.description} isRequired mt={4}>
               <FormLabel>Description</FormLabel>
               <Textarea
+                className={`input-border ${darkMode ? "dark" : ""}`}
                 id="description"
                 placeholder="Edit task description"
                 {...register("description")}
-                bg={defaultBgColor}
-                color={textColor}
-                borderColor={borderBottomColor}
               />
               <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
             </FormControl>
 
-            {/* Toggle to assign users */}
-            <Button mt={4} onClick={() => setIsOptionsOpen(!isOptionsOpen)}>
+            <Button
+              className={`input-border color-btn ${darkMode ? "dark" : ""}`}
+              mt={4}
+              onClick={() => setIsOptionsOpen(!isOptionsOpen)}
+            >
               Assign Users
             </Button>
             <Collapse in={isOptionsOpen} animateOpacity>
-              <Box
-                p={4}
-                mt={4}
-                shadow="md"
-                borderWidth="1px"
-                borderRadius="md"
-                bg={defaultBgColor}
-                color={textColor}
-              >
+              <Box p={4} mt={4} shadow="md" borderWidth="1px" borderRadius="md">
                 <UnorderedList
                   display="flex"
                   alignItems="center"
@@ -153,22 +134,20 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
                     usersList.map((user) => {
                       const isAssigned = selectedTask.assignedTo.includes(
                         user._id
-                      ); // Check if user is in assignedTo
-                      const isAdded = addedUsers.includes(user._id); // Check if user is in addedUsers
+                      );
+                      const isAdded = addedUsers.includes(user._id);
                       return (
                         <ListItem
                           cursor="pointer"
                           key={user._id}
                           p={3}
-                          bg={
-                            isAssigned
-                              ? assignedBgColor
-                              : isAdded
-                              ? addedBgColor
-                              : defaultBgColor
+                          border={
+                            !isAdded
+                              ? !isAssigned
+                                ? "1px solid #e7e7e7"
+                                : "1px solid transparent"
+                              : "none"
                           }
-                          color={textColor}
-                          border={!isAdded ? !isAssigned ? "1px solid #e7e7e7" : "1px solid transparent" : "none"}
                           borderRadius="50px"
                           onClick={() =>
                             !isAssigned && handleSelectedUser(user)
@@ -177,19 +156,9 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
                           <Box display="flex" alignItems="center">
                             <Avatar src={user.avatarUrl} size="xs" />
                             <Text w={50}>{user.username}</Text>
-                            {isAssigned ? (
-                              <ListIcon
-                                as={MdCheckCircle}
-                                color={assignedIconColor}
-                              />
-                            ) : (
-                              isAdded && (
-                                <ListIcon
-                                  as={MdCheckCircle}
-                                  color={addedIconColor}
-                                />
-                              )
-                            )}
+                            {isAssigned || isAdded ? (
+                              <ListIcon as={MdCheckCircle} />
+                            ) : null}
                           </Box>
                         </ListItem>
                       );
@@ -203,8 +172,16 @@ const EditTaskModal = ({ isOpen, onClose, saveTaskChanges, selectedTask }) => {
           </ModalBody>
 
           <ModalFooter gap="4">
-            <Button onClick={onClose}>Cancel</Button>
-            <Button colorScheme="blue" type="submit">
+            <Button
+              className={`input-border cancel-btn ${darkMode ? "dark" : ""}`}
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              className={`input-border color-btn ${darkMode ? "dark" : ""}`}
+              type="submit"
+            >
               Save
             </Button>
           </ModalFooter>

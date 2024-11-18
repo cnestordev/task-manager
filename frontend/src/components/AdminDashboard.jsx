@@ -15,6 +15,7 @@ import { MdDelete } from "react-icons/md";
 import { editInviteCode, getTeamDetails, removeMember } from "../api";
 import { useUser } from "../context/UserContext";
 import CustomizeInviteCodeModal from "./CustomizeInviteCodeModal";
+import "./Dashboard.css"
 
 const AdminDashboard = () => {
   const [team, setTeam] = useState(null);
@@ -150,7 +151,7 @@ const AdminDashboard = () => {
           </Text>
         </Box>
         <Flex
-          bgColor={darkMode ? "#2a3745" : "#f1f5fb"}
+          className={`card-item ${darkMode ? "dark" : ""}`}
           padding="15px"
           borderRadius="10"
           width={["100%", "90%", "50%"]}
@@ -190,7 +191,7 @@ const AdminDashboard = () => {
                   alignItems="center"
                   justify="space-between"
                   p={3}
-                  bg={darkMode ? "#2a3745" : "#f1f5fb"}
+                  className={`card-item ${darkMode ? "dark" : ""}`}
                   borderRadius="20"
                   padding="20px"
                   width="70%"

@@ -2,7 +2,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MdCheckCircle } from "react-icons/md";
-
 import { AddIcon } from "@chakra-ui/icons";
 import {
   Avatar,
@@ -44,20 +43,12 @@ const FormContainer = ({ addTask }) => {
   const [usersList, setUsersList] = useState([]);
   const [addedUsers, setAddedUsers] = useState([]);
 
-  const { colorMode, setColorMode } = useColorMode();
+  const { setColorMode } = useColorMode();
   const darkMode = user?.darkMode || false;
 
   useEffect(() => {
     setColorMode(darkMode ? "dark" : "light");
   }, [darkMode, setColorMode]);
-
-  // color variables based on darkMode
-  const addedBgColor = darkMode ? "green.800" : "green.50";
-  const defaultBgColor = darkMode ? "#2d3748" : "white";
-  const textColor = darkMode ? "white" : "black";
-  const borderColor = darkMode ? "#4a5568" : "#e7e7e7";
-  const addedIconColor = darkMode ? "green.300" : "green.500";
-  const hoverBgColor = darkMode ? "gray.700" : "gray.100";
 
   const {
     register,
@@ -120,7 +111,7 @@ const FormContainer = ({ addTask }) => {
         size="md"
       >
         <DrawerOverlay />
-        <DrawerContent bg={defaultBgColor} color={textColor}>
+        <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader>Add New Task</DrawerHeader>
 
@@ -130,12 +121,10 @@ const FormContainer = ({ addTask }) => {
               <FormControl isInvalid={errors.title} isRequired>
                 <FormLabel htmlFor="title">Title:</FormLabel>
                 <Input
+                  className={`input-border ${darkMode ? "dark" : ""}`}
                   id="title"
                   placeholder="Enter task title"
                   {...register("title")}
-                  bg={defaultBgColor}
-                  color={textColor}
-                  borderColor={borderColor}
                 />
                 <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
               </FormControl>
@@ -144,12 +133,10 @@ const FormContainer = ({ addTask }) => {
               <FormControl isInvalid={errors.description} mt={4}>
                 <FormLabel htmlFor="description">Description:</FormLabel>
                 <Textarea
+                  className={`input-border ${darkMode ? "dark" : ""}`}
                   id="description"
                   placeholder="Enter task description"
                   {...register("description")}
-                  bg={defaultBgColor}
-                  color={textColor}
-                  borderColor={borderColor}
                 />
                 <FormErrorMessage>
                   {errors.description?.message}
@@ -160,12 +147,10 @@ const FormContainer = ({ addTask }) => {
               <FormControl isInvalid={errors.priority} mt={4} isRequired>
                 <FormLabel htmlFor="priority">Priority:</FormLabel>
                 <Select
+                  className={`input-border ${darkMode ? "dark" : ""}`}
                   id="priority"
                   placeholder="Select priority"
                   {...register("priority")}
-                  bg={defaultBgColor}
-                  color={textColor}
-                  borderColor={borderColor}
                 >
                   <option value="High">High</option>
                   <option value="Medium">Medium</option>
@@ -175,7 +160,11 @@ const FormContainer = ({ addTask }) => {
               </FormControl>
 
               {/* Assign Users */}
-              <Button mt={4} onClick={onToggle}>
+              <Button
+                className={`input-border color-btn ${darkMode ? "dark" : ""}`}
+                mt={4}
+                onClick={onToggle}
+              >
                 Assign Users
               </Button>
               <Collapse in={isOptionsOpen} animateOpacity>
@@ -185,8 +174,6 @@ const FormContainer = ({ addTask }) => {
                   shadow="md"
                   borderWidth="1px"
                   borderRadius="md"
-                  bg={defaultBgColor}
-                  color={textColor}
                 >
                   <UnorderedList
                     display="flex"
@@ -204,26 +191,14 @@ const FormContainer = ({ addTask }) => {
                             cursor="pointer"
                             key={user._id}
                             p={2}
-                            bg={isAdded ? addedBgColor : defaultBgColor}
-                            color={textColor}
-                            border={
-                              !isAdded ? `1px solid ${borderColor}` : "none"
-                            }
                             borderRadius="50px"
                             onClick={() => handleSelectedUser(user)}
                           >
                             <Box display="flex" alignItems="center">
-                              <Avatar
-                                src={user.avatarUrl}
-                                size="sm"
-                              />
+                              <Avatar src={user.avatarUrl} size="sm" />
                               <Text ml={2}>{user.username}</Text>
                               {isAdded && (
-                                <ListIcon
-                                  as={MdCheckCircle}
-                                  color={addedIconColor}
-                                  ml={2}
-                                />
+                                <ListIcon as={MdCheckCircle} ml={2} />
                               )}
                             </Box>
                           </ListItem>
@@ -238,10 +213,19 @@ const FormContainer = ({ addTask }) => {
             </DrawerBody>
 
             <DrawerFooter>
-              <Button variant="outline" mr={3} onClick={onClose}>
+              <Button
+                className={`input-border cancel-btn ${darkMode ? "dark" : ""}`}
+                variant="outline"
+                mr={3}
+                onClick={onClose}
+              >
                 Cancel
               </Button>
-              <Button colorScheme="blue" type="submit">
+              <Button
+                className={`input-border color-btn ${darkMode ? "dark" : ""}`}
+                colorScheme="blue"
+                type="submit"
+              >
                 Save Task
               </Button>
             </DrawerFooter>

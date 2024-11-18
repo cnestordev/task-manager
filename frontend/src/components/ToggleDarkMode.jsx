@@ -58,21 +58,21 @@ export const ToggleDarkMode = () => {
 
   return (
     <Box onClick={handleToggle} display="flex" alignContent="center">
-      <Button>
+      <Box>
         {status === "loading" ? (
-          <Spinner color="#918200" />
+          <Spinner color="#d1bc07" />
         ) : status === "success" ? (
           <Icon className="darkmode-toggle" color="green" as={MdCheck} />
         ) : status === "error" ? (
           <Icon className="darkmode-toggle" color="red" as={MdError} />
         ) : (
           <Icon
-            color="#918200"
+            color="#d1bc07"
             className="darkmode-toggle"
             as={darkMode ? MdSunny : MdDarkMode}
           />
         )}
-      </Button>
+      </Box>
     </Box>
   );
 };

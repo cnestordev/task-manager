@@ -88,7 +88,7 @@ const MemberDashboard = () => {
           p={4}
           borderRadius="20"
           padding="35px"
-          bg={darkMode ? "#2a3745" : "white"}
+          className={`card-item ${darkMode ? "dark" : ""}`}
           mb={6}
           textAlign="center"
           display="flex"
@@ -137,7 +137,7 @@ const MemberDashboard = () => {
                   key={member._id}
                   alignItems="center"
                   p={3}
-                  bg={darkMode ? "#2a3745" : "#f1f5fb"}
+                  className={`card-item ${darkMode ? "dark" : ""}`}
                   borderRadius="20"
                   padding="20px"
                   width="100%"

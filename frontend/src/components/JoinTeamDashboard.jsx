@@ -106,12 +106,7 @@ const JoinTeamDashboard = () => {
               {[...Array(8)].map((_, idx) => (
                 <PinInputField
                   key={idx}
-                  bgColor={darkMode ? "#1e2d3d" : "gray.200"}
-                  color={darkMode ? "whiteAlpha.900" : "gray.800"}
-                  _focus={{
-                    bgColor: darkMode ? "#1e2d3d" : "gray.200",
-                    color: darkMode ? "whiteAlpha.900" : "gray.800",
-                  }}
+                  className={`input-border ${user?.darkMode ? "dark" : ""}`}
                   _placeholder={{
                     color: darkMode ? "whiteAlpha.700" : "gray.500",
                   }}
@@ -123,7 +118,7 @@ const JoinTeamDashboard = () => {
         </FormControl>
 
         <Button
-          colorScheme="blue"
+          className={`input-border color-btn ${user?.darkMode ? "dark" : ""}`}
           type="submit"
           isLoading={loading}
           loadingText="Joining Team"

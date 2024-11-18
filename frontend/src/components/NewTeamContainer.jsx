@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Button, VStack, Text } from "@chakra-ui/react";
 import CreateTeamDashboard from "./CreateTeamDashboard";
 import JoinTeamDashboard from "./JoinTeamDashboard";
+import { useUser } from "../context/UserContext";
 
 export const NewTeamContainer = () => {
   const [isCreatingTeam, setIsCreatingTeam] = useState(true);
+  const { user } = useUser();
 
   const toggleDashboard = () => {
     setIsCreatingTeam(!isCreatingTeam);
@@ -22,6 +24,7 @@ export const NewTeamContainer = () => {
       {isCreatingTeam ? <CreateTeamDashboard /> : <JoinTeamDashboard />}
 
       <Button
+        className={`input-border color-btn ${user?.darkMode ? "dark" : ""}`}
         variant="link"
         colorScheme="blue"
         onClick={toggleDashboard}

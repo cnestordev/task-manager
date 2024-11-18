@@ -9,9 +9,11 @@ import {
 } from "@chakra-ui/react";
 import { WarningIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
+import { useUser } from "../context/UserContext";
 
 const DeleteTaskModal = ({ isOpen, onClose, taskTitle, handleRemoveTask }) => {
   const deleteRef = useRef();
+  const { user } = useUser();
 
   return (
     <AlertDialog
@@ -32,10 +34,14 @@ const DeleteTaskModal = ({ isOpen, onClose, taskTitle, handleRemoveTask }) => {
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button ref={deleteRef} onClick={onClose}>
+            <Button
+              className={`input-border cancel-btn ${user?.darkMode ? "dark" : ""}`}
+              ref={deleteRef}
+              onClick={onClose}
+            >
               Cancel
             </Button>
-            <Button colorScheme="red" onClick={handleRemoveTask} ml={3}>
+            <Button className="delete-btn" colorScheme="red" onClick={handleRemoveTask} ml={3}>
               Delete
             </Button>
           </AlertDialogFooter>
