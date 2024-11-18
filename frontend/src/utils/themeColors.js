@@ -13,3 +13,10 @@ export const themeColors2 = {
     [THEMES.PURPLE]: { light: "#f2e9ff", dark: "#261e39" },
     [THEMES.GREEN]: { light: "#e9fbf0", dark: "#172623" },
 };
+
+export const backgroundColors = {
+    [THEMES.BLUE]: { light: "#f4faff", dark: "#1f2933" },
+    [THEMES.ONYX]: { light: "#f4f4f4", dark: "#252525" },
+    [THEMES.PURPLE]: { light: "#faf4ff", dark: "#211a31" },
+    [THEMES.GREEN]: { light: "#f4fff4", dark: "#0b1a17" },
+};

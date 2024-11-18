@@ -1,6 +1,6 @@
 import { extendTheme } from "@chakra-ui/react";
 import { THEMES } from "../utils/themeConstants";
-import { themeColors2 } from "../utils/themeColors";
+import { themeColors2, backgroundColors } from "../utils/themeColors";
 
 const createTheme = (user) => {
     const userTheme = user?.theme || THEMES.BLUE;
@@ -11,11 +11,13 @@ const createTheme = (user) => {
             bg: themeColors2[userTheme].light,
             border: themeColors2[userTheme].dark,
             text: themeColors2[userTheme].dark,
+            body: backgroundColors[userTheme].light
         },
         dark: {
             bg: themeColors2[userTheme].dark,
             border: themeColors2[userTheme].light,
             text: themeColors2[userTheme].light,
+            body: backgroundColors[userTheme].dark
         },
     };
 
@@ -23,6 +25,14 @@ const createTheme = (user) => {
         config: {
             initialColorMode: user?.darkMode ? "dark" : "light",
             useSystemColorMode: false,
+        },
+        styles: {
+            global: (props) => ({
+                body: {
+                    bg: colors[props.colorMode].body,
+                    color: colors[props.colorMode].text,
+                },
+            }),
         },
         components: {
             Button: {
