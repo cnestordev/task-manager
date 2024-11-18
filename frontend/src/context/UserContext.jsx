@@ -11,29 +11,35 @@ export const UserProvider = ({ children }) => {
   const currentThemeLink = useRef(null);
 
   // Check the user session on initial load
-  useEffect(() => {
-    const checkUserSession = async () => {
-      try {
-        const { data } = await checkUser();
-        // Check if response is valid and contains user information
-        if (data.statusCode === 200 && data.user) {
-          setUser(data.user);
-          console.log(data.user)
-          // Apply the user's theme if it exists
-          if (data.user.theme) {
-            applyTheme(data.user.theme, currentThemeLink);
-          }
-        } else {
-          throw new Error("No user data found.");
-        }
-      } catch (error) {
-        setUser(null); // Clear user if not authenticated
-      } finally {
-        setLoading(false); // Stop loading once check is complete
-      }
-    };
 
-    checkUserSession();
+  const checkUserSession = async () => {
+    try {
+      const { data } = await checkUser();
+      // Check if response is valid and contains user information
+      if (data.statusCode === 200 && data.user) {
+        setUser(data.user);
+        console.log(data.user);
+        // Apply the user's theme if it exists
+        if (data.user.theme) {
+          applyTheme(data.user.theme, currentThemeLink);
+        }
+      } else {
+        throw new Error("No user data found.");
+      }
+    } catch (error) {
+      setUser(null); // Clear user if not authenticated
+    } finally {
+      setLoading(false); // Stop loading once check is complete
+    }
+  };
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      await checkUserSession()
+    }
+
+    loadUserData();
+
   }, []);
 
   const login = (userData) => {
@@ -56,7 +62,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout, loading, updateUser }}>
+    <UserContext.Provider value={{ user, login, logout, loading, updateUser, checkUserSession }}>
       {children}
     </UserContext.Provider>
   );

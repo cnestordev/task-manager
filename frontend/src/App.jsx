@@ -9,20 +9,22 @@ import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./components/Register";
 import TaskBoard from "./components/TaskBoard";
-
 import { MainContainer } from "./components/MainContainer";
 import { useUser } from "./context/UserContext";
 import { checkServerHealth } from "./utils/heathCheck";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Navbar from "./components/Navbar";
 
 const App = () => {
-  const { user, loading } = useUser();
+  const { user, loading, checkUserSession } = useUser();
   const [serverHealthy, setServerHealthy] = useState(true);
   const [dashboardFunction, setDashboardFunction] = useState(null);
 
+  // Ref to keep track of the previous server health state
+  const prevServerHealthy = useRef(serverHealthy);
+
+  // Perform a health check on app load and periodically
   useEffect(() => {
-    // Perform a health check on app load
     const checkHealth = async () => {
       const isHealthy = await checkServerHealth();
       setServerHealthy(isHealthy);
@@ -30,9 +32,18 @@ const App = () => {
     checkHealth();
 
     const fiveMinutesInMs = 300000;
-    const interval = setInterval(checkHealth, fiveMinutesInMs);
+    const interval = setInterval(checkHealth, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Reload user data when server recovers from an unhealthy state
+  useEffect(() => {
+    // Only call checkUserSession if the server was previously unhealthy
+    if (!prevServerHealthy.current && serverHealthy) {
+      checkUserSession();
+    }
+    prevServerHealthy.current = serverHealthy; // Update the previous server health status
+  }, [serverHealthy, checkUserSession]);
 
   if (loading) {
     return <div>Loading...</div>;
