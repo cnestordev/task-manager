@@ -44,7 +44,7 @@ const createTheme = (user) => {
                     minWidth: "80px",
                     cursor: "pointer",
                     transition: "background-color 0.2s ease, color 0.2s ease",
-                    bgColor: colors[props.colorMode].bg,
+                    bgColor: "transparent",
                     color: colors[props.colorMode].text,
                     borderColor: colors[props.colorMode].border,
                     _hover: {
