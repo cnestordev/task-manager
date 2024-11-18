@@ -37,6 +37,17 @@ const TaskBoard = ({ setDashboardFunction }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState(false);
 
+  // Debounce utility function
+  const debounce = (func, delay) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
   // Add a new task
   const addTask = async (formData) => {
     const newTaskPosition = tasks.filter(
@@ -480,6 +491,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
     }
   };
 
+  const debouncedHandleToggleExpand = debounce(handleToggleExpand, 500);
+
   // Priorities for tasks (columns)
   const priorities = ["High", "Medium", "Low"];
 
@@ -574,7 +587,7 @@ const TaskBoard = ({ setDashboardFunction }) => {
           {priorities.map((priority) => (
             <PriorityColumn
               key={priority}
-              toggleExpand={handleToggleExpand}
+              toggleExpand={debouncedHandleToggleExpand}
               deleteTask={(task) => {
                 setSelectedTask(task);
                 setIsDeleteModalOpen(true);
