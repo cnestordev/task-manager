@@ -26,6 +26,7 @@ export const MainContainer = ({ serverHealthy, children }) => {
       {!serverHealthy && <ServerErrorModal />}
       <Container
         maxWidth="100%"
+        padding={{ base: "10px", md: "40px" }}
         height={{ base: "auto", md: "100vh" }}
         className={`container ${colorMode === "dark" ? "dark" : ""}`}
       >

@@ -51,15 +51,13 @@ export const StatusIndicator = ({
                 ? memberImage.src
                 : "/default-avatar.png";
               return (
-                isImageLoaded && (
-                  <Avatar key={id} src={imageUrl} size="sm">
-                    {connectedUsersSet.has(id) ? (
-                      <AvatarBadge boxSize="1em" bg={statusColors.online} />
-                    ) : (
-                      <AvatarBadge boxSize="1em" bg={statusColors.offline} />
-                    )}
-                  </Avatar>
-                )
+                <Avatar key={id} src={imageUrl} size="sm">
+                  {connectedUsersSet.has(id) ? (
+                    <AvatarBadge boxSize="1em" bg={statusColors.online} />
+                  ) : (
+                    <AvatarBadge boxSize="1em" bg={statusColors.offline} />
+                  )}
+                </Avatar>
               );
             })}
           </AvatarGroup>
@@ -71,18 +69,15 @@ export const StatusIndicator = ({
               const imageUrl = isImageLoaded
                 ? memberImage.src
                 : "/default-avatar.png";
-
               return (
                 <Box key={id} position="relative">
-                  {isImageLoaded && (
-                    <Avatar src={imageUrl} size="sm">
-                      {connectedUsersSet.has(id) ? (
-                        <AvatarBadge boxSize="1em" bg={statusColors.online} />
-                      ) : (
-                        <AvatarBadge boxSize="1em" bg={statusColors.offline} />
-                      )}
-                    </Avatar>
-                  )}
+                  <Avatar src={imageUrl} size="sm">
+                    {connectedUsersSet.has(id) ? (
+                      <AvatarBadge boxSize="1em" bg={statusColors.online} />
+                    ) : (
+                      <AvatarBadge boxSize="1em" bg={statusColors.offline} />
+                    )}
+                  </Avatar>
                 </Box>
               );
             })}
