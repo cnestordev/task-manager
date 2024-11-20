@@ -58,7 +58,7 @@ export const ToggleDarkMode = () => {
 
   return (
     <Box onClick={handleToggle} display="flex" alignContent="center">
-      <Box>
+      <Box display="flex" alignItems="center">
         {status === "loading" ? (
           <Spinner color="#d1bc07" />
         ) : status === "success" ? (
