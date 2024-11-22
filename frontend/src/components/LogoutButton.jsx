@@ -1,8 +1,7 @@
-import React from "react";
 import { Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
 import { logout as logoutApi } from "../api/auth";
+import { useUser } from "../context/UserContext";
 
 const LogoutButton = () => {
   const { logout } = useUser();

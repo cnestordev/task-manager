@@ -1,11 +1,10 @@
-import { StrictMode } from "react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
-import "./index.css";
-import { ChakraProvider } from "@chakra-ui/react";
 import Providers from "./context/Providers";
-import createTheme from "./theme/theme.js";
 import { useUser } from "./context/UserContext.jsx";
+import "./index.css";
+import createTheme from "./theme/theme.js";
 
 const DynamicChakraProvider = ({ children }) => {
   const { user } = useUser();

@@ -14,8 +14,14 @@ export const SocketProvider = ({ children }) => {
   const { notifyTaskUpdate, notifyTaskCreated } = useSocket(
     user,
     setConnectedUsers,
-    updateTask,
+    updateTask
   );
+
+  useEffect(() => {
+    if (!user) {
+      setConnectedUsers([]);
+    }
+  }, [user]);
 
   return (
     <SocketContext.Provider

@@ -37,7 +37,11 @@ export const ImageProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    preloadImage();
+    if (user) {
+      preloadImage();
+    } else {
+      setImages({})
+    }
   }, [user]);
   return (
     <ImageContext.Provider value={{ images }}>{children}</ImageContext.Provider>

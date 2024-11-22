@@ -17,6 +17,9 @@ export const TaskProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       fetchTasks(false);
+    } else {
+      setTasks([]);
+      setRecentlyUpdatedTask(null);
     }
   }, [user]);
 
