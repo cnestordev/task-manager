@@ -4,6 +4,7 @@ const argon2 = require('argon2');
 const passport = require('passport');
 const createAssetsObject = require('../util/avatarUtils');
 const { THEMES } = require('../util/themeConstants');
+const createWelcomeTask = require('../util/createWelcomeTask');
 
 const createResponse = (statusCode, message, user = null, sessionID = null) => ({
     statusCode,
@@ -16,26 +17,25 @@ const createResponse = (statusCode, message, user = null, sessionID = null) => (
 exports.register = async (req, res, next) => {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-        return res.status(400).json(createResponse(400, 'Username and password are required'));
-    }
-
     try {
-        // Check if the username already exists
         const existingUser = await User.findOne({ username: username.toLowerCase() });
         if (existingUser) {
             return res.status(400).json(createResponse(400, 'Username already exists'));
         }
 
-        // Hash the password and create the new user
         const passwordHash = await argon2.hash(password);
         const newUser = new User({ username: username.toLowerCase(), passwordHash });
         await newUser.save();
 
-        // Log the user in
         req.login(newUser, async (err) => {
             if (err) {
                 return next(err);
+            }
+
+            try {
+                await createWelcomeTask(newUser._id);
+            } catch (taskError) {
+                console.error('Failed to create welcome task:', taskError);
             }
 
             return res.status(201).json(createResponse(201, 'Registration and login successful', {
@@ -48,7 +48,7 @@ exports.register = async (req, res, next) => {
             }));
         });
     } catch (error) {
-        return res.status(500).json(createResponse(500, 'Error registering user'));
+        return res.status(500).json(createResponse(500, 'Error registering user', { error: error.message }));
     }
 };
 
