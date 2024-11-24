@@ -88,7 +88,7 @@ const App = () => {
           <Route
             path="/"
             element={
-              user ? <Navigate to="/taskboard" /> : <Navigate to="/login" />
+              user ? <Navigate to="/taskboard" /> : <Navigate to="/register" />
             }
           />
         </Routes>

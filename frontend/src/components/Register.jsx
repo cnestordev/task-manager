@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState, useEffect } from "react";
 import { ViewIcon, ViewOffIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
+import { createRandomUser } from "../utils/createRandomUser";
 
 const Register = () => {
   const [showPrimary, setShowPrimary] = useState(false);
@@ -51,7 +52,9 @@ const Register = () => {
   });
 
   useEffect(() => {
-    const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const darkModePreference = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     setColorMode(darkModePreference ? "dark" : "light");
   }, [setColorMode]);
 
@@ -91,6 +94,19 @@ const Register = () => {
     setShowSecondary(false);
   };
 
+  const handleCreateRandomUser = async () => {
+    try {
+      const newRandomUser = createRandomUser();
+      const registrationData = {
+        username: newRandomUser,
+        password: "password",
+      };
+      handleRegistration(registrationData);
+    } catch (err) {
+      console.log("Error with registering user", err);
+    }
+  };
+
   const handleClick = () => setShowPrimary(!showPrimary);
   const handleClickConfirmation = () => setShowSecondary(!showSecondary);
 
@@ -107,8 +123,21 @@ const Register = () => {
       borderRadius="lg"
     >
       <Heading mb="6">Register</Heading>
-      <Button onClick={toggleColorMode} mb="4" variant="ghost" alignSelf="flex-end">
+      <Button
+        onClick={toggleColorMode}
+        mb="4"
+        variant="ghost"
+        alignSelf="flex-end"
+      >
         {colorMode === "dark" ? <SunIcon /> : <MoonIcon />}
+      </Button>
+      <Button
+        onClick={handleCreateRandomUser}
+        mb="4"
+        variant="outline"
+        alignSelf="flex-end"
+      >
+        Create Random User
       </Button>
       <form onSubmit={handleSubmit(handleRegistration)}>
         <VStack spacing="4">
