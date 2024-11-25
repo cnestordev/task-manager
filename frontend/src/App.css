@@ -13,6 +13,7 @@
 
 .columns-container {
   display: flex;
+  justify-content: space-between;
   gap: 10px;
   flex-basis: 95%;
   box-sizing: border-box;

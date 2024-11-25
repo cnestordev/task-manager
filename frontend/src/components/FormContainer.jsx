@@ -111,7 +111,7 @@ const FormContainer = ({ addTask }) => {
         size="md"
       >
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent borderRadius="30px">
           <DrawerCloseButton />
           <DrawerHeader>Add New Task</DrawerHeader>
 

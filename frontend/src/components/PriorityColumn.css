@@ -1,8 +1,8 @@
 .column {
   background-color: var(--secondary-bg-color-light);
   box-sizing: border-box;
-  border-radius: 20px;
-  flex-basis: 33%;
+  border-radius: 35px;
+  flex-basis: 32%;
   padding: 0 0 5px 0;
   transition: background-color 0.3s ease;
 }
