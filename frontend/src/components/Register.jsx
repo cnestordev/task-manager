@@ -37,9 +37,8 @@ const Register = () => {
   // Dynamic colors based on color mode
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("black", "white");
-  const borderColor = useColorModeValue("gray.300", "gray.600");
-  const buttonBg = useColorModeValue("green.500", "green.400");
-  const buttonHoverBg = useColorModeValue("green.600", "green.500");
+  const buttonBg = useColorModeValue("teal.500", "teal.400");
+  const buttonHoverBg = useColorModeValue("teal.600", "teal.500");
 
   const {
     register,
@@ -71,24 +70,18 @@ const Register = () => {
         throw new Error(data.error);
       }
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        const errorMessage = error.response.data.error;
-        toast({
-          title: "Error",
-          description: errorMessage,
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "An error occurred during registration",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
+      const errorMessage =
+        error.response && error.response.status === 400
+          ? error.response.data.error
+          : "An error occurred during registration";
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
     reset();
     setShowPrimary(false);
@@ -101,11 +94,11 @@ const Register = () => {
       const registrationData = {
         username: newRandomUser,
         password: "password",
-        isDemoUser: true
+        isDemoUser: true,
       };
       handleRegistration(registrationData);
     } catch (err) {
-      console.log("Error with registering user", err);
+      console.error("Error with registering user", err);
     }
   };
 
@@ -117,14 +110,15 @@ const Register = () => {
       maxWidth="400px"
       mx="auto"
       mt="100px"
-      p="4"
+      p="6"
       bg={bgColor}
       color={textColor}
-      borderWidth="1px"
-      borderColor={borderColor}
-      borderRadius="lg"
+      boxShadow="lg"
+      borderRadius="xl"
     >
-      <Heading mb="6">Register</Heading>
+      <Heading mb="6" textAlign="center" fontSize="2xl" fontWeight="bold">
+        Register
+      </Heading>
       <Button
         onClick={toggleColorMode}
         mb="4"
@@ -137,24 +131,32 @@ const Register = () => {
         onClick={handleCreateRandomUser}
         mb="4"
         variant="outline"
-        alignSelf="flex-end"
+        colorScheme="teal"
+        alignSelf="center"
+        size="sm"
       >
         Create Random User
       </Button>
       <form onSubmit={handleSubmit(handleRegistration)}>
-        <VStack spacing="4">
+        <VStack spacing="6">
           <FormControl isInvalid={!!errors.username} isRequired>
-            <FormLabel htmlFor="username">Username</FormLabel>
+            <FormLabel htmlFor="username" fontWeight="medium">
+              Username
+            </FormLabel>
             <Input
               id="username"
               placeholder="Enter a username"
               {...register("username")}
               bg={colorMode === "dark" ? "gray.700" : "white"}
+              focusBorderColor="teal.500"
+              borderRadius="md"
             />
             <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
           </FormControl>
           <FormControl isInvalid={!!errors.password} isRequired>
-            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormLabel htmlFor="password" fontWeight="medium">
+              Password
+            </FormLabel>
             <InputGroup>
               <Input
                 type={showPrimary ? "text" : "password"}
@@ -162,9 +164,16 @@ const Register = () => {
                 placeholder="Enter your password"
                 {...register("password")}
                 bg={colorMode === "dark" ? "gray.700" : "white"}
+                focusBorderColor="teal.500"
+                borderRadius="md"
               />
               <InputRightElement width="4.5rem">
-                <Button h="1.75rem" size="sm" onClick={handleClick}>
+                <Button
+                  h="1.75rem"
+                  size="sm"
+                  onClick={handleClick}
+                  bg="transparent"
+                >
                   {showPrimary ? (
                     <Icon as={ViewOffIcon} />
                   ) : (
@@ -176,7 +185,9 @@ const Register = () => {
             <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
           </FormControl>
           <FormControl isInvalid={!!errors.confirmPassword} isRequired>
-            <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+            <FormLabel htmlFor="confirmPassword" fontWeight="medium">
+              Confirm Password
+            </FormLabel>
             <InputGroup>
               <Input
                 type={showSecondary ? "text" : "password"}
@@ -184,9 +195,16 @@ const Register = () => {
                 placeholder="Confirm your password"
                 {...register("confirmPassword")}
                 bg={colorMode === "dark" ? "gray.700" : "white"}
+                focusBorderColor="teal.500"
+                borderRadius="md"
               />
               <InputRightElement width="4.5rem">
-                <Button h="1.75rem" size="sm" onClick={handleClickConfirmation}>
+                <Button
+                  h="1.75rem"
+                  size="sm"
+                  onClick={handleClickConfirmation}
+                  bg="transparent"
+                >
                   {showSecondary ? (
                     <Icon as={ViewOffIcon} />
                   ) : (
@@ -205,14 +223,16 @@ const Register = () => {
             _hover={{ bg: buttonHoverBg }}
             color="white"
             width="full"
+            borderRadius="md"
+            transition="all 0.2s"
           >
             Register
           </Button>
         </VStack>
       </form>
-      <Text mt="4" textAlign="center">
+      <Text mt="6" textAlign="center" fontSize="sm" color="gray.500">
         Already have an account?{" "}
-        <Link as={RouterLink} to="/login" color="teal.500">
+        <Link as={RouterLink} to="/login" color="teal.500" fontWeight="bold">
           Login here
         </Link>
       </Text>

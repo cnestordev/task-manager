@@ -74,7 +74,9 @@ exports.createTeam = async (req, res) => {
                 _id: updatedUser._id,
                 darkMode: updatedUser.darkMode,
                 theme: updatedUser.theme,
-                isDemoUser: updatedUser.isDemoUser
+                isDemoUser: updatedUser.isDemoUser,
+                isAdmin: updatedUser.isAdmin,
+                avatarUrl: updatedUser.avatarUrl
             }
         });
     } catch (error) {
@@ -342,6 +344,8 @@ exports.joinTeam = async (req, res) => {
                 darkMode: updatedUser.darkMode,
                 theme: updatedUser.theme,
                 isDemoUser: updatedUser.isDemoUser,
+                isAdmin: updatedUser.isAdmin,
+                avatarUrl: updatedUser.avatarUrl
             }
         });
     } catch (error) {

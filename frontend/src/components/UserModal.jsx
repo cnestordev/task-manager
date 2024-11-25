@@ -12,7 +12,9 @@ import {
   useDisclosure,
   useToast,
   Box,
+  Text,
 } from "@chakra-ui/react";
+import { SettingsIcon } from '@chakra-ui/icons'
 import { useUser } from "../context/UserContext";
 import LogoutButton from "./LogoutButton";
 import { ToggleDarkMode } from "./ToggleDarkMode";
@@ -134,7 +136,10 @@ export const UserModal = () => {
       <PopoverContent>
         <PopoverArrow />
         <PopoverCloseButton />
-        <PopoverHeader>User Settings</PopoverHeader>
+        <PopoverHeader justifyContent="center" display="flex" alignItems="center" gap={2}>
+          <SettingsIcon />
+          <Text as="h4">User Settings</Text>
+        </PopoverHeader>
         <PopoverBody>
           {/* Upload section */}
           <Box

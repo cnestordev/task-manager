@@ -32,12 +32,10 @@ const Login = () => {
   const toast = useToast();
   const { colorMode, toggleColorMode, setColorMode } = useColorMode();
 
-  // Dynamic colors based on color mode
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("black", "white");
-  const borderColor = useColorModeValue("gray.300", "gray.600");
-  const buttonBg = useColorModeValue("green.500", "green.400");
-  const buttonHoverBg = useColorModeValue("green.600", "green.500");
+  const buttonBg = useColorModeValue("teal.500", "teal.400");
+  const buttonHoverBg = useColorModeValue("teal.600", "teal.500");
 
   const {
     register,
@@ -54,15 +52,12 @@ const Login = () => {
       "(prefers-color-scheme: dark)"
     );
 
-    // Set color mode based on the user's preference
     setColorMode(darkModeMediaQuery.matches ? "dark" : "light");
 
-    // Listen for changes in the system color scheme preference
     darkModeMediaQuery.addEventListener("change", (e) => {
       setColorMode(e.matches ? "dark" : "light");
     });
 
-    // Cleanup event listener on unmount
     return () =>
       darkModeMediaQuery.removeEventListener("change", (e) => {
         setColorMode(e.matches ? "dark" : "light");
@@ -102,14 +97,15 @@ const Login = () => {
       maxWidth="400px"
       mx="auto"
       mt="100px"
-      p="4"
+      p="6"
       bg={bgColor}
       color={textColor}
-      borderWidth="1px"
-      borderColor={borderColor}
-      borderRadius="lg"
+      boxShadow="lg"
+      borderRadius="xl"
     >
-      <Heading mb="6">Login</Heading>
+      <Heading mb="6" textAlign="center" fontSize="2xl" fontWeight="bold">
+        Login
+      </Heading>
       <Button
         onClick={toggleColorMode}
         mb="4"
@@ -119,19 +115,25 @@ const Login = () => {
         {colorMode === "dark" ? <SunIcon /> : <MoonIcon />}
       </Button>
       <form onSubmit={handleSubmit(handleLogin)}>
-        <VStack spacing="4">
+        <VStack spacing="6">
           <FormControl isRequired isInvalid={errors.username}>
-            <FormLabel htmlFor="username">Username</FormLabel>
+            <FormLabel htmlFor="username" fontWeight="medium">
+              Username
+            </FormLabel>
             <Input
               id="username"
               placeholder="Enter your username"
               {...register("username")}
               bg={colorMode === "dark" ? "gray.700" : "white"}
+              focusBorderColor="teal.500"
+              borderRadius="md"
             />
             <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
           </FormControl>
           <FormControl isRequired isInvalid={errors.password}>
-            <FormLabel htmlFor="password">Password</FormLabel>
+            <FormLabel htmlFor="password" fontWeight="medium">
+              Password
+            </FormLabel>
             <InputGroup>
               <Input
                 type={showPassword ? "text" : "password"}
@@ -139,9 +141,16 @@ const Login = () => {
                 placeholder="Enter your password"
                 {...register("password")}
                 bg={colorMode === "dark" ? "gray.700" : "white"}
+                focusBorderColor="teal.500"
+                borderRadius="md"
               />
               <InputRightElement width="4.5rem">
-                <Button h="1.75rem" size="sm" onClick={handlePasswordToggle}>
+                <Button
+                  h="1.75rem"
+                  size="sm"
+                  onClick={handlePasswordToggle}
+                  bg="transparent"
+                >
                   {showPassword ? (
                     <Icon as={ViewOffIcon} />
                   ) : (
@@ -158,15 +167,17 @@ const Login = () => {
             _hover={{ bg: buttonHoverBg }}
             color="white"
             width="full"
+            borderRadius="md"
+            transition="all 0.2s"
           >
             Login
           </Button>
         </VStack>
       </form>
 
-      <Text mt="4" textAlign="center">
+      <Text mt="6" textAlign="center" fontSize="sm" color="gray.500">
         Don&#39;t have an account?{" "}
-        <Link as={RouterLink} to="/register" color="teal.500">
+        <Link as={RouterLink} to="/register" color="teal.500" fontWeight="bold">
           Register here
         </Link>
       </Text>

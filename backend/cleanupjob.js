@@ -2,6 +2,7 @@ require("./config/loadEnv");
 const connectDB = require("./config/db");
 const { ToadScheduler, SimpleIntervalJob, AsyncTask } = require('toad-scheduler');
 const Task = require("./models/Task");
+const User = require("./models/User");
 const checkResourceUsage = require("./metrics");
 
 connectDB();

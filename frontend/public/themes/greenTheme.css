@@ -1,6 +1,6 @@
 :root {
-  /* Light Mode - Green */
-  --background-color-light: #f1fcf4;
+  /*  Light Mode - Green */
+  --background-color-light: #f8fffa;
   --secondary-bg-color-light: #e6f7ec;
   --card-background-color-light: #eefaf1;
   --card-header-color-light: #33493d;
@@ -16,11 +16,10 @@
   --delete-btn-color: #f0717e;
   --delete-btn-border-color: #f0717e;
   --delete-btn-hover-bg-color: #f0717e;
-
   /* Dark Mode - Green */
-  --background-color-dark: #0d1f1a;
-  --secondary-bg-color-dark: #1a2b25;
-  --card-background-color-dark: #20332d;
+  --background-color-dark: #182d28;
+  --secondary-bg-color-dark: #1f352f;
+  --card-background-color-dark: #28433c;
   --card-header-color-dark: #9fbfaa;
   --card-subtext-color-dark: #c7e2d2;
   --column-active-bg-color-dark: #2f4b3d;
