@@ -10,14 +10,44 @@ connectDB();
 const task = new AsyncTask(
     "cleanupjob",
     async () => {
-        // Perform the cleanup operation
-        const data = await Task.deleteMany({ assignedTo: { $eq: [] } });
-
         try {
-            // CPU Monitoring Logic
-            await checkResourceUsage();
+            // Step 1: Perform the cleanup operation for unassigned tasks
+            await Task.deleteMany({ assignedTo: { $eq: [] } });
+            console.log("Successfully deleted unassigned tasks.");
+
+            // Step 2: Fetch demo users created more than 24 hours ago
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const demoUsers = await User.find({
+                isDemoUser: true,
+                createdAt: { $lt: twentyFourHoursAgo },
+            });
+
+            console.log(`Found ${demoUsers.length} demo users to clean up.`);
+
+            // Step 3: For each demo user, delete their tasks and the user
+            for (const user of demoUsers) {
+                const userId = user._id;
+
+                // Delete the user's tasks
+                const deletedTasks = await Task.deleteMany({ createdBy: userId });
+                console.log(
+                    `Deleted ${deletedTasks.deletedCount} tasks for demo user ${userId}.`
+                );
+
+                // Delete the user
+                await User.deleteOne({ _id: userId });
+                console.log(`Deleted demo user ${userId}.`);
+            }
+
+            // Step 4: Monitor CPU Resource Usage
+            try {
+                await checkResourceUsage();
+                console.log("Resource usage checked successfully.");
+            } catch (cpuError) {
+                console.error("Error during resource usage check:", cpuError);
+            }
         } catch (error) {
-            console.log("Error during resource usage check", error)
+            console.error("Error occurred during the cleanup task:", error);
         }
     },
     (err) => {
