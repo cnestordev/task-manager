@@ -59,10 +59,10 @@ const Register = () => {
   }, [setColorMode]);
 
   const handleRegistration = async (formData) => {
-    const { username, password } = formData;
+    const { username, password, isDemoUser = false } = formData;
 
     try {
-      const { data } = await registerUser(username, password);
+      const { data } = await registerUser(username, password, isDemoUser);
 
       if (data.statusCode === 201 && data.user) {
         login(data.user);
@@ -100,6 +100,7 @@ const Register = () => {
       const registrationData = {
         username: newRandomUser,
         password: "password",
+        isDemoUser: true
       };
       handleRegistration(registrationData);
     } catch (err) {

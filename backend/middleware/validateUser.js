@@ -4,7 +4,8 @@ const { THEMES } = require('../util/themeConstants');
 // Base schema for username and password
 const baseSchema = {
     username: Joi.string().required().min(3).max(30),
-    password: Joi.string().required().min(3)
+    password: Joi.string().required().min(3),
+    isDemoUser: Joi.boolean().required().default(false)
 };
 
 // Login Validation Schema

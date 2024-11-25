@@ -15,7 +15,7 @@ const createResponse = (statusCode, message, user = null, sessionID = null) => (
 
 // Registration Handler with Auto Login
 exports.register = async (req, res, next) => {
-    const { username, password } = req.body;
+    const { username, password, isDemoUser } = req.body;
 
     try {
         const existingUser = await User.findOne({ username: username.toLowerCase() });
@@ -24,7 +24,7 @@ exports.register = async (req, res, next) => {
         }
 
         const passwordHash = await argon2.hash(password);
-        const newUser = new User({ username: username.toLowerCase(), passwordHash });
+        const newUser = new User({ username: username.toLowerCase(), passwordHash, isDemoUser });
         await newUser.save();
 
         req.login(newUser, async (err) => {

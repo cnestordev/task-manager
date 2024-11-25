@@ -7,8 +7,8 @@ export const login = async (username, password) => {
 };
 
 // Register Request
-export const register = async (username, password) => {
-  const response = await axiosInstance.post('/auth/register', { username, password });
+export const register = async (username, password, isDemoUser) => {
+  const response = await axiosInstance.post('/auth/register', { username, password, isDemoUser });
   return response;
 };
 
