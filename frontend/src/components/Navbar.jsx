@@ -45,7 +45,7 @@ const Navbar = ({ dashboardFunction }) => {
             <Heading
               className="greeting-name"
               margin="0"
-              fontSize={["2xl", "40px"]}
+              fontSize={["2xl", "3xl"]}
             >
               {user?.username}
             </Heading>

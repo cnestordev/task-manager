@@ -3,10 +3,11 @@ const Team = require('../models/Team');
 const User = require('../models/User');
 const generateInviteCode = require("../util/inviteCode");
 const { updateTasksForRemovedMembers } = require('../util/teamTaskUtils');
+const { demoTeamInviteCode } = require('../util/teamConstants');
 
-const createResponse = (statusCode, message, users = []) => ({
+const createResponse = (statusCode, error, users = []) => ({
     statusCode,
-    message,
+    error,
     users,
 });
 
@@ -15,14 +16,20 @@ exports.createTeam = async (req, res) => {
     try {
         const { teamName } = req.body;
         const userId = req.user._id;
+        const isDemoUser = req.user.isDemoUser;
 
         if (!req.isAuthenticated()) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
 
         if (!teamName) {
-            return res.status(400).json(createResponse(400, 'Team name is required'));
+            return res.status(401).json({ error: 'Team name is required' });
         }
+
+        if (isDemoUser) {
+            return res.status(400).json({ error: 'Demo accounts cannot create new teams' });
+        }
+
         // Check if the user already belongs to a team
         const user = await User.findById(userId);
         if (user.team) {
@@ -34,7 +41,7 @@ exports.createTeam = async (req, res) => {
         // Check if a team with the same name already exists
         const existingTeam = await Team.findOne({ name: teamName });
         if (existingTeam) {
-            return res.status(400).json(createResponse(400, 'Team name already exists'));
+            return res.status(400).json({ error: 'Team name already exists' });
         }
 
         // Create the team
@@ -66,7 +73,8 @@ exports.createTeam = async (req, res) => {
                 username: updatedUser.username,
                 _id: updatedUser._id,
                 darkMode: updatedUser.darkMode,
-                theme: updatedUser.theme
+                theme: updatedUser.theme,
+                isDemoUser: updatedUser.isDemoUser
             }
         });
     } catch (error) {
@@ -75,7 +83,7 @@ exports.createTeam = async (req, res) => {
     }
 };
 
-// Get team details
+// Get team detailsj
 exports.getTeamDetails = async (req, res) => {
     try {
         if (!req.isAuthenticated()) {
@@ -124,7 +132,7 @@ exports.getTeamMembers = async (req, res) => {
             // Return the list of team members
             return res.status(200).json(createResponse(200, 'Team members fetched successfully', members));
         } else {
-            return res.status(401).json(createResponse(401, 'User not authenticated'));
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
     } catch (err) {
@@ -146,6 +154,10 @@ exports.editInviteCode = async (req, res) => {
         // Check if both teamId and inviteCode are provided
         if (!teamId || !inviteCode) {
             return res.status(400).json({ error: 'Team ID and invite code are required' });
+        }
+
+        if (inviteCode === demoTeamInviteCode) {
+            return res.status(400).json({ error: 'Demo invite code cannot be changed' });
         }
 
         // Check for an existing invite code to prevent duplicates
@@ -192,6 +204,11 @@ exports.removeMember = async (req, res) => {
         const userId = req.user._id.toString();
         const { memberId } = req.body;
         const memberIdStr = memberId.toString();
+        const isDemoUser = req.user.isDemoUser;
+
+        if (isDemoUser) {
+            return res.status(404).json({ error: 'Demo users cannot be removed from teams' });
+        }
 
         // Find the team that includes the member to be removed
         const team = await Team.findOne({ members: memberId });
@@ -265,34 +282,47 @@ exports.removeMember = async (req, res) => {
 
 // Join a team using an invite code
 exports.joinTeam = async (req, res) => {
+    const session = await mongoose.startSession(); // Start a session for transactions
     try {
+        session.startTransaction();
+
         const { inviteCode } = req.body;
         const userId = req.user._id;
+        const isDemoUser = req.user.isDemoUser;
 
         if (!inviteCode) {
             return res.status(400).json({ error: 'Invite code is required' });
         }
-        // Check if the user is already in a team
-        const user = await User.findById(userId);
+
+        if (isDemoUser && inviteCode !== demoTeamInviteCode) {
+            return res.status(400).json({ error: 'Demo user cannot join non-demo teams' });
+        } else if (!isDemoUser && inviteCode === demoTeamInviteCode) {
+            return res.status(400).json({ error: 'Cannot join a demo team' });
+        }
+
+        const user = await User.findById(userId).session(session);
         if (user.team) {
             return res.status(400).json({ error: 'User already belongs to a team' });
         }
 
-        // Find the team by invite code
-        const team = await Team.findOne({ inviteCode });
+        const team = await Team.findOne({ inviteCode }).session(session);
         if (!team) {
             return res.status(404).json({ error: 'Invalid invite code' });
         }
 
-        // Add the user to the team's members
+        if (team.members.includes(userId)) {
+            return res.status(400).json({ error: 'User already in the team' });
+        }
+
+        // Add the user to the team and update the user's team reference
         team.members.push(userId);
-        await team.save();
-
-        // Update the user's team reference
         user.team = team._id;
-        await user.save();
 
-        // Fetch the updated user data with the populated team field
+        await team.save({ session });
+        await user.save({ session });
+
+        await session.commitTransaction();
+
         const updatedUser = await User.findById(userId).populate('team', 'name inviteCode createdBy members _id');
 
         return res.status(200).json({
@@ -310,11 +340,15 @@ exports.joinTeam = async (req, res) => {
                 username: updatedUser.username,
                 _id: updatedUser._id,
                 darkMode: updatedUser.darkMode,
-                theme: updatedUser.theme
+                theme: updatedUser.theme,
+                isDemoUser: updatedUser.isDemoUser,
             }
         });
     } catch (error) {
         console.error('Error joining team:', error);
+        await session.abortTransaction();
         return res.status(500).json({ error: 'An error occurred while attempting to join the team' });
+    } finally {
+        session.endSession();
     }
 };

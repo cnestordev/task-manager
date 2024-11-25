@@ -1,17 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  VStack,
   Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Input,
   Text,
   useToast,
-  FormErrorMessage,
+  VStack,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
+import { useForm } from "react-hook-form";
 import { createTeam } from "../api";
 import { useUser } from "../context/UserContext";
 import { TeamSchema } from "../validation/teamValidation";
@@ -54,9 +53,10 @@ const CreateTeamDashboard = () => {
         team: response.data.team,
       });
     } catch (err) {
+      const errorMessage = err.response.data.error;
       toast({
         title: "Error",
-        description: err.response?.data?.error || "Error creating team",
+        description: errorMessage || "Error creating team",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -80,7 +80,12 @@ const CreateTeamDashboard = () => {
       </Text>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
-        <FormControl isInvalid={errors.teamName} isRequired marginBottom="1rem">
+        <FormControl
+          isDisabled={user.isDemoUser}
+          isInvalid={errors.teamName}
+          isRequired
+          marginBottom="1rem"
+        >
           <FormLabel htmlFor="teamName" fontWeight="medium" color="gray.600">
             Team Name
           </FormLabel>
@@ -106,9 +111,13 @@ const CreateTeamDashboard = () => {
           width="100%"
           marginTop="1.5rem"
           borderRadius="md"
+          isDisabled={user.isDemoUser}
         >
           Create Team
         </Button>
+        <Text hidden={!user.isDemoUser} mt={3} color="red.500">
+          Demo user unable to create new team
+        </Text>
       </form>
     </VStack>
   );

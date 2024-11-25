@@ -32,9 +32,10 @@ const AdminDashboard = () => {
         const data = await getTeamDetails();
         setTeam(data);
       } catch (error) {
+        const errorMessage = error.response.data.error;
         toast({
           title: "Error",
-          description: "Failed to load team information",
+          description: errorMessage,
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -68,9 +69,10 @@ const AdminDashboard = () => {
         isClosable: true,
       });
     } catch (error) {
+      const errorMessage = error.response.data.error;
       toast({
         title: "Error",
-        description: "Failed to remove member",
+        description: errorMessage,
         status: "error",
         duration: 5000,
         isClosable: true,

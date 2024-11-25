@@ -28,9 +28,10 @@ const MemberDashboard = () => {
         const data = await getTeamDetails();
         setTeam(data);
       } catch (error) {
+        const errorMessage = error.response.data.error;
         toast({
           title: "Error",
-          description: "Failed to load team information",
+          description: errorMessage,
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -58,9 +59,10 @@ const MemberDashboard = () => {
         team: null,
       });
     } catch (error) {
+      const errorMessage = error.response.data.error;
       toast({
         title: "Error",
-        description: "Failed to leave the team",
+        description: errorMessage,
         status: "error",
         duration: 5000,
         isClosable: true,

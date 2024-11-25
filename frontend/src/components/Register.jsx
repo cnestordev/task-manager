@@ -72,9 +72,10 @@ const Register = () => {
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
+        const errorMessage = error.response.data.error;
         toast({
           title: "Error",
-          description: "Username already exists",
+          description: errorMessage,
           status: "error",
           duration: 3000,
           isClosable: true,

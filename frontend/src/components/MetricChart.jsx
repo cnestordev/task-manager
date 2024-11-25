@@ -43,9 +43,10 @@ const MetricChart = () => {
 
         setMetricData(transformedData);
       } catch (err) {
+        const errorMessage = err.response.data.error;
         toast({
           title: "Error",
-          description: "Failed to load metric information",
+          description: errorMessage,
           status: "error",
           duration: 5000,
           isClosable: true,

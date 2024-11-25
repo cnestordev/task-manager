@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { joinTeam } from "../api";
 import { useUser } from "../context/UserContext";
+import { demoTeamInviteCode } from "../utils/demoTeamConstants";
 
 // Validation schema for invite code
 const InviteCodeSchema = Yup.object().shape({
@@ -36,9 +37,13 @@ const JoinTeamDashboard = () => {
     setValue,
     formState: { errors },
     reset,
+    watch,
   } = useForm({
     resolver: yupResolver(InviteCodeSchema),
     mode: "onBlur",
+    defaultValues: {
+      inviteCode: user.isDemoUser ? demoTeamInviteCode : "",
+    },
   });
 
   const onSubmit = async (data) => {
@@ -62,9 +67,10 @@ const JoinTeamDashboard = () => {
         team: response.team,
       });
     } catch (err) {
+      const errorMessage = err.response.data.error;
       toast({
         title: "Error",
-        description: err.response?.data?.error || "Failed to join team",
+        description: errorMessage || "Failed to join team",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -87,7 +93,7 @@ const JoinTeamDashboard = () => {
         Join a Team
       </Text>
 
-      <form style={{ width: "100%" }}>
+      <form style={{ width: "100%" }} onSubmit={handleSubmit(onSubmit)}>
         <FormControl
           isInvalid={errors.inviteCode}
           isRequired
@@ -98,10 +104,12 @@ const JoinTeamDashboard = () => {
           </FormLabel>
           <HStack justify="center">
             <PinInput
-              isDisabled={isPinComplete}
+              isDisabled={user.isDemoUser || isPinComplete}
               type="alphanumeric"
-              onChange={(value) => setValue("inviteCode", value)}
-              onComplete={handleSubmit(onSubmit)}
+              value={watch("inviteCode") || ""}
+              onChange={(value) =>
+                setValue("inviteCode", value, { shouldValidate: true })
+              }
             >
               {[...Array(8)].map((_, idx) => (
                 <PinInputField
@@ -114,6 +122,12 @@ const JoinTeamDashboard = () => {
               ))}
             </PinInput>
           </HStack>
+          {user.isDemoUser && (
+            <Text color="blue.600">
+              The invite code has been automatically set for demo users.
+            </Text>
+          )}
+
           <FormErrorMessage>{errors.inviteCode?.message}</FormErrorMessage>
         </FormControl>
 

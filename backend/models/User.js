@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
   avatarUrl: { type: String, required: false, default: null },
   theme: { type: String, required: false, default: THEMES.BLUE },
   isDemoUser: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now, expires: '24h' }
+  createdAt: { type: Date, default: Date.now }
 });
 
 // Pre-save hook to ensure username is stored as lowercase

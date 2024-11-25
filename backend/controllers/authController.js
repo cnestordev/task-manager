@@ -44,7 +44,8 @@ exports.register = async (req, res, next) => {
                 darkMode: newUser.darkMode,
                 theme: newUser.theme,
                 team: null,
-                avatarUrl: null
+                avatarUrl: null,
+                isDemoUser: newUser.isDemoUser
             }));
         });
     } catch (error) {
@@ -74,6 +75,7 @@ exports.login = (req, res, next) => {
                     darkMode: populatedUser.darkMode,
                     theme: populatedUser.theme,
                     avatarUrl: populatedUser.avatarUrl,
+                    isDemoUser: populatedUser.isDemoUser,
                     team: populatedUser.team
                         ? {
                             id: populatedUser.team._id,
@@ -111,6 +113,7 @@ exports.checkUser = async (req, res) => {
                 avatarUrl: user.avatarUrl,
                 _id: user._id,
                 id: user._id,
+                isDemoUser: user.isDemoUser,
                 team: user.team ? {
                     _id: user.team._id,
                     createdBy: user.team.createdBy,
@@ -224,6 +227,7 @@ exports.uploadImage = async (req, res) => {
             avatarUrl: updatedUser.avatarUrl,
             _id: updatedUser._id,
             id: updatedUser._id,
+            isDemoUser: updatedUser.isDemoUser,
             team: updatedUser.team ? {
                 _id: updatedUser.team._id,
                 createdBy: updatedUser.team.createdBy,
