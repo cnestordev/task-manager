@@ -14,6 +14,7 @@ import { useLoading } from "../context/LoadingContext";
 import { useUser } from "../context/UserContext";
 import { StatusIndicator } from "./StatusIndicator";
 import "./TaskCard.css";
+import { convertIsoToString } from "../utils/taskUtils";
 
 const TaskCard = ({
   task,
@@ -111,7 +112,10 @@ const TaskCard = ({
                         />
                       )}
                     </div>
-                    <h2>{task.title}</h2>
+                    <div className="task-header">
+                      <h2>{task.title}</h2>
+                      <p>{convertIsoToString(task.created)}</p>
+                    </div>
                     <div></div>
                   </Box>
                   <AccordionIcon />
@@ -146,7 +150,9 @@ const TaskCard = ({
                   <Button
                     aria-label="Complete Task"
                     size="sm"
-                    className={`task-btns complete-btn ${darkMode ? "dark" : ""}`}
+                    className={`task-btns complete-btn ${
+                      darkMode ? "dark" : ""
+                    }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       completedTask(task);

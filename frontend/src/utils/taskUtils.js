@@ -182,3 +182,10 @@ export const toggleTaskExpansion = async (tasks, updateTasks, updateTaskOrder, o
     const cleanedUpTasks = tasks.map(task => cleanupTask(task));
     await updateTasksOptimistically(cleanedUpTasks, updateTasks, updateTaskOrder, originalTasks);
 };
+
+export const convertIsoToString = (isoString) => {
+    const date = new Date(isoString);
+
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+};
