@@ -99,13 +99,12 @@ p {
 /* Delete Button */
 .delete-btn {
   color: var(--delete-btn-color) !important;
-  border: 1px solid var(--delete-btn-border-color) !important;
+  border: none !important;
   transition: 300ms !important;
 }
 
 .delete-btn:hover {
-  background-color: var(--delete-btn-hover-bg-color) !important;
-  color: #fff !important;
+  color: #010101 !important;
   transition: 300ms !important;
 }
 
@@ -113,41 +112,37 @@ p {
 .edit-btn,
 .complete-btn {
   transition: 300ms !important;
-  border: 1px solid var(--edit-complete-btn-border-color-light) !important;
+  border: none !important;
   color: var(--edit-complete-btn-text-color-light) !important;
 }
 
 .edit-btn:hover,
 .complete-btn:hover {
-  background-color: var(--edit-complete-btn-hover-bg-color-light) !important;
-  border-color: var(--edit-complete-btn-hover-bg-color-light) !important;
-  color: #fff !important;
+  color: #010101 !important;
 }
 
 /* Dark Mode Buttons */
 .edit-btn.dark,
 .complete-btn.dark {
-  border: 1px solid var(--edit-complete-btn-border-color-dark) !important;
+  border: none !important;
   color: var(--edit-complete-btn-text-color-dark) !important;
 }
 
 .edit-btn.dark:hover,
 .complete-btn.dark:hover {
-  background-color: var(--edit-complete-btn-hover-bg-color-dark) !important;
-  border-color: var(--edit-complete-btn-hover-bg-color-dark) !important;
+  border-color: none !important;
   color: #fff !important;
 }
 
 /* Delete Button */
 .delete-btn {
   color: var(--delete-btn-color) !important;
-  border: 1px solid var(--delete-btn-border-color) !important;
+  border: none !important;
   transition: 300ms !important;
 }
 
 .delete-btn:hover {
-  background-color: var(--delete-btn-hover-bg-color) !important;
-  color: #fff !important;
+  color: #ac1423 !important;
 }
 
 .loading-border {

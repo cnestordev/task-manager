@@ -1,6 +1,7 @@
 import { Box, Button, Text, useToast } from "@chakra-ui/react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   createTask,
   updateTaskOrder,
@@ -23,19 +24,50 @@ import CompletedTaskModal from "./CompletedTaskModal";
 import DeleteTaskModal from "./DeleteTaskModal";
 import EditTaskModal from "./EditTaskModal";
 import PriorityColumn from "./PriorityColumn";
+import { TaskDrawer } from "./TaskDrawer";
+import NotFoundTaskModal from "./NotFoundTaskModal";
 
 const TaskBoard = ({ setDashboardFunction }) => {
   const { tasks, addNewTask, removeTask, updateTask, updateTasks, fetchTasks } =
     useTask();
+  const navigate = useNavigate();
   const { user } = useUser();
   const { notifyTaskUpdate, notifyTaskCreated } = useSocketContext();
   const toast = useToast();
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeColumn, setActiveColumn] = useState(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isNotFoundModalOpen, setIsNotFoundModalOpen] = useState(false);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState(false);
+  const [viewedTask, setViewedTask] = useState(null);
+
+  const { id: taskId } = useParams();
+
+  useEffect(() => {
+    if (taskId && tasks.length) {
+      const foundTask = tasks.find((task) => task._id === taskId);
+      if (foundTask) {
+        setViewedTask(foundTask);
+        setIsDrawerOpen(true);
+      } else {
+        setViewedTask(null);
+        setIsDrawerOpen(false);
+        setIsNotFoundModalOpen(true); // open alert modal when not found
+      }
+    } else {
+      setViewedTask(null);
+      setIsDrawerOpen(false);
+    }
+  }, [taskId, tasks]);
+
+  const onClose = () => {
+    setIsDrawerOpen(false);
+    setViewedTask(null);
+    navigate("/taskboard");
+  };
 
   // Debounce utility function
   const debounce = (func, delay) => {
@@ -498,6 +530,18 @@ const TaskBoard = ({ setDashboardFunction }) => {
 
   return (
     <>
+      {isDrawerOpen && viewedTask && (
+        <TaskDrawer isOpen={isDrawerOpen} onClose={onClose} task={viewedTask} />
+      )}
+
+      <NotFoundTaskModal
+        isOpen={isNotFoundModalOpen}
+        onClose={() => {
+          setIsNotFoundModalOpen(false);
+          navigate("/taskboard");
+        }}
+      />
+
       {/* Delete Task Modal */}
       {selectedTask && isDeleteModalOpen && (
         <DeleteTaskModal
@@ -599,6 +643,10 @@ const TaskBoard = ({ setDashboardFunction }) => {
               completedTask={(task) => {
                 setSelectedTask(task);
                 setIsCompletedModalOpen(true);
+              }}
+              viewTask={(task) => {
+                setViewedTask(task);
+                navigate(`/taskboard/${task._id}`);
               }}
               toggleTaskExpansion={handleToggleTaskExpansion}
               priority={priority}

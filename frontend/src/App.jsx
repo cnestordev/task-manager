@@ -66,7 +66,7 @@ const App = () => {
 
           {/* Protected Route */}
           <Route
-            path="/taskboard"
+            path="/taskboard/:id?"
             element={
               <ProtectedRoute>
                 <TaskBoard setDashboardFunction={setDashboardFunction} />

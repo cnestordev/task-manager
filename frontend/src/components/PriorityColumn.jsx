@@ -30,6 +30,7 @@ const PriorityColumn = ({
   toggleExpand,
   id,
   isActive,
+  viewTask,
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -129,6 +130,7 @@ const PriorityColumn = ({
                     task={task}
                     index={index}
                     tab={tabIndex === 0 ? "inprogress" : "completed"}
+                    viewTask={viewTask}
                   />
                 )
               )}

@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   Flex,
+  IconButton,
 } from "@chakra-ui/react";
 import { Draggable } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ import { useUser } from "../context/UserContext";
 import { StatusIndicator } from "./StatusIndicator";
 import "./TaskCard.css";
 import { convertIsoToString } from "../utils/taskUtils";
+import { ViewIcon } from "@chakra-ui/icons";
 
 const TaskCard = ({
   task,
@@ -24,6 +26,7 @@ const TaskCard = ({
   index,
   toggleExpand,
   tab,
+  viewTask
 }) => {
   const { loadingTaskId } = useLoading();
   const taskIdMatch = loadingTaskId === task._id;
@@ -171,6 +174,16 @@ const TaskCard = ({
                   >
                     Delete
                   </Button>
+                  <IconButton
+                    aria-label="View Task"
+                    icon={<ViewIcon />}
+                    size="sm"
+                    className={`task-btns view-btn ${darkMode ? "dark" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      viewTask(task);
+                    }}
+                  />
                 </Flex>
               </AccordionPanel>
             </AccordionItem>
