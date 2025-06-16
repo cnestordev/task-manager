@@ -368,7 +368,24 @@ exports.addCommentToTask = async (req, res) => {
         const userId = req.user._id;
         const taskId = new mongoose.Types.ObjectId(req.params.taskId);
 
-        // 2. Create new comment document
+        // 2. Validate task existence and permissions
+        const task = await Task.findById(taskId).select('createdBy assignedTo');
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        const isOwner = task.createdBy.toString() === userId.toString();
+        const isAssigned = task.assignedTo.some(
+            (id) => id.toString() === userId.toString()
+        );
+
+        if (!isOwner && !isAssigned) {
+            return res
+                .status(403)
+                .json({ message: 'You are not authorized to comment on this task.' });
+        }
+
+        // 3. Create new comment document
         const newComment = new Comment({
             createdBy: userId,
             text: req.body.text,
@@ -377,19 +394,20 @@ exports.addCommentToTask = async (req, res) => {
 
         await newComment.save();
 
-        // 3. Push the comment into the task's comments array
-        await Task.findByIdAndUpdate(
-            taskId,
-            { $push: { comments: newComment._id } },
-            { new: false } // no need to return updated doc
-        );
+        // 4. Push the comment into the task's comments array
+        await Task.findByIdAndUpdate(taskId, {
+            $push: { comments: newComment._id }
+        });
 
-        // 4. Return the new comment
-        return res.status(200).json(createResponse(200, 'Comment added successfully', newComment));
-
+        // 5. Return the new comment
+        return res
+            .status(200)
+            .json(createResponse(200, 'Comment added successfully', newComment));
     } catch (error) {
         console.error('Error adding comment to task:', error);
-        return res.status(500).json({ message: 'An error occurred while adding the comment.' });
+        return res
+            .status(500)
+            .json({ message: 'An error occurred while adding the comment.' });
     }
 };
 
