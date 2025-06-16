@@ -1,10 +1,17 @@
 const Task = require('../models/Task');
+const Comment = require('../models/Comment');
 const mongoose = require("mongoose");
 
 const createResponse = (statusCode, message, tasks = []) => ({
     statusCode,
     message,
     tasks,
+});
+
+const createCommentResponse = (statusCode, message, comments = []) => ({
+    statusCode,
+    message,
+    comments,
 });
 
 // Create a new task
@@ -347,5 +354,84 @@ exports.updateTasksOrderServer = async (req, res) => {
     } catch (error) {
         console.error('Error updating tasks:', error);
         return res.status(500).json({ message: 'An error occurred while updating tasks.', error });
+    }
+};
+
+// post a comment on a task
+exports.addCommentToTask = async (req, res) => {
+    try {
+        // 1. Check auth
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
+        const userId = req.user._id;
+        const taskId = new mongoose.Types.ObjectId(req.body.taskId);
+
+        // 2. Create new comment document
+        const newComment = new Comment({
+            createdBy: userId,
+            text: req.body.text,
+            taskId: taskId
+        });
+
+        await newComment.save();
+
+        // 3. Push the comment into the task's comments array
+        await Task.findByIdAndUpdate(
+            taskId,
+            { $push: { comments: newComment._id } },
+            { new: false } // no need to return updated doc
+        );
+
+        // 4. Return the new comment
+        return res.status(200).json(createResponse(200, 'Comment added successfully', newComment));
+
+    } catch (error) {
+        console.error('Error adding comment to task:', error);
+        return res.status(500).json({ message: 'An error occurred while adding the comment.' });
+    }
+};
+
+// get task comments
+exports.getTaskComments = async (req, res) => {
+    try {
+        // 1. Check auth
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+
+        const userId = req.user._id;
+        const taskId = new mongoose.Types.ObjectId(req.body.taskId);
+
+        // 2. Validate task ID
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return res.status(400).json({ message: 'Invalid task ID' });
+        }
+
+        // 3. Fetch task to check permissions
+        const task = await Task.findById(taskId).select('createdBy assignedTo');
+
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        const isOwner = task.createdBy.toString() === userId.toString();
+        const isAssigned = task.assignedTo.some(id => id.toString() === userId.toString());
+
+        if (!isOwner && !isAssigned) {
+            return res.status(403).json({ message: 'You are not authorized to view comments for this task.' });
+        }
+
+        // 4. Fetch comments
+        const comments = await Comment.find({ taskId })
+            .populate('createdBy', 'name avatarUrl')
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json(createCommentResponse(200, 'Comments retrieved successfully', comments));
+
+    } catch (error) {
+        console.error('Error fetching comments for task:', error);
+        return res.status(500).json({ message: 'An error occurred while fetching comments.' });
     }
 };
