@@ -25,3 +25,16 @@ export const updateTasksOrderOnServer = async (tasks) => {
     const response = await axiosInstance.post('/task/updateTasksOrderOnServer', tasks);
     return response;
 };
+
+export const addCommentToTask = async ({ taskId, text }) => {
+    const response = await axiosInstance.post('/task/addCommentToTask', {
+        taskId,
+        text
+    });
+    return response;
+};
+
+export const getTaskComments = async (taskId) => {
+    const response = await axiosInstance.get(`/task/getTaskComments/${taskId}`);
+    return response;
+};

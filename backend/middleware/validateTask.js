@@ -31,15 +31,9 @@ const taskValidationSchema = Joi.object({
         })
     ).optional(),
     isCompleted: Joi.boolean().default(false),
-    comments: Joi.array().items(
-        Joi.object({
-            taskId: Joi.string().custom(objectIdValidator).required(),
-            createdBy: Joi.string().custom(objectIdValidator).required(),
-            text: Joi.string().required().min(1).max(1000),
-            createdAt: Joi.date().optional()
-        })
-    ).optional(),
-
+    comments: Joi.array()
+        .items(Joi.string().custom(objectIdValidator))
+        .optional(),
     __v: Joi.number().integer().optional()
 });
 

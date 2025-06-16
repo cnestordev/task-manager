@@ -1,15 +1,17 @@
 import {
   Drawer,
   DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
+  Text
 } from "@chakra-ui/react";
+import CommentSection from "./CommentSection";
 
 export const TaskDrawer = ({ isOpen, onClose, task }) => {
-  if (!task) return null; // don't render if there's no task
+  if (!task) return null;
 
   return (
     <Drawer isOpen={isOpen} placement="right" size="md" onClose={onClose}>
@@ -18,15 +20,16 @@ export const TaskDrawer = ({ isOpen, onClose, task }) => {
         <DrawerCloseButton />
         <DrawerHeader textAlign="center">{task.title}</DrawerHeader>
 
-        <h3>{task.priority}</h3>
-
         <DrawerBody>
-          <p>{task.description}</p>
+          <Text fontWeight="bold" mb={2}>
+            {task.priority}
+          </Text>
+          <Text mb={4}>{task.description}</Text>
+
+          <CommentSection taskId={task._id} />
         </DrawerBody>
 
-        <DrawerFooter>
-          {/* Add footer */}
-        </DrawerFooter>
+        <DrawerFooter />
       </DrawerContent>
     </Drawer>
   );

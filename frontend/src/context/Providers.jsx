@@ -3,6 +3,7 @@ import { TaskProvider } from "./TaskContext";
 import { LoadingProvider } from "./LoadingContext";
 import { SocketProvider } from "./SocketContext";
 import { ImageProvider } from "./ImageContext";
+import { CommentProvider } from "./CommentContext"; // 👈 import it
 
 const Providers = ({ children }) => {
   return (
@@ -10,7 +11,11 @@ const Providers = ({ children }) => {
       <UserProvider>
         <TaskProvider>
           <SocketProvider>
-            <ImageProvider>{children}</ImageProvider>
+            <ImageProvider>
+              <CommentProvider>
+                {children}
+              </CommentProvider>
+            </ImageProvider>
           </SocketProvider>
         </TaskProvider>
       </UserProvider>

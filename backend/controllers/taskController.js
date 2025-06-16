@@ -366,7 +366,7 @@ exports.addCommentToTask = async (req, res) => {
         }
 
         const userId = req.user._id;
-        const taskId = new mongoose.Types.ObjectId(req.body.taskId);
+        const taskId = new mongoose.Types.ObjectId(req.params.taskId);
 
         // 2. Create new comment document
         const newComment = new Comment({
@@ -402,7 +402,7 @@ exports.getTaskComments = async (req, res) => {
         }
 
         const userId = req.user._id;
-        const taskId = new mongoose.Types.ObjectId(req.body.taskId);
+        const taskId = new mongoose.Types.ObjectId(req.params.taskId);
 
         // 2. Validate task ID
         if (!mongoose.Types.ObjectId.isValid(taskId)) {
@@ -425,7 +425,7 @@ exports.getTaskComments = async (req, res) => {
 
         // 4. Fetch comments
         const comments = await Comment.find({ taskId })
-            .populate('createdBy', 'name avatarUrl')
+            .populate('createdBy', 'username avatarUrl')
             .sort({ createdAt: -1 });
 
         return res.status(200).json(createCommentResponse(200, 'Comments retrieved successfully', comments));
