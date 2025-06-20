@@ -7,6 +7,7 @@ import {
   updateTaskOrder,
   updateTasksOrderOnServer,
   updateTasksServer,
+  addCommentToTask
 } from "../api/index";
 import "../App.css";
 import { useSocketContext } from "../context/SocketContext";
@@ -17,6 +18,7 @@ import {
   handleDragEnd,
   handleRemoveTask,
   toggleExpand,
+  handleAddComment,
   toggleTaskExpansion,
   updateSelectedTask,
 } from "../utils/taskUtils";
@@ -78,6 +80,45 @@ const TaskBoard = ({ setDashboardFunction }) => {
         func(...args);
       }, delay);
     };
+  };
+
+  // Add new comment
+  const addNewComment = async (commentText) => {
+    try {
+      await handleAddComment(viewedTask, commentText, addCommentToTask);
+      // addCommentToTask function (3rd argument above) should return the updated task document so that I can update the frontend with it
+      // This will be the next thing to do
+    } catch (error) {
+      const errorMessage = error.response.data.message;
+      toast({
+        title: "Error",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            color="white"
+            p={3}
+            bg="red.500"
+            borderRadius="md"
+          >
+            <Text mb={2}>{errorMessage}</Text>
+            <Button
+              colorScheme="white"
+              onClick={() => {
+                fetchTasks(true);
+                onClose();
+              }}
+            >
+              Refresh
+            </Button>
+          </Box>
+        ),
+      });
+    }
   };
 
   // Add a new task
@@ -531,7 +572,12 @@ const TaskBoard = ({ setDashboardFunction }) => {
   return (
     <>
       {isDrawerOpen && viewedTask && (
-        <TaskDrawer isOpen={isDrawerOpen} onClose={onClose} task={viewedTask} />
+        <TaskDrawer
+          addNewComment={addNewComment}
+          isOpen={isDrawerOpen}
+          onClose={onClose}
+          task={viewedTask}
+        />
       )}
 
       <NotFoundTaskModal

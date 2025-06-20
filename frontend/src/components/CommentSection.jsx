@@ -1,12 +1,11 @@
 import { Button, Divider, Input, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { addCommentToTask } from "../api";
 import { useComments } from "../context/CommentContext";
 import CommentItem from "./CommentItem";
 
-const CommentSection = ({ taskId }) => {
+const CommentSection = ({ taskId, addNewComment }) => {
   const [commentText, setCommentText] = useState("");
-  const { commentsByTaskId, fetchComments, addComment } = useComments();
+  const { commentsByTaskId, fetchComments } = useComments();
 
   const comments = commentsByTaskId[taskId] || [];
 
@@ -15,22 +14,6 @@ const CommentSection = ({ taskId }) => {
       fetchComments(taskId);
     }
   }, [taskId]);
-
-  const handleSubmit = async () => {
-    if (commentText.trim()) {
-      try {
-        const { data } = await addCommentToTask({
-          taskId,
-          text: commentText.trim(),
-        });
-
-        addComment(taskId, data.data);
-        setCommentText("");
-      } catch (err) {
-        console.error("Failed to add comment:", err);
-      }
-    }
-  };
 
   return (
     <>
@@ -57,7 +40,7 @@ const CommentSection = ({ taskId }) => {
       />
       <Button
         colorScheme="blue"
-        onClick={handleSubmit}
+        onClick={() => addNewComment(commentText)}
         isDisabled={!commentText.trim()}
       >
         Post Comment

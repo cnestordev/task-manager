@@ -366,7 +366,7 @@ exports.addCommentToTask = async (req, res) => {
         }
 
         const userId = req.user._id;
-        const taskId = new mongoose.Types.ObjectId(req.params.taskId);
+        const taskId = new mongoose.Types.ObjectId(req.body.taskId);
 
         // 2. Validate task existence and permissions
         const task = await Task.findById(taskId).select('createdBy assignedTo');

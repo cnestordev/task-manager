@@ -4,8 +4,8 @@ const taskController = require('../controllers/taskController');
 const validateTask = require('../middleware/validateTask');
 
 // Task Routes
+router.post('/addCommentToTask', taskController.addCommentToTask)
 router.get('/getTaskComments/:taskId', taskController.getTaskComments);
-router.post('/addCommentToTask/:taskId', taskController.addCommentToTask);
 router.get('/:id', taskController.getTasks);
 router.post('/create', validateTask, taskController.createTask);
 router.post('/updateTaskOrder', validateTask, taskController.updateTaskOrder);

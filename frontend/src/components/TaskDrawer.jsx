@@ -6,11 +6,11 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  Text
+  Text,
 } from "@chakra-ui/react";
 import CommentSection from "./CommentSection";
 
-export const TaskDrawer = ({ isOpen, onClose, task }) => {
+export const TaskDrawer = ({ isOpen, onClose, task, addNewComment }) => {
   if (!task) return null;
 
   return (
@@ -26,7 +26,7 @@ export const TaskDrawer = ({ isOpen, onClose, task }) => {
           </Text>
           <Text mb={4}>{task.description}</Text>
 
-          <CommentSection taskId={task._id} />
+          <CommentSection addNewComment={addNewComment} taskId={task._id} />
         </DrawerBody>
 
         <DrawerFooter />

@@ -189,3 +189,8 @@ export const convertIsoToString = (isoString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
 };
+
+export const handleAddComment = async (task, commentText, handleAddCommentFn) => {
+    const response = await handleAddCommentFn(task._id, commentText);
+    return response;
+};

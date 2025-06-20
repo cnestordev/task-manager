@@ -26,7 +26,7 @@ const TaskCard = ({
   index,
   toggleExpand,
   tab,
-  viewTask
+  viewTask,
 }) => {
   const { loadingTaskId } = useLoading();
   const taskIdMatch = loadingTaskId === task._id;
