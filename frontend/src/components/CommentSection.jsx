@@ -5,6 +5,7 @@ import CommentItem from "./CommentItem";
 
 const CommentSection = ({ taskId, addNewComment }) => {
   const [commentText, setCommentText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { commentsByTaskId, fetchComments } = useComments();
 
   const comments = commentsByTaskId[taskId] || [];
@@ -14,6 +15,19 @@ const CommentSection = ({ taskId, addNewComment }) => {
       fetchComments(taskId);
     }
   }, [taskId]);
+
+  const handleAddComment = async () => {
+    setIsLoading(true);
+    try {
+      const response = await addNewComment(commentText);
+      await fetchComments(response.taskId);
+      setCommentText("");
+    } catch (err) {
+      console.error("Failed to add comment", err);
+    } finally {
+      setIsLoading(false); // remove spinner regardless of success/failure
+    }
+  };
 
   return (
     <>
@@ -40,8 +54,10 @@ const CommentSection = ({ taskId, addNewComment }) => {
       />
       <Button
         colorScheme="blue"
-        onClick={() => addNewComment(commentText)}
+        onClick={handleAddComment}
         isDisabled={!commentText.trim()}
+        isLoading={isLoading}
+        loadingText="Posting"
       >
         Post Comment
       </Button>

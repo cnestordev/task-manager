@@ -7,7 +7,7 @@ import {
   updateTaskOrder,
   updateTasksOrderOnServer,
   updateTasksServer,
-  addCommentToTask
+  addCommentToTask,
 } from "../api/index";
 import "../App.css";
 import { useSocketContext } from "../context/SocketContext";
@@ -85,9 +85,20 @@ const TaskBoard = ({ setDashboardFunction }) => {
   // Add new comment
   const addNewComment = async (commentText) => {
     try {
-      await handleAddComment(viewedTask, commentText, addCommentToTask);
-      // addCommentToTask function (3rd argument above) should return the updated task document so that I can update the frontend with it
-      // This will be the next thing to do
+      const response = await handleAddComment(
+        viewedTask,
+        commentText,
+        addCommentToTask
+      );
+      const newComment = response.data.comment;
+      toast({
+        title: "Comment Added.",
+        description: "Your comment has been added successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      return newComment;
     } catch (error) {
       const errorMessage = error.response.data.message;
       toast({

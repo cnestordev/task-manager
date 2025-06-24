@@ -9,7 +9,8 @@ export const CommentProvider = ({ children }) => {
   const [loadingTaskId, setLoadingTaskId] = useState(null);
 
   const fetchComments = async (taskId) => {
-    if (commentsByTaskId[taskId]) return;
+    // IF enabled, prevents fetching the comments if they were already previously loaded
+    // if (commentsByTaskId[taskId]) return;
 
     try {
       setLoadingTaskId(taskId);

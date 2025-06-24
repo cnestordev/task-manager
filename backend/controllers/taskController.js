@@ -402,7 +402,7 @@ exports.addCommentToTask = async (req, res) => {
         // 5. Return the new comment
         return res
             .status(200)
-            .json(createResponse(200, 'Comment added successfully', newComment));
+            .json({ status: 200, message: "Comment added successfully", comment: newComment });
     } catch (error) {
         console.error('Error adding comment to task:', error);
         return res
