@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import useSocket from "../hooks/useSocket";
 import { useUser } from "./UserContext";
 import { useTask } from "./TaskContext";
+import { useComments } from "./CommentContext";
 
 const SocketContext = createContext(null);
 
@@ -10,12 +11,10 @@ export const useSocketContext = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const { user } = useUser();
   const { updateTask } = useTask();
+  const { addCommentToTask } = useComments();
   const [connectedUsers, setConnectedUsers] = useState([]);
-  const { notifyTaskUpdate, notifyTaskCreated } = useSocket(
-    user,
-    setConnectedUsers,
-    updateTask
-  );
+  const { notifyTaskUpdate, notifyTaskCreated, notifyCommentCreated } =
+    useSocket(user, setConnectedUsers, updateTask, addCommentToTask);
 
   useEffect(() => {
     if (!user) {
@@ -28,6 +27,7 @@ export const SocketProvider = ({ children }) => {
       value={{
         notifyTaskUpdate,
         notifyTaskCreated,
+        notifyCommentCreated,
         connectedUsers,
       }}
     >

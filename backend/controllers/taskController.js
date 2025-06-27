@@ -399,10 +399,20 @@ exports.addCommentToTask = async (req, res) => {
             $push: { comments: newComment._id }
         });
 
-        // 5. Return the new comment
+        // 5. Add assignedTo to the comment object (without saving to DB)
+
+        const populatedComment = await newComment.populate('createdBy', 'username');
+
+        const commentWithAssigned = {
+            ...populatedComment.toObject(),
+            assignedTo: task.assignedTo,
+        };
+
+
+        // 6. Return the modified comment
         return res
             .status(200)
-            .json({ status: 200, message: "Comment added successfully", comment: newComment });
+            .json({ status: 200, message: "Comment added successfully", comment: commentWithAssigned });
     } catch (error) {
         console.error('Error adding comment to task:', error);
         return res

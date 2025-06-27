@@ -28,6 +28,19 @@ export const CommentProvider = ({ children }) => {
     }
   };
 
+  const addCommentToTask = (comment) => {
+    if (!comment?.taskId) return;
+
+    setCommentsByTaskId((prev) => {
+      const taskId = comment.taskId;
+
+      return {
+        ...prev,
+        [taskId]: [comment, ...(prev[taskId] || [])],
+      };
+    });
+  };
+
   const addComment = (taskId, newComment) => {
     setCommentsByTaskId((prev) => ({
       ...prev,
@@ -40,6 +53,7 @@ export const CommentProvider = ({ children }) => {
       value={{
         commentsByTaskId,
         fetchComments,
+        addCommentToTask,
         addComment,
         loadingTaskId,
       }}

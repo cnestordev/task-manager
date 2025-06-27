@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Comment = require('./Comment');
 
 // Task Schema
 const TaskSchema = new mongoose.Schema({
@@ -36,6 +37,29 @@ TaskSchema.statics.updateTaskWithLock = async function (id, updateData, currentV
     );
     return result;
 };
+
+TaskSchema.pre('findOneAndUpdate', async function (next) {
+    const update = this.getUpdate();
+    const filter = this.getQuery();
+
+    const isSoftDelete =
+        (update && update.isDeleted === true) ||
+        (update.$set && update.$set.isDeleted === true);
+
+    if (isSoftDelete) {
+
+        try {
+            await Comment.deleteMany({ taskId: filter._id });
+        } catch (err) {
+            console.error("Error deleting associated comments:", err);
+            return next(err);
+        }
+    }
+
+    this.set({ modified: Date.now() });
+
+    next();
+});
 
 TaskSchema.set('toJSON', {
     transform: (doc, ret) => {

@@ -10,13 +10,11 @@ const Providers = ({ children }) => {
     <LoadingProvider>
       <UserProvider>
         <TaskProvider>
-          <SocketProvider>
-            <ImageProvider>
-              <CommentProvider>
-                {children}
-              </CommentProvider>
-            </ImageProvider>
-          </SocketProvider>
+          <CommentProvider>
+            <SocketProvider>
+              <ImageProvider>{children}</ImageProvider>
+            </SocketProvider>
+          </CommentProvider>
         </TaskProvider>
       </UserProvider>
     </LoadingProvider>

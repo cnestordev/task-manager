@@ -2,11 +2,13 @@ import { Button, Divider, Input, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useComments } from "../context/CommentContext";
 import CommentItem from "./CommentItem";
+import { useSocketContext } from "../context/SocketContext";
 
 const CommentSection = ({ taskId, addNewComment }) => {
   const [commentText, setCommentText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { commentsByTaskId, fetchComments } = useComments();
+  const { notifyCommentCreated } = useSocketContext();
 
   const comments = commentsByTaskId[taskId] || [];
 
@@ -19,8 +21,8 @@ const CommentSection = ({ taskId, addNewComment }) => {
   const handleAddComment = async () => {
     setIsLoading(true);
     try {
-      const response = await addNewComment(commentText);
-      await fetchComments(response.taskId);
+      const newComment = await addNewComment(commentText);
+      notifyCommentCreated(newComment);
       setCommentText("");
     } catch (err) {
       console.error("Failed to add comment", err);

@@ -26,7 +26,7 @@ export const UserProvider = ({ children }) => {
       } else {
         throw new Error("No user data found.");
       }
-    } catch (error) {
+    } catch {
       setUser(null); // Clear user if not authenticated
     } finally {
       setLoading(false); // Stop loading once check is complete
