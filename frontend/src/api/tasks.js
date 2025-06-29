@@ -34,6 +34,11 @@ export const addCommentToTask = async (taskId, text) => {
     return response;
 };
 
+export const removeCommentFromTask = async (comment) => {
+    const response = await axiosInstance.post(`/task/removeCommentFromTask`, comment);
+    return response;
+};
+
 export const getTaskComments = async (taskId) => {
     const response = await axiosInstance.get(`/task/getTaskComments/${taskId}`);
     return response;

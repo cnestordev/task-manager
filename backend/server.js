@@ -127,6 +127,26 @@ io.on('connection', async (socket) => {
         });
     });
 
+    socket.on('remove-comment-event', (commentObject) => {
+        const { assignedTo } = commentObject;
+
+        if (!assignedTo || !Array.isArray(assignedTo)) {
+            console.warn("Missing or invalid assignedTo in comment object:", commentObject);
+            return;
+        }
+
+        assignedTo.forEach(userId => {
+
+            const socketId = socketSessionCache[userId];
+            if (socketId) {
+                io.to(socketId).emit('removeComment', { commentId: commentObject._id, taskId: commentObject.taskId });
+                console.log(`Notified user ${userId} about new comment on task.`);
+            } else {
+                console.log(`User ${userId} is not connected. Skipping comment notification.`);
+            }
+        });
+    });
+
 
     socket.on('task-update-event', (task, updatingUserId) => {
         // Base task object with an empty taskPosition array

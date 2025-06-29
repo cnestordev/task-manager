@@ -421,6 +421,61 @@ exports.addCommentToTask = async (req, res) => {
     }
 };
 
+exports.removeCommentFromTask = async (req, res) => {
+    try {
+        // 1. Check if user is authenticated
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ message: "User not authenticated" });
+        }
+
+        const userId = req.user._id;
+        const commentId = new mongoose.Types.ObjectId(req.body._id);
+
+        // 2. Find the comment
+        const comment = await Comment.findById(commentId);
+        if (!comment) {
+            return res.status(404).json({ message: "Comment not found" });
+        }
+
+        // 3. Ensure the user owns the comment
+        if (comment.createdBy.toString() !== userId.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to delete this comment.",
+            });
+        }
+
+        // 4. Find the task (to get assignedTo)
+        const task = await Task.findById(comment.taskId).select('assignedTo');
+        if (!task) {
+            return res.status(404).json({ message: "Associated task not found" });
+        }
+
+        // 5. Delete the comment
+        await Comment.deleteOne({ _id: commentId });
+
+        // 6. Remove the comment ID from the task's comments array
+        await Task.findByIdAndUpdate(comment.taskId, {
+            $pull: { comments: commentId },
+        });
+
+        // 7. Return comment ID and assignedTo list
+        return res.status(200).json({
+            message: "Comment deleted successfully",
+            comment: {
+                _id: commentId,
+                assignedTo: task.assignedTo,
+                taskId: task._id
+            },
+        });
+
+    } catch (error) {
+        console.error("Error deleting comment:", error);
+        return res
+            .status(500)
+            .json({ message: "An error occurred while deleting the comment." });
+    }
+};
+
 // get task comments
 exports.getTaskComments = async (req, res) => {
     try {

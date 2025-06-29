@@ -194,3 +194,8 @@ export const handleAddComment = async (task, commentText, handleAddCommentFn) =>
     const response = await handleAddCommentFn(task._id, commentText);
     return response;
 };
+
+export const handleRemoveComment = async (comment, handleRemoveCommentFn) => {
+    const response = await handleRemoveCommentFn(comment);
+    return response;
+};

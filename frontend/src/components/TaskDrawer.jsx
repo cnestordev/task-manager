@@ -10,7 +10,13 @@ import {
 } from "@chakra-ui/react";
 import CommentSection from "./CommentSection";
 
-export const TaskDrawer = ({ isOpen, onClose, task, addNewComment }) => {
+export const TaskDrawer = ({
+  isOpen,
+  onClose,
+  task,
+  addNewComment,
+  removeComment,
+}) => {
   if (!task) return null;
 
   return (
@@ -26,7 +32,11 @@ export const TaskDrawer = ({ isOpen, onClose, task, addNewComment }) => {
           </Text>
           <Text mb={4}>{task.description}</Text>
 
-          <CommentSection addNewComment={addNewComment} taskId={task._id} />
+          <CommentSection
+            addNewComment={addNewComment}
+            removeComment={removeComment}
+            taskId={task._id}
+          />
         </DrawerBody>
 
         <DrawerFooter />

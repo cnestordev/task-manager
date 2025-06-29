@@ -8,6 +8,7 @@ import {
   updateTasksOrderOnServer,
   updateTasksServer,
   addCommentToTask,
+  removeCommentFromTask,
 } from "../api/index";
 import "../App.css";
 import { useSocketContext } from "../context/SocketContext";
@@ -19,6 +20,7 @@ import {
   handleRemoveTask,
   toggleExpand,
   handleAddComment,
+  handleRemoveComment,
   toggleTaskExpansion,
   updateSelectedTask,
 } from "../utils/taskUtils";
@@ -101,6 +103,55 @@ const TaskBoard = ({ setDashboardFunction }) => {
       return newComment;
     } catch (error) {
       const errorMessage = error.response.data.message;
+      toast({
+        title: "Error",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        render: ({ onClose }) => (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            color="white"
+            p={3}
+            bg="red.500"
+            borderRadius="md"
+          >
+            <Text mb={2}>{errorMessage}</Text>
+            <Button
+              colorScheme="white"
+              onClick={() => {
+                fetchTasks(true);
+                onClose();
+              }}
+            >
+              Refresh
+            </Button>
+          </Box>
+        ),
+      });
+    }
+  };
+
+  const removeComment = async (comment) => {
+    try {
+      const response = await handleRemoveComment(
+        comment,
+        removeCommentFromTask
+      );
+
+      toast({
+        title: "Comment Deleted.",
+        description: "Your comment has been removed successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      return response?.data?.comment;
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "An error occurred.";
       toast({
         title: "Error",
         status: "error",
@@ -585,6 +636,7 @@ const TaskBoard = ({ setDashboardFunction }) => {
       {isDrawerOpen && viewedTask && (
         <TaskDrawer
           addNewComment={addNewComment}
+          removeComment={removeComment}
           isOpen={isDrawerOpen}
           onClose={onClose}
           task={viewedTask}

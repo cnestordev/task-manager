@@ -11,10 +11,20 @@ export const useSocketContext = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const { user } = useUser();
   const { updateTask } = useTask();
-  const { addCommentToTask } = useComments();
+  const { addCommentToTask, removeCommentFromTask } = useComments();
   const [connectedUsers, setConnectedUsers] = useState([]);
-  const { notifyTaskUpdate, notifyTaskCreated, notifyCommentCreated } =
-    useSocket(user, setConnectedUsers, updateTask, addCommentToTask);
+  const {
+    notifyTaskUpdate,
+    notifyTaskCreated,
+    notifyCommentCreated,
+    notifyCommentDeleted,
+  } = useSocket(
+    user,
+    setConnectedUsers,
+    updateTask,
+    addCommentToTask,
+    removeCommentFromTask
+  );
 
   useEffect(() => {
     if (!user) {
@@ -28,6 +38,7 @@ export const SocketProvider = ({ children }) => {
         notifyTaskUpdate,
         notifyTaskCreated,
         notifyCommentCreated,
+        notifyCommentDeleted,
         connectedUsers,
       }}
     >

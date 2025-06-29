@@ -1,9 +1,11 @@
 import { Avatar, Box, HStack, Spacer, Text } from "@chakra-ui/react";
 import { formatDistanceToNow } from "date-fns";
 import { useImageContext } from "../context/ImageContext";
+import { useUser } from "../context/UserContext";
 
-const CommentItem = ({ comment }) => {
+const CommentItem = ({ comment, handleRemoveComment }) => {
   const { images } = useImageContext();
+  const { user } = useUser();
 
   const username = comment.createdBy?.username || "Unknown User";
   const createdAt = comment.createdAt
@@ -37,6 +39,19 @@ const CommentItem = ({ comment }) => {
       <Text mt={2} fontSize="sm">
         {comment.text}
       </Text>
+
+      {user?.id === comment?.createdBy?._id && (
+        <Text
+          mt={2}
+          color="red.500"
+          fontSize="sm"
+          cursor="pointer"
+          _hover={{ textDecoration: "underline" }}
+          onClick={() => handleRemoveComment?.(comment)}
+        >
+          Delete
+        </Text>
+      )}
     </Box>
   );
 };

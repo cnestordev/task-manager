@@ -2,7 +2,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-const useSocket = (user, setConnectedUsers, updateTask, addCommentToTask) => {
+const useSocket = (user, setConnectedUsers, updateTask, addCommentToTask, removeCommentFromTask) => {
     const socketRef = useRef(null);
     const toast = useToast();
 
@@ -28,6 +28,14 @@ const useSocket = (user, setConnectedUsers, updateTask, addCommentToTask) => {
     const notifyCommentCreated = (commentObject) => {
         if (socketRef.current?.connected) {
             socketRef.current.emit("task-comment-event", commentObject);
+        } else {
+            console.warn("Socket is not connected.");
+        }
+    };
+
+    const notifyCommentDeleted = (comment) => {
+        if (socketRef.current?.connected) {
+            socketRef.current.emit("remove-comment-event", comment);
         } else {
             console.warn("Socket is not connected.");
         }
@@ -108,8 +116,12 @@ const useSocket = (user, setConnectedUsers, updateTask, addCommentToTask) => {
             });
         };
 
-        const handleNewComment = ({comment}) => {
-            addCommentToTask(comment)
+        const handleNewComment = ({ comment }) => {
+            addCommentToTask(comment);
+        };
+
+        const handleRemovedComment = (comment) => {
+            removeCommentFromTask(comment)
         };
 
         // Updates the connected users list when someone leaves the room
@@ -135,6 +147,7 @@ const useSocket = (user, setConnectedUsers, updateTask, addCommentToTask) => {
         socketRef.current.on('userLeft', handleUserLeft);
         socketRef.current.on('connect_error', handleConnectError);
         socketRef.current.on('newCommentAdded', handleNewComment);
+        socketRef.current.on('removeComment', handleRemovedComment);
 
         // Cleanup on component unmount: remove listeners and disconnect socket
         return () => {
@@ -145,6 +158,7 @@ const useSocket = (user, setConnectedUsers, updateTask, addCommentToTask) => {
                 socketRef.current.off('userLeft', handleUserLeft);
                 socketRef.current.off('connect_error', handleConnectError);
                 socketRef.current.off('newComment', handleNewComment);
+                socketRef.current.off('removeComment', handleRemovedComment);
 
                 socketRef.current.disconnect();
             }
@@ -152,7 +166,7 @@ const useSocket = (user, setConnectedUsers, updateTask, addCommentToTask) => {
     }, [user]);
 
     // Return socket instance and notification functions for use in the component
-    return { socket: socketRef.current, notifyTaskUpdate, notifyTaskCreated, notifyCommentCreated };
+    return { socket: socketRef.current, notifyTaskUpdate, notifyTaskCreated, notifyCommentCreated, notifyCommentDeleted };
 };
 
 export default useSocket;

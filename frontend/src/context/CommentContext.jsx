@@ -41,11 +41,21 @@ export const CommentProvider = ({ children }) => {
     });
   };
 
-  const addComment = (taskId, newComment) => {
-    setCommentsByTaskId((prev) => ({
-      ...prev,
-      [taskId]: [...(prev[taskId] || []), newComment],
-    }));
+  const removeCommentFromTask = (commentObj) => {
+    if (!commentObj) return;
+
+    setCommentsByTaskId((prev) => {
+      const taskId = commentObj?.taskId;
+
+      const updatedComments = prev[taskId]?.filter(
+        (comment) => comment?._id !== commentObj?.commentId
+      );
+
+      return {
+        ...prev,
+        [taskId]: updatedComments,
+      };
+    });
   };
 
   return (
@@ -54,7 +64,7 @@ export const CommentProvider = ({ children }) => {
         commentsByTaskId,
         fetchComments,
         addCommentToTask,
-        addComment,
+        removeCommentFromTask,
         loadingTaskId,
       }}
     >
