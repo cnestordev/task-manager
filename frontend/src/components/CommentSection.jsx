@@ -21,10 +21,21 @@ const CommentSection = ({ taskId, addNewComment, removeComment }) => {
   const comments = commentsByTaskId[taskId] || [];
 
   useEffect(() => {
-    if (taskId) {
+    if (!taskId) return;
+
+    // Initial fetch
+    fetchComments(taskId);
+
+    // Set up polling
+    const interval = setInterval(() => {
       fetchComments(taskId);
-    }
-  }, [taskId]);
+    }, 30000); // every 30 seconds
+
+    // Cleanup
+    return () => {
+      clearInterval(interval);
+    };
+  }, [taskId, fetchComments]);
 
   const handleAddComment = async () => {
     setIsLoading(true);

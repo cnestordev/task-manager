@@ -19,30 +19,49 @@ const App = () => {
   const { user, loading, checkUserSession } = useUser();
   const [serverHealthy, setServerHealthy] = useState(true);
   const [dashboardFunction, setDashboardFunction] = useState(null);
-
+  
   // Ref to keep track of the previous server health state
   const prevServerHealthy = useRef(serverHealthy);
+  const intervalRef = useRef(null); // Holds current interval ID
 
   // Perform a health check on app load and periodically
   useEffect(() => {
     const checkHealth = async () => {
-      const isHealthy = await checkServerHealth();
-      setServerHealthy(isHealthy);
+      try {
+        const isHealthy = await checkServerHealth();
+        setServerHealthy(isHealthy);
+      } catch (err) {
+        console.error("Health check failed:", err);
+        setServerHealthy(false);
+      }
     };
+
+    // Determine interval duration based on health status
+    const intervalDuration = serverHealthy ? 300000 : 30000; // 5 min or 30 sec
+
+    // Run one check immediately
     checkHealth();
 
-    const fiveMinutesInMs = 300000;
-    const interval = setInterval(checkHealth, fiveMinutesInMs);
-    return () => clearInterval(interval);
-  }, []);
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
 
-  // Reload user data when server recovers from an unhealthy state
+    // Set new interval
+    intervalRef.current = setInterval(checkHealth, intervalDuration);
+
+    // Cleanup on dependency change or unmount
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [serverHealthy]);
+
+  // Reload user data when server recovers
   useEffect(() => {
-    // Only call checkUserSession if the server was previously unhealthy
     if (!prevServerHealthy.current && serverHealthy) {
       checkUserSession();
     }
-    prevServerHealthy.current = serverHealthy; // Update the previous server health status
+    prevServerHealthy.current = serverHealthy;
   }, [serverHealthy, checkUserSession]);
 
   if (loading) {
@@ -64,7 +83,7 @@ const App = () => {
             element={user ? <Navigate to="/taskboard" /> : <Register />}
           />
 
-          {/* Protected Route */}
+          {/* Protected Routes */}
           <Route
             path="/taskboard/:id?"
             element={
@@ -73,8 +92,6 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-
-          {/* Protected Route for Dashboard */}
           <Route
             path="/dashboard"
             element={
@@ -84,7 +101,7 @@ const App = () => {
             }
           />
 
-          {/* Default Route: Redirect based on user status */}
+          {/* Default Redirect */}
           <Route
             path="/"
             element={
