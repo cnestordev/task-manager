@@ -212,6 +212,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
 
       const createdTask = data.tasks;
 
+      navigate(`/taskboard/${createdTask._id}`)
+
       // Notify websocket server of new task if it belongs to a team
       if (createdTask.teamId) {
         notifyTaskCreated(createdTask);

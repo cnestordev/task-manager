@@ -35,7 +35,7 @@ const CommentSection = ({ taskId, addNewComment, removeComment }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [taskId, fetchComments]);
+  }, [taskId]);
 
   const handleAddComment = async () => {
     setIsLoading(true);
