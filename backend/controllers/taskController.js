@@ -106,6 +106,16 @@ exports.updateTaskOrder = async (req, res) => {
             return res.status(404).json({ message: 'Task not found.' });
         }
 
+        if (
+            existingTask?.private &&
+            (
+                req.body.assignedTo.length !== 1 ||
+                req.body.assignedTo[0].toString() !== existingTask.assignedTo[0].toString()
+            )
+        ) {
+            return res.status(405).json({ message: 'Cannot change assignees on a private task.' });
+        }
+
         // Step 2: Check if any of the specific fields have changed
         const fieldsToTriggerIncrement = ['title', 'description', 'isCompleted', 'isDeleted'];
         const hasTriggerFieldChanged = fieldsToTriggerIncrement.some(

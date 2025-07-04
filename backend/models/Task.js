@@ -18,6 +18,7 @@ const TaskSchema = new mongoose.Schema({
         _id: false
     }],
     isCompleted: { type: Boolean, default: false },
+    private: { type: Boolean, default: false },
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }]
 }, { versionKey: '__v' });  // Explicitly set version key to `__v`
 

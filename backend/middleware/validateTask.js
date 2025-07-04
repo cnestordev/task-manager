@@ -30,6 +30,7 @@ const taskValidationSchema = Joi.object({
         })
     ).optional(),
     isCompleted: Joi.boolean().default(false),
+    private: Joi.boolean().default(false),
     comments: Joi.array()
         .items(Joi.string().custom(objectIdValidator))
         .optional(),

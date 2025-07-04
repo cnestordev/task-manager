@@ -15,6 +15,7 @@ const createWelcomeTask = async (userId, options = {}) => {
                 position: 0,
                 userId,
             }],
+            private: true
         });
 
         await welcomeTask.save();
