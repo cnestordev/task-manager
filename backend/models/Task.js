@@ -12,7 +12,6 @@ const TaskSchema = new mongoose.Schema({
     assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     teamId: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', default: null },
     taskPosition: [{
-        isExpanded: { type: Boolean, default: true },
         priority: { type: String, enum: ['Low', 'Medium', 'High'], required: true },
         position: { type: Number, required: true },
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

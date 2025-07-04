@@ -21,7 +21,6 @@ const taskValidationSchema = Joi.object({
     priority: Joi.string().valid('low', 'medium', 'high').required(),
     theme: Joi.string().valid(...validThemes).optional(),
     isDeleted: Joi.boolean().default(false),
-    isExpanded: Joi.boolean().default(true),
     avatarUrl: Joi.string().uri().optional(),
 });
 

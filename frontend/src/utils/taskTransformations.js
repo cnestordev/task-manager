@@ -5,13 +5,12 @@ export const reorderTasks = (fetchedTasks, user) => {
         Medium: [],
         Low: [],
     };
-    fetchedTasks.forEach((task, i) => {
+    fetchedTasks.forEach((task) => {
         task.taskPosition.forEach((tp) => {
             if (task._id.startsWith("temp") || tp.userId === user.id) {
                 organizedTasks[tp.priority].push({
                     ...task,
                     position: tp.position,
-                    isExpanded: tp.isExpanded,
                     priority: tp.priority,
                 });
             }
@@ -36,12 +35,11 @@ export const cleanupTask = (taskToClean) => {
     }
 
     // Move fields from top level to nested taskPosition[0]
-    updatedTask.taskPosition[0].isExpanded = updatedTask.isExpanded;
     updatedTask.taskPosition[0].position = updatedTask.position;
     updatedTask.taskPosition[0].priority = updatedTask.priority;
 
 
-    const { isExpanded, priority, position, ...cleanedTask } = updatedTask;
+    const { priority, position, ...cleanedTask } = updatedTask;
 
     return cleanedTask;
 };

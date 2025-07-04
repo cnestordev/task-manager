@@ -24,7 +24,6 @@ const taskValidationSchema = Joi.object({
     modified: Joi.date().allow(null).optional(),
     taskPosition: Joi.array().items(
         Joi.object({
-            isExpanded: Joi.boolean().default(true),
             priority: Joi.string().valid('Low', 'Medium', 'High').required(),
             position: Joi.number().integer().required(),
             userId: Joi.string().custom(objectIdValidator).optional(),

@@ -1,24 +1,14 @@
 import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  HamburgerIcon,
-} from "@chakra-ui/icons";
-import {
   Box,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Tab,
   TabList,
-  Tabs,
+  Tabs
 } from "@chakra-ui/react";
 import { Droppable } from "@hello-pangea/dnd";
 import { useState } from "react";
+import { useUser } from "../context/UserContext";
 import "./PriorityColumn.css";
 import TaskCard from "./TaskCard";
-import { useUser } from "../context/UserContext";
 
 const PriorityColumn = ({
   priority,
@@ -26,8 +16,6 @@ const PriorityColumn = ({
   deleteTask,
   editTask,
   completedTask,
-  toggleTaskExpansion,
-  toggleExpand,
   id,
   isActive,
   viewTask,
@@ -91,28 +79,6 @@ const PriorityColumn = ({
             </TabList>
           </Tabs>
         </div>
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            aria-label="Options"
-            icon={<HamburgerIcon />}
-            variant=""
-          />
-          <MenuList>
-            <MenuItem
-              onClick={() => toggleTaskExpansion(priority, true)}
-              icon={<ChevronUpIcon />}
-            >
-              Expand All
-            </MenuItem>
-            <MenuItem
-              onClick={() => toggleTaskExpansion(priority, false)}
-              icon={<ChevronDownIcon />}
-            >
-              Collapse All
-            </MenuItem>
-          </MenuList>
-        </Menu>
       </div>
 
       <div className="tasks-container">
@@ -122,7 +88,6 @@ const PriorityColumn = ({
               {(tabIndex === 0 ? inProgressTasks : completedTasks).map(
                 (task, index) => (
                   <TaskCard
-                    toggleExpand={toggleExpand}
                     deleteTask={deleteTask}
                     editTask={editTask}
                     completedTask={completedTask}

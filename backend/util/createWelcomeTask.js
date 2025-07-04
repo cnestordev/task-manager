@@ -11,7 +11,6 @@ const createWelcomeTask = async (userId, options = {}) => {
             assignedTo: [userId],
             teamId: null,
             taskPosition: [{
-                isExpanded: true,
                 priority: 'High',
                 position: 0,
                 userId,

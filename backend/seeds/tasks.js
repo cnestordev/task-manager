@@ -10,7 +10,6 @@ const createTask = (userId, position, priority) => {
         isCompleted: false,
         taskPosition: [
             {
-                isExpanded: true,
                 priority,
                 position,
                 userId,

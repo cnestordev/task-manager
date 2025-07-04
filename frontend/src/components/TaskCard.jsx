@@ -60,7 +60,6 @@ const TaskCard = ({ task, index, viewTask }) => {
               <StatusIndicator
                 assignedTo={task.assignedTo}
                 user={user}
-                isExpanded={false}
               />
             </div>
           )}

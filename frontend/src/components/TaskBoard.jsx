@@ -3,33 +3,30 @@ import { DragDropContext } from "@hello-pangea/dnd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  createTask,
-  updateTaskOrder,
-  updateTasksOrderOnServer,
-  updateTasksServer,
   addCommentToTask,
+  createTask,
   removeCommentFromTask,
+  updateTaskOrder,
+  updateTasksOrderOnServer
 } from "../api/index";
 import "../App.css";
 import { useSocketContext } from "../context/SocketContext";
 import { useTask } from "../context/TaskContext";
 import { useUser } from "../context/UserContext";
 import {
+  handleAddComment,
   handleAddTask,
   handleDragEnd,
-  handleRemoveTask,
-  toggleExpand,
-  handleAddComment,
   handleRemoveComment,
-  toggleTaskExpansion,
+  handleRemoveTask,
   updateSelectedTask,
 } from "../utils/taskUtils";
 import CompletedTaskModal from "./CompletedTaskModal";
 import DeleteTaskModal from "./DeleteTaskModal";
 import EditTaskModal from "./EditTaskModal";
+import NotFoundTaskModal from "./NotFoundTaskModal";
 import PriorityColumn from "./PriorityColumn";
 import { TaskDrawer } from "./TaskDrawer";
-import NotFoundTaskModal from "./NotFoundTaskModal";
 
 const TaskBoard = ({ setDashboardFunction }) => {
   const { tasks, addNewTask, removeTask, updateTask, updateTasks, fetchTasks } =
@@ -103,17 +100,6 @@ const TaskBoard = ({ setDashboardFunction }) => {
     setIsDrawerOpen(false);
     setViewedTask(null);
     navigate("/taskboard");
-  };
-
-  // Debounce utility function
-  const debounce = (func, delay) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
   };
 
   // Add new comment
@@ -573,91 +559,6 @@ const TaskBoard = ({ setDashboardFunction }) => {
     }
   };
 
-  const handleToggleExpand = async (task) => {
-    try {
-      const updatedTask = { ...task, isExpanded: !task.isExpanded };
-      await toggleExpand(updatedTask, updateTask, updateTaskOrder, task);
-    } catch (error) {
-      const errorMessage =
-        error?.response?.data?.message || "Something went wrong.";
-      toast({
-        title: "Error",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        render: ({ onClose }) => (
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            color="white"
-            p={3}
-            bg="red.500"
-            borderRadius="md"
-          >
-            <Text mb={2}>{errorMessage}</Text>
-            <Button
-              colorScheme="white"
-              onClick={() => {
-                fetchTasks(true);
-                onClose();
-              }}
-            >
-              Refresh
-            </Button>
-          </Box>
-        ),
-      });
-    }
-  };
-
-  const handleToggleTaskExpansion = async (priority, boolean) => {
-    const updatedTasks = tasks.map((task) =>
-      task.priority === priority ? { ...task, isExpanded: boolean } : task
-    );
-    const originalTasks = [...tasks];
-    try {
-      await toggleTaskExpansion(
-        updatedTasks,
-        updateTasks,
-        updateTasksServer,
-        originalTasks
-      );
-    } catch (error) {
-      console.error("Error toggling all task expansions:", error);
-      const errorMessage =
-        error?.response?.data?.message || "Something went wrong.";
-      toast({
-        title: "Error",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        render: ({ onClose }) => (
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            color="white"
-            p={3}
-            bg="red.500"
-            borderRadius="md"
-          >
-            <Text mb={2}>{errorMessage}</Text>
-            <Button
-              colorScheme="white"
-              onClick={() => {
-                fetchTasks(true);
-                onClose();
-              }}
-            >
-              Refresh
-            </Button>
-          </Box>
-        ),
-      });
-    }
-  };
-
   const onDragUpdate = (update) => {
     const { destination } = update;
 
@@ -667,8 +568,6 @@ const TaskBoard = ({ setDashboardFunction }) => {
       setActiveColumn(null);
     }
   };
-
-  const debouncedHandleToggleExpand = debounce(handleToggleExpand, 500);
 
   // Priorities for tasks (columns)
   const priorities = ["High", "Medium", "Low"];
@@ -792,7 +691,6 @@ const TaskBoard = ({ setDashboardFunction }) => {
           {priorities.map((priority) => (
             <PriorityColumn
               key={priority}
-              toggleExpand={debouncedHandleToggleExpand}
               deleteTask={(task) => {
                 setSelectedTask(task);
                 setIsDeleteModalOpen(true);
@@ -809,7 +707,6 @@ const TaskBoard = ({ setDashboardFunction }) => {
                 setViewedTask(task);
                 navigate(`/taskboard/${task._id}`);
               }}
-              toggleTaskExpansion={handleToggleTaskExpansion}
               priority={priority}
               tasks={tasks?.filter((task) => task?.priority === priority)}
               isActive={activeColumn === priority}

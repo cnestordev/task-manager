@@ -36,7 +36,7 @@ export const addTaskOptimistically = async (
 ) => {
     // Generate a temporary ID for the new task
     const tempId = `temp-${Date.now()}`;
-    const tempTask = { ...newTaskData, _id: tempId, taskPosition: [{ ...newTaskData.taskPosition[0], isExpanded: true }] };
+    const tempTask = { ...newTaskData, _id: tempId, taskPosition: [{ ...newTaskData.taskPosition[0] }] };
 
     // Optimistic UI update: Add the new task
     addNewTask(tempTask);
@@ -154,19 +154,6 @@ export const handleDragEnd = (
     const cleanedUpTask = updatedTasks.map(task => cleanupTask(task));
 
     return cleanedUpTask;
-};
-
-// Expand or collapse individual task
-export const toggleExpand = async (task, updateTask, updateTaskOrder, originalTasks) => {
-    const cleanedUpTask = cleanupTask(task);
-    const response = await updateTasksOptimistically(cleanedUpTask, updateTask, updateTaskOrder, originalTasks);
-    return response;
-};
-
-// Expand or collapse all tasks in a priority
-export const toggleTaskExpansion = async (tasks, updateTasks, updateTaskOrder, originalTasks) => {
-    const cleanedUpTasks = tasks.map(task => cleanupTask(task));
-    await updateTasksOptimistically(cleanedUpTasks, updateTasks, updateTaskOrder, originalTasks);
 };
 
 export const convertIsoToString = (isoString) => {

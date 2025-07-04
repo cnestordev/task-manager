@@ -165,7 +165,6 @@ io.on('connection', async (socket) => {
                 taskToSend = {
                     ...userSpecificTask,
                     taskPosition: [{
-                        isExpanded: updatingUserTaskPosition?.isExpanded ?? true,
                         position: updatingUserTaskPosition?.position ?? -1,
                         priority: updatingUserTaskPosition?.priority ?? "Medium",
                         userId: userId
@@ -207,7 +206,6 @@ io.on('connection', async (socket) => {
             const userSpecificTask = {
                 ...baseTask,
                 taskPosition: [{
-                    isExpanded: true,
                     position: -1,
                     priority: task?.taskPosition[0]?.priority || "Medium",
                     userId: userId

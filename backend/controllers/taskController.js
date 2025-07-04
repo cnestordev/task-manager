@@ -91,7 +91,6 @@ exports.getTasks = async (req, res) => {
 };
 
 // Update existing Task 
-// Expand, Collapse, Edit, 
 exports.updateTaskOrder = async (req, res) => {
     try {
         if (!req.isAuthenticated()) {
@@ -132,7 +131,6 @@ exports.updateTaskOrder = async (req, res) => {
                     userId: new mongoose.Types.ObjectId(assignedUserId),
                     priority: userTaskPosition.priority,
                     position: -1,
-                    isExpanded: true
                 });
             }
         });
@@ -142,7 +140,6 @@ exports.updateTaskOrder = async (req, res) => {
             const currentUserPosition = taskPositionMap.get(userId.toString());
             currentUserPosition.priority = userTaskPosition.priority;
             currentUserPosition.position = userTaskPosition.position;
-            currentUserPosition.isExpanded = userTaskPosition.isExpanded;
         }
 
         // Step 6: Convert map back to array for storage and prepare update
