@@ -7,6 +7,8 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Text,
+  Button,
+  Flex,
 } from "@chakra-ui/react";
 import CommentSection from "./CommentSection";
 
@@ -16,6 +18,9 @@ export const TaskDrawer = ({
   task,
   addNewComment,
   removeComment,
+  editTask,
+  completedTask,
+  deleteTask,
 }) => {
   if (!task) return null;
 
@@ -39,7 +44,22 @@ export const TaskDrawer = ({
           />
         </DrawerBody>
 
-        <DrawerFooter />
+        <DrawerFooter>
+          <Flex gap={4} justifyContent="center" width="100%">
+            <Button colorScheme="blue" onClick={() => editTask(task)}>
+              Edit
+            </Button>
+            <Button
+              colorScheme={task.isCompleted ? "yellow" : "green"}
+              onClick={() => completedTask(task)}
+            >
+              {task.isCompleted ? "Restore" : "Complete"}
+            </Button>
+            <Button colorScheme="red" onClick={() => deleteTask(task)}>
+              Delete
+            </Button>
+          </Flex>
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

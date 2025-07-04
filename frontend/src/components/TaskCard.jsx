@@ -1,35 +1,11 @@
-import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
-  Button,
-  Flex,
-  IconButton,
-} from "@chakra-ui/react";
 import { Draggable } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
-import { useLoading } from "../context/LoadingContext";
 import { useUser } from "../context/UserContext";
+import { convertIsoToString } from "../utils/taskUtils";
 import { StatusIndicator } from "./StatusIndicator";
 import "./TaskCard.css";
-import { convertIsoToString } from "../utils/taskUtils";
-import { ViewIcon } from "@chakra-ui/icons";
 
-const TaskCard = ({
-  task,
-  deleteTask,
-  editTask,
-  completedTask,
-  index,
-  toggleExpand,
-  tab,
-  viewTask,
-}) => {
-  const { loadingTaskId } = useLoading();
-  const taskIdMatch = loadingTaskId === task._id;
+const TaskCard = ({ task, index, viewTask }) => {
   const { user } = useUser();
   const [isTaskShared, setIsTaskShared] = useState(task.assignedTo.length > 1);
   const darkMode = user?.darkMode || false;
@@ -37,10 +13,6 @@ const TaskCard = ({
   useEffect(() => {
     setIsTaskShared(task.assignedTo.length > 1);
   }, [task.assignedTo]);
-
-  const handleEditTask = (selectedTask) => {
-    editTask(selectedTask);
-  };
 
   return (
     <Draggable
@@ -50,21 +22,16 @@ const TaskCard = ({
       index={index}
     >
       {(provided, snapshot) => (
-        <Box
+        <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`task-card 
             ${darkMode ? "dark" : ""} 
-            ${taskIdMatch ? "loading-border" : ""} 
             ${
               task.isCompleted ? "task-card-completed" : "task-card-inprogress"
             } 
-            ${
-              task.isDeleted || (tab === "inprogress" && task.isCompleted)
-                ? "task-card-hidden"
-                : ""
-            }
+            ${task.isDeleted ? "task-card-hidden" : ""}
             ${
               snapshot.isDragging
                 ? darkMode
@@ -73,122 +40,31 @@ const TaskCard = ({
                 : ""
             }
           `}
-          onClick={() => toggleExpand(task)}
+          onClick={() => viewTask(task)}
         >
-          <svg
-            style={{ display: taskIdMatch ? "block" : "none" }}
-            height="100%"
-            width="100%"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect
-              rx="8"
-              ry="8"
-              className="line"
-              height="100%"
-              width="100%"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <Accordion allowToggle index={task.isExpanded ? [0] : []}>
-            <AccordionItem border="none">
-              <>
-                <AccordionButton padding="0" _hover={{ background: "none" }}>
-                  <Box
-                    as="span"
-                    flex="1"
-                    textAlign="center"
-                    fontWeight="bold"
-                    fontSize="18px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    marginBottom="5"
-                  >
-                    <div>
-                      {!task.isExpanded && (
-                        <StatusIndicator
-                          assignedTo={task.assignedTo}
-                          user={user}
-                          nameofClass={isTaskShared ? "" : "hidden"}
-                          isExpanded={task.isExpanded}
-                        />
-                      )}
-                    </div>
-                    <div className="task-header">
-                      <h2>{task.title}</h2>
-                      <p>{convertIsoToString(task.created)}</p>
-                    </div>
-                    <div></div>
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </>
-              <AccordionPanel pb={2}>
-                <Box as="p" textAlign="center" fontSize="15px" mb={2}>
-                  {task.description}
-                </Box>
-                <Box my={4} display="flex" justifyContent="center">
-                  {task.isExpanded && (
-                    <StatusIndicator
-                      assignedTo={task.assignedTo}
-                      user={user}
-                      nameofClass={isTaskShared ? "" : "hidden"}
-                      isExpanded={task.isExpanded}
-                    />
-                  )}
-                </Box>
-                <Flex gap="30px" justifyContent="center" marginTop="4">
-                  <Button
-                    aria-label="Edit Task"
-                    size="sm"
-                    className={`task-btns edit-btn ${darkMode ? "dark" : ""}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditTask(task);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    aria-label="Complete Task"
-                    size="sm"
-                    className={`task-btns complete-btn ${
-                      darkMode ? "dark" : ""
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      completedTask(task);
-                    }}
-                  >
-                    {task.isCompleted ? "Restore" : "Complete"}
-                  </Button>
-                  <Button
-                    aria-label="Delete Task"
-                    size="sm"
-                    className={`task-btns delete-btn ${darkMode ? "dark" : ""}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteTask(task);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                  <IconButton
-                    aria-label="View Task"
-                    icon={<ViewIcon />}
-                    size="sm"
-                    className={`task-btns view-btn ${darkMode ? "dark" : ""}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      viewTask(task);
-                    }}
-                  />
-                </Flex>
-              </AccordionPanel>
-            </AccordionItem>
-          </Accordion>
-        </Box>
+          <div className="task-header">
+            <h2>{task.title}</h2>
+            <p>{convertIsoToString(task.created)}</p>
+          </div>
+
+          <div className="task-description">
+            <p title={task.description}>
+              {task.description.length > 100
+                ? `${task.description.slice(0, 100)}...`
+                : task.description}
+            </p>
+          </div>
+
+          {isTaskShared && (
+            <div className="task-status">
+              <StatusIndicator
+                assignedTo={task.assignedTo}
+                user={user}
+                isExpanded={false}
+              />
+            </div>
+          )}
+        </div>
       )}
     </Draggable>
   );

@@ -3,7 +3,7 @@ import { TaskProvider } from "./TaskContext";
 import { LoadingProvider } from "./LoadingContext";
 import { SocketProvider } from "./SocketContext";
 import { ImageProvider } from "./ImageContext";
-import { CommentProvider } from "./CommentContext"; // 👈 import it
+import { CommentProvider } from "./CommentContext";
 
 const Providers = ({ children }) => {
   return (

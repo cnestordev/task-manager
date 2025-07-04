@@ -323,6 +323,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
         backUpTasks
       );
 
+      navigate('/taskboard')
+
       // Notify websocket server of task deletion if it belongs to a team
       if (updatedTask.teamId) {
         notifyTaskUpdate(updatedTask);
@@ -671,11 +673,23 @@ const TaskBoard = ({ setDashboardFunction }) => {
     <>
       {isDrawerOpen && viewedTask && (
         <TaskDrawer
-          addNewComment={addNewComment}
-          removeComment={removeComment}
           isOpen={isDrawerOpen}
           onClose={onClose}
           task={viewedTask}
+          addNewComment={addNewComment}
+          removeComment={removeComment}
+          editTask={(task) => {
+            setSelectedTask(task);
+            setIsEditModalOpen(true);
+          }}
+          completedTask={(task) => {
+            setSelectedTask(task);
+            setIsCompletedModalOpen(true);
+          }}
+          deleteTask={(task) => {
+            setSelectedTask(task);
+            setIsDeleteModalOpen(true);
+          }}
         />
       )}
 
