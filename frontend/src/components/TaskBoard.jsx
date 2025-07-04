@@ -63,16 +63,20 @@ const TaskBoard = ({ setDashboardFunction }) => {
       }
 
       syncTimer.current = setTimeout(() => {
-        updateTasksOrderOnServer(tasks).catch((error) => {
-          console.error("Error syncing tasks to server:", error);
-          toast({
-            title: "Sync error",
-            description: "Could not sync task order with server.",
-            status: "error",
-            duration: 5000,
-            isClosable: true,
+        updateTasksOrderOnServer(tasks)
+          .catch((error) => {
+            console.error("Error syncing tasks to server:", error);
+            toast({
+              title: "Sync error",
+              description: "Could not sync task order with server.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+            });
+          })
+          .finally(() => {
+            syncTimer.current = null;
           });
-        });
       }, 5000);
     },
     [toast]
@@ -323,7 +327,7 @@ const TaskBoard = ({ setDashboardFunction }) => {
         backUpTasks
       );
 
-      navigate('/taskboard')
+      navigate("/taskboard");
 
       // Notify websocket server of task deletion if it belongs to a team
       if (updatedTask.teamId) {
