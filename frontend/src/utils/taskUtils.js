@@ -86,24 +86,19 @@ export const updateSelectedTask = async (updatedTask, updateTasks, updateTaskOrd
     return data;
 };
 
-export const handleDragEnd = async (
+export const handleDragEnd = (
     result,
     tasks,
-    updateTasksOnServer,
-    updateTasks,
 ) => {
     const { destination, source } = result;
 
-    // If there's no destination (e.g., the task was dropped outside a droppable area), do nothing.
-    if (!destination) return;
+    // If the task was dropped outside of a droppable area (no destination) or was dropped in the same area, return null
+    const samePosition =
+        !destination ||
+        (destination.droppableId === source.droppableId &&
+            destination.index === source.index);
 
-    // If the task was dropped back in the same position, do nothing.
-    if (
-        destination.droppableId === source.droppableId &&
-        destination.index === source.index
-    ) {
-        return;
-    }
+    if (samePosition) return null;
 
     // Create a deep copy of the tasks.
     let updatedTasks = tasks.map((task) => ({ ...task }));
@@ -157,17 +152,8 @@ export const handleDragEnd = async (
 
     // Update the tasks in the state optimistically.
     const cleanedUpTask = updatedTasks.map(task => cleanupTask(task));
-    updateTasks(cleanedUpTask);
 
-    try {
-        // Update the tasks on the server.
-        await updateTasksOnServer(cleanedUpTask);
-    } catch (error) {
-        // If there's an error, revert to the original tasks.
-        updateTasks(tasks);
-        console.error("Error updating tasks on the server:", error);
-        throw error;
-    }
+    return cleanedUpTask;
 };
 
 // Expand or collapse individual task

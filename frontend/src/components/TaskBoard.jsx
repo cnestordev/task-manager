@@ -1,6 +1,6 @@
 import { Box, Button, Text, useToast } from "@chakra-ui/react";
 import { DragDropContext } from "@hello-pangea/dnd";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   createTask,
@@ -48,7 +48,35 @@ const TaskBoard = ({ setDashboardFunction }) => {
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState(false);
   const [viewedTask, setViewedTask] = useState(null);
 
+  const syncTimer = useRef(null);
   const { id: taskId } = useParams();
+
+  // Cancel debounce on unmount (cleanup)
+  useEffect(() => {
+    return () => clearTimeout(syncTimer.current);
+  }, []);
+
+  const debouncedSyncToServer = useCallback(
+    (tasks) => {
+      if (syncTimer.current) {
+        clearTimeout(syncTimer.current);
+      }
+
+      syncTimer.current = setTimeout(() => {
+        updateTasksOrderOnServer(tasks).catch((error) => {
+          console.error("Error syncing tasks to server:", error);
+          toast({
+            title: "Sync error",
+            description: "Could not sync task order with server.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        });
+      }, 5000);
+    },
+    [toast]
+  );
 
   useEffect(() => {
     if (taskId && tasks.length) {
@@ -102,7 +130,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
       });
       return newComment;
     } catch (error) {
-      const errorMessage = error.response.data.message;
+      const errorMessage =
+        error?.response?.data?.message || "Something went wrong.";
       toast({
         title: "Error",
         status: "error",
@@ -212,7 +241,7 @@ const TaskBoard = ({ setDashboardFunction }) => {
 
       const createdTask = data.tasks;
 
-      navigate(`/taskboard/${createdTask._id}`)
+      navigate(`/taskboard/${createdTask._id}`);
 
       // Notify websocket server of new task if it belongs to a team
       if (createdTask.teamId) {
@@ -309,7 +338,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
       });
     } catch (error) {
       console.error("Error deleting task:", error);
-      const errorMessage = error.response.data.message;
+      const errorMessage =
+        error?.response?.data?.message || "Something went wrong.";
 
       toast({
         title: "Error",
@@ -425,7 +455,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
       });
     } catch (error) {
       console.error("Error toggling task completion:", error);
-      const errorMessage = error.response.data.message;
+      const errorMessage =
+        error?.response?.data?.message || "Something went wrong.";
 
       toast({
         title: "Error",
@@ -503,7 +534,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
     } catch (error) {
       setIsEditModalOpen(true);
       console.error("Error saving task changes:", error);
-      const errorMessage = error.response.data.message;
+      const errorMessage =
+        error?.response?.data?.message || "Something went wrong.";
       toast({
         title: "Error",
         status: "error",
@@ -540,7 +572,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
       const updatedTask = { ...task, isExpanded: !task.isExpanded };
       await toggleExpand(updatedTask, updateTask, updateTaskOrder, task);
     } catch (error) {
-      const errorMessage = error.response.data.message;
+      const errorMessage =
+        error?.response?.data?.message || "Something went wrong.";
       toast({
         title: "Error",
         status: "error",
@@ -586,7 +619,8 @@ const TaskBoard = ({ setDashboardFunction }) => {
       );
     } catch (error) {
       console.error("Error toggling all task expansions:", error);
-      const errorMessage = error.response.data.message;
+      const errorMessage =
+        error?.response?.data?.message || "Something went wrong.";
       toast({
         title: "Error",
         status: "error",
@@ -689,19 +723,17 @@ const TaskBoard = ({ setDashboardFunction }) => {
       {/* Drag and Drop Context */}
       <DragDropContext
         onDragUpdate={onDragUpdate}
-        onDragEnd={async (result) => {
+        onDragEnd={(result) => {
           try {
             setActiveColumn(null);
-            await handleDragEnd(
-              result,
-              tasks,
-              updateTasksOrderOnServer,
-              updateTasks
-            );
+            const newTasksOrder = handleDragEnd(result, tasks);
+            if (!newTasksOrder) return;
+            updateTasks(newTasksOrder);
+            debouncedSyncToServer(newTasksOrder);
           } catch (error) {
             console.error("Error handling drag end:", error);
-            const errorMessage = error.response.data.message;
-
+            const errorMessage =
+              error?.response?.data?.message || "Something went wrong.";
             toast({
               title: "Error",
               status: "error",
