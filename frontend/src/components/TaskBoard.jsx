@@ -1,4 +1,11 @@
-import { Box, Button, Text, useToast } from "@chakra-ui/react";
+import { WarningIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Button,
+  Progress,
+  Text,
+  useToast
+} from "@chakra-ui/react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,7 +14,7 @@ import {
   createTask,
   removeCommentFromTask,
   updateTaskOrder,
-  updateTasksOrderOnServer
+  updateTasksOrderOnServer,
 } from "../api/index";
 import "../App.css";
 import { useSocketContext } from "../context/SocketContext";
@@ -43,25 +50,70 @@ const TaskBoard = ({ setDashboardFunction }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState(false);
+  const [progress, setProgress] = useState(100);
   const [viewedTask, setViewedTask] = useState(null);
+  const animationRef = useRef(null);
+  const animationStartTimeRef = useRef(null);
+  const [isProgressVisible, setIsProgressVisible] = useState(false);
 
   const syncTimer = useRef(null);
   const { id: taskId } = useParams();
 
   // Cancel debounce on unmount (cleanup)
   useEffect(() => {
-    return () => clearTimeout(syncTimer.current);
+    return () => {
+      clearTimeout(syncTimer.current);
+      cancelAnimationFrame(animationRef.current);
+    };
   }, []);
 
   const debouncedSyncToServer = useCallback(
     (tasks) => {
-      if (syncTimer.current) {
-        clearTimeout(syncTimer.current);
-      }
+      const duration = 5000;
 
+      // Cancel previous debounce timer and animation
+      if (syncTimer.current) clearTimeout(syncTimer.current);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+
+      // Reset and start animation
+      setProgress(0);
+      setIsProgressVisible(true);
+      animationStartTimeRef.current = performance.now();
+
+      const animate = (now) => {
+        const elapsed = now - animationStartTimeRef.current;
+        const percent = Math.min(100, (elapsed / duration) * 100);
+
+        setProgress(percent);
+
+        if (elapsed < duration) {
+          animationRef.current = requestAnimationFrame(animate);
+        } else {
+          setProgress(100);
+          setTimeout(() => {
+            setIsProgressVisible(false);
+            setProgress(0);
+          }, 200);
+        }
+      };
+
+      animationRef.current = requestAnimationFrame(animate);
+
+      // Set new debounce timer
       syncTimer.current = setTimeout(() => {
-        updateTasksOrderOnServer(tasks)
-          .catch((error) => {
+        (async () => {
+          try {
+            const response = await updateTasksOrderOnServer(tasks);
+            const message =
+              response?.data?.message || "Task updated successfully";
+            toast({
+              title: "Task Updated",
+              description: message,
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+            });
+          } catch (error) {
             console.error("Error syncing tasks to server:", error);
             toast({
               title: "Sync error",
@@ -70,11 +122,11 @@ const TaskBoard = ({ setDashboardFunction }) => {
               duration: 5000,
               isClosable: true,
             });
-          })
-          .finally(() => {
+          } finally {
             syncTimer.current = null;
-          });
-      }, 5000);
+          }
+        })();
+      }, duration);
     },
     [toast]
   );
@@ -574,6 +626,36 @@ const TaskBoard = ({ setDashboardFunction }) => {
 
   return (
     <>
+      {isProgressVisible && (
+        <Box
+          position="fixed"
+          bottom="20px"
+          right="20px"
+          bg="gray.700"
+          color="white"
+          p={3}
+          borderRadius="md"
+          w={200}
+        >
+          <Box display="flex">
+            <WarningIcon position="relative" top="3px" mr={1} />
+            <Box>
+              <Text fontSize="sm" fontWeight="medium">
+                Updating task order.
+              </Text>
+              <Text> Please wait.</Text>
+            </Box>
+          </Box>
+          <Progress
+            value={progress}
+            size="lg"
+            colorScheme="blue"
+            hasStripe
+            isAnimated
+          />
+        </Box>
+      )}
+
       {isDrawerOpen && viewedTask && (
         <TaskDrawer
           isOpen={isDrawerOpen}
