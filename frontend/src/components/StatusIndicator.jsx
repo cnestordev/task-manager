@@ -28,7 +28,7 @@ export const StatusIndicator = ({ user, nameofClass, assignedTo }) => {
   useEffect(() => {
     // Prioritize current user in the assignedTo list
     const updatedAssignedTo = userId
-      ? [userId, ...assignedTo.filter((id) => id !== userId)]
+      ? [...assignedTo.filter((id) => id !== userId)]
       : assignedTo;
     setSortedAssignedTo(updatedAssignedTo);
   }, [assignedTo, userId]);

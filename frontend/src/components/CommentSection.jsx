@@ -42,6 +42,7 @@ const CommentSection = ({ taskId, addNewComment, removeComment }) => {
     try {
       const newComment = await addNewComment(commentText);
       notifyCommentCreated(newComment);
+      fetchComments(taskId);
       setCommentText("");
     } catch (err) {
       console.error("Failed to add comment", err);

@@ -22,10 +22,7 @@ const CommentItem = ({ comment, handleRemoveComment }) => {
   return (
     <Box
       p={3}
-      borderWidth="1px"
       borderRadius="md"
-      bg="gray.50"
-      _dark={{ bg: "gray.700" }}
     >
       <HStack fontSize="sm" color="gray.600">
         <Avatar key={comment._id} src={avatarSrc} size="sm" />
@@ -33,10 +30,10 @@ const CommentItem = ({ comment, handleRemoveComment }) => {
           <strong>By:</strong> {username}
         </Text>
         <Spacer />
-        <Text>{createdAt}</Text>
+        <Text fontSize="sm">{createdAt}</Text>
       </HStack>
 
-      <Text mt={2} fontSize="sm">
+      <Text textAlign="left" mt={2} fontSize="sm">
         {comment.text}
       </Text>
 
